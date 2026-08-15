@@ -1,0 +1,641 @@
+<title>Staff 移車統一入口（38a）</title>
+
+<style>
+  /* Sibling of staff-action-color-and-settle.html — same chrome tokens on purpose,
+     so the two mockups read as one set. Chrome is theme-aware; the phone frames are
+     not (the product is deliberately single-light-theme, see globals.css). */
+  :root {
+    --page: #f4f6f1;
+    --card: #ffffff;
+    --ink: #1c241f;
+    --muted: #63736a;
+    --line: #e1e6dd;
+    --line-soft: #edf0ea;
+    --accent: #15803d;
+    --accent-soft: #dcfce7;
+    --shadow: 0 1px 2px rgba(28, 36, 31, .06), 0 8px 24px rgba(28, 36, 31, .06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #12160f; --card: #1a1f18; --ink: #e8ede4; --muted: #96a394;
+      --line: #2b332a; --line-soft: #232a22; --accent: #6ee7a0; --accent-soft: #17301f;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --page: #12160f; --card: #1a1f18; --ink: #e8ede4; --muted: #96a394;
+    --line: #2b332a; --line-soft: #232a22; --accent: #6ee7a0; --accent-soft: #17301f;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+  }
+
+  :root[data-theme="light"] {
+    --page: #f4f6f1; --card: #ffffff; --ink: #1c241f; --muted: #63736a;
+    --line: #e1e6dd; --line-soft: #edf0ea; --accent: #15803d; --accent-soft: #dcfce7;
+    --shadow: 0 1px 2px rgba(28, 36, 31, .06), 0 8px 24px rgba(28, 36, 31, .06);
+  }
+
+  .page {
+    --sans: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC",
+      "Microsoft JhengHei", "Segoe UI", sans-serif;
+    --mono: "SF Mono", ui-monospace, "Roboto Mono", Menlo, Consolas, monospace;
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    min-height: 100dvh;
+    padding: clamp(1.5rem, 4vw, 3.5rem) 0 5rem;
+  }
+
+  .wrap {
+    max-width: 74rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 3vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .eyebrow {
+    font-size: .75rem; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent);
+  }
+
+  h1 {
+    font-size: clamp(1.5rem, 3.6vw, 2.1rem); font-weight: 800;
+    letter-spacing: -.01em; text-wrap: balance; margin: .35rem 0 0;
+  }
+
+  .lede { max-width: 62ch; color: var(--muted); margin: .75rem 0 0; }
+  h2 { font-size: 1.05rem; font-weight: 700; margin: 0; }
+  .section { display: flex; flex-direction: column; gap: 1rem; }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: 0; }
+  .prose { max-width: 62ch; margin: 0; font-size: .92rem; color: var(--muted); }
+  .prose strong { color: var(--ink); font-weight: 650; }
+
+  /* ── Step rail ───────────────────────────────────────────────────── */
+  .rail {
+    display: flex; gap: 1.25rem; overflow-x: auto;
+    padding-bottom: .75rem; scroll-snap-type: x proximity;
+  }
+
+  .col {
+    flex: none; width: 22.5rem; display: flex;
+    flex-direction: column; gap: .85rem; scroll-snap-align: start;
+  }
+
+  .coltag { display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; }
+
+  .step {
+    font-family: var(--mono); font-size: .72rem; font-weight: 700;
+    color: #fff; background: var(--accent);
+    border-radius: 5px; padding: .1rem .4rem;
+  }
+
+  .coltag b { font-size: 1rem; font-weight: 750; }
+  .colnote { font-size: .82rem; color: var(--muted); margin: 0; }
+  .colnote strong { color: var(--ink); font-weight: 650; }
+
+  .verdict {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: .85rem 1.1rem;
+    margin: 0;
+    font-size: .92rem;
+  }
+
+  .verdict b { font-weight: 750; }
+
+  /* ── Phone frame: product tokens verbatim ────────────────────────── */
+  .app {
+    --p-deep: #14532d; --p: #15803d; --page-bg: #f4f6f1; --surface: #ffffff;
+    --t-ink: #1c241f; --t-muted: #63736a; --border: #e1e6dd;
+    --info-fg: #1d4ed8; --info-bg: #dbeafe; --warn-fg: #92400e; --warn-bg: #fef3c7;
+    --ok-fg: #15803d; --ok-bg: #dcfce7; --pri-fg: #6d28d9; --pri-bg: #f3e8ff;
+    --danger-fg: #b91c1c; --neutral-fg: #57605a; --neutral-bg: #eef1ee;
+
+    position: relative;
+    background: var(--page-bg);
+    color: var(--t-ink);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    min-height: 34rem;
+    color-scheme: light;
+  }
+
+  .app * { box-sizing: border-box; }
+
+  .appbar {
+    background: var(--p-deep); color: #fff;
+    padding: .85rem .9rem .8rem;
+    display: flex; flex-direction: column; gap: .6rem;
+  }
+
+  .barrow { display: flex; align-items: center; justify-content: space-between; gap: .4rem; }
+  .barrow h3 { font-size: 1.05rem; font-weight: 800; margin: 0; white-space: nowrap; }
+  .barbtns { display: flex; align-items: center; gap: .15rem; }
+
+  .iconbtn {
+    min-width: 2.2rem; height: 2.2rem; display: inline-flex;
+    align-items: center; justify-content: center;
+    border-radius: 8px; color: rgba(255, 255, 255, .9); font-size: 1rem;
+  }
+
+  .textbtn {
+    height: 2.2rem; display: inline-flex; align-items: center; padding: 0 .45rem;
+    border-radius: 8px; font-size: .82rem; font-weight: 600;
+    color: rgba(255, 255, 255, .92); white-space: nowrap;
+  }
+
+  .settlebtn {
+    height: 2.2rem; display: inline-flex; align-items: center; padding: 0 .6rem;
+    border-radius: 8px; font-size: .82rem; font-weight: 700; color: #fff;
+    border: 1px solid rgba(255, 255, 255, .55); white-space: nowrap;
+  }
+
+  .counts { display: flex; gap: .3rem; font-size: .72rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .counts span { background: rgba(0, 0, 0, .15); border-radius: 6px; padding: .25rem .55rem; white-space: nowrap; }
+
+  .search {
+    background: #fff; color: var(--t-muted); border-radius: 11px; height: 2.6rem;
+    display: flex; align-items: center; padding: 0 .85rem; font-size: .88rem;
+  }
+
+  .chips { display: flex; gap: .4rem; }
+  .chips i {
+    font-style: normal; font-size: .8rem; font-weight: 600; padding: .35rem .8rem;
+    border-radius: 999px; background: rgba(255, 255, 255, .15); color: #fff;
+  }
+  .chips i.on { background: #fff; color: var(--p-deep); }
+
+  .list { padding: .7rem .75rem; display: flex; flex-direction: column; gap: .5rem; flex: 1; }
+
+  .row {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 4px solid var(--neutral-fg); border-radius: 11px; padding: .65rem;
+    display: flex; align-items: center; justify-content: space-between; gap: .7rem;
+  }
+
+  .row--released { border-left-color: var(--warn-fg); }
+  .row--done { border-left-color: var(--ok-fg); opacity: .7; }
+  .rowmain { min-width: 0; display: flex; flex-direction: column; gap: .15rem; }
+  .rowtop { display: flex; align-items: center; gap: .3rem; }
+  .rowtop b { font-size: .95rem; font-weight: 750; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .plate { font-family: var(--mono); font-size: .92rem; letter-spacing: .04em; color: var(--t-muted); }
+
+  .badge {
+    display: inline-flex; align-items: center; font-size: .7rem; font-weight: 700;
+    padding: .12rem .45rem; border-radius: 999px; white-space: nowrap;
+  }
+
+  .b-pri { background: var(--pri-bg); color: var(--pri-fg); }
+  .b-info { background: var(--info-bg); color: var(--info-fg); }
+  .b-ok { background: var(--ok-bg); color: var(--ok-fg); }
+  .b-warn { background: var(--warn-bg); color: var(--warn-fg); }
+  .b-neutral { background: var(--neutral-bg); color: var(--neutral-fg); }
+
+  .rowacts { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: .4rem; }
+
+  .act {
+    height: 2.5rem; display: inline-flex; align-items: center; padding: 0 1.05rem;
+    border-radius: 11px; font-size: .92rem; font-weight: 700; color: #fff; white-space: nowrap;
+  }
+
+  .act--green { background: var(--p); }
+  .act--amber { background: var(--warn-fg); }
+
+  /* Footer — two actions. The wide green one stays the high-frequency action;
+     move-car is the same purple outline it already is on each row, so the two
+     entry points read as the same feature. */
+  .footer {
+    border-top: 1px solid var(--border); background: var(--surface);
+    padding: .8rem .75rem 1rem; display: flex; gap: .5rem;
+  }
+
+  .wide {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 2.9rem; border-radius: 11px; font-size: .95rem; font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .wide--green { background: var(--p); color: #fff; flex: 1; }
+
+  .wide--move {
+    color: var(--pri-fg); background: transparent;
+    border: 1px solid rgba(109, 40, 217, .45); padding: 0 .85rem; flex: none;
+  }
+
+  /* ── Bottom sheet ────────────────────────────────────────────────── */
+  .scrim {
+    position: absolute; inset: 0; background: rgba(0, 0, 0, .5);
+    display: flex; flex-direction: column; justify-content: flex-end;
+  }
+
+  .sheet {
+    background: var(--surface); border-top: 1px solid var(--border);
+    border-radius: 16px 16px 0 0; padding: 1rem .85rem 1.15rem;
+    display: flex; flex-direction: column; gap: .7rem;
+  }
+
+  .sheet h4 { margin: 0; font-size: 1.05rem; font-weight: 800; }
+  .sheet p { margin: 0; font-size: .85rem; }
+  .sheet .fine { font-size: .76rem; color: var(--t-muted); }
+
+  .field {
+    height: 2.9rem; border: 1px solid var(--border); border-radius: 11px;
+    display: flex; align-items: center; padding: 0 .85rem;
+    font-family: var(--mono); font-size: 1.15rem; letter-spacing: .12em;
+  }
+
+  .field--focus { border-color: var(--p); box-shadow: 0 0 0 3px rgba(21, 128, 61, .18); }
+  .caret { width: 1.5px; height: 1.25rem; background: var(--p); margin-left: 1px; }
+  .field .ghost { color: #b6bfb8; letter-spacing: .04em; font-family: var(--sans); font-size: .92rem; }
+
+  .cands { display: flex; flex-direction: column; gap: .4rem; }
+
+  .cand {
+    border: 1px solid var(--border); border-radius: 11px; padding: .55rem .65rem;
+    display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+  }
+
+  .cand--off { background: #fafbfa; }
+  .candmain { min-width: 0; display: flex; flex-direction: column; gap: .1rem; }
+  .candplate { font-family: var(--mono); font-size: 1rem; letter-spacing: .05em; }
+
+  /* the matched digits — the whole point of "type 76, see 76" */
+  .hit { background: #fde68a; border-radius: 3px; padding: 0 .1em; color: #78350f; }
+
+  .candname { display: flex; align-items: center; gap: .3rem; font-size: .85rem; }
+  .candname b { font-weight: 700; }
+
+  .go {
+    flex: none; font-size: .82rem; font-weight: 700; color: var(--pri-fg);
+    border: 1px solid rgba(109, 40, 217, .4); border-radius: 9px;
+    padding: .4rem .7rem; white-space: nowrap;
+  }
+
+  .go--off { color: #9aa39c; border-color: var(--border); }
+  .reason { font-size: .74rem; color: var(--t-muted); }
+
+  .sheetbtns { display: flex; gap: .6rem; }
+
+  .sbtn {
+    flex: 1; height: 2.9rem; border-radius: 11px; display: inline-flex;
+    align-items: center; justify-content: center; font-size: .95rem; font-weight: 700;
+  }
+
+  .sbtn--ghost { border: 1px solid var(--border); color: var(--t-ink); }
+  .sbtn--purple { background: var(--pri-fg); color: #fff; }
+  .sbtn--green { background: var(--p); color: #fff; }
+
+  .empty {
+    border: 1px dashed var(--border); border-radius: 11px; padding: .85rem;
+    display: flex; flex-direction: column; gap: .5rem; text-align: center;
+  }
+
+  .toast {
+    position: absolute; left: 50%; transform: translateX(-50%); bottom: 5.5rem;
+    background: #1c241f; color: #fff; font-size: .8rem; font-weight: 600;
+    padding: .5rem .9rem; border-radius: 999px; white-space: nowrap;
+  }
+
+  /* ── Decision table ──────────────────────────────────────────────── */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+  table { border-collapse: collapse; width: 100%; min-width: 40rem; font-size: .87rem; }
+  th, td { text-align: left; padding: .7rem .85rem; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  th {
+    font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+    font-weight: 700; background: var(--line-soft); white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  .yes { color: var(--accent); font-weight: 700; }
+  .no { color: var(--muted); }
+
+  .callout {
+    background: var(--card); border: 1px solid var(--line);
+    border-left: 3px solid var(--accent); border-radius: 10px;
+    padding: 1rem 1.15rem; display: flex; flex-direction: column; gap: .55rem;
+  }
+
+  .callout.warn { border-left-color: #b45309; }
+  .callout p { margin: 0; font-size: .9rem; }
+  .callout ul { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: .35rem; font-size: .9rem; }
+
+  code {
+    font-family: var(--mono); font-size: .85em; background: var(--line-soft);
+    padding: .1em .35em; border-radius: 4px;
+  }
+</style>
+
+<div class="page">
+  <div class="wrap">
+
+    <header>
+      <div class="eyebrow">試營運回報 · 38a</div>
+      <h1>移車統一入口：從車牌找到人</h1>
+      <p class="lede">
+        現場的實際順序是<strong>先有車牌、再找人</strong>，但今天的「請移車」按鈕散在每一列上。
+        這份走完整條動線：入口 → 輸入車牌 → 邊打邊篩 → 確認 → 送出。
+        appbar 已套用<strong>提案 A</strong>（結束點名有字、動作色改綠），清單已依定案<strong>移除列上的移車按鈕</strong>。
+      </p>
+    </header>
+
+    <p class="verdict">
+      ✅ <b>已定案（2026-08-04）</b>：入口放 footer 右側、名稱<b>「通知移車」</b>；<b>列上的「請移車」拿掉</b>，
+      通知移車自此<b>只有這一個入口</b>；未綁定 LINE 的車照樣列出並寫明無法通知。此頁已依定案更新。
+    </p>
+
+    <div class="callout warn">
+      <p><b>先講清楚這一刀的邊界，這是最可能與預期不同的地方。</b></p>
+      <p>
+        38a <strong>只查得到本週清單上的車</strong>（已核准 ＋ 已登記的現場車輛）。
+        擋路的車若是訪客、沒申請就開進來、或臨時來的，<strong>這個入口找不到他</strong>——那是 38b，要等 #6A 的後台移車做完才動。
+        第 4 格畫的就是這個情況，請特別看那格的文案能不能接受。
+      </p>
+    </div>
+
+    <hr class="rule" />
+
+    <section class="section">
+      <h2>整條動線</h2>
+
+      <div class="rail">
+
+        <!-- ── 1 入口 ─────────────────────────────────────────── -->
+        <div class="col">
+          <div class="coltag"><span class="step">1</span><b>入口</b></div>
+
+          <div class="app">
+            <div class="appbar">
+              <div class="barrow">
+                <h3>8/10 主日</h3>
+                <div class="barbtns">
+                  <span class="iconbtn">🔄</span>
+                  <span class="settlebtn">結束點名</span>
+                  <span class="textbtn">登出</span>
+                </div>
+              </div>
+              <div class="counts"><span>已到 3</span><span>未到 2</span><span>已釋出 1</span><span>現場 1</span></div>
+              <div class="search">🔍 輸入車牌任意數字…</div>
+              <div class="chips"><i class="on">全部</i><i>未到</i><i>已到</i><i>已釋出</i></div>
+            </div>
+
+            <div class="list">
+              <div class="row">
+                <div class="rowmain">
+                  <div class="rowtop"><span class="badge b-pri">⭐ 優先</span><b>陳美玲</b></div>
+                  <div class="plate">DEA-7611</div>
+                  <div><span class="badge b-neutral">未到</span></div>
+                </div>
+                <div class="rowacts">
+                  <span class="act act--green">點名</span>
+                </div>
+              </div>
+
+              <div class="row row--released">
+                <div class="rowmain">
+                  <div class="rowtop"><b>林建宏</b></div>
+                  <div class="plate">EAB-1762</div>
+                  <div><span class="badge b-warn">已釋出</span></div>
+                </div>
+                <div class="rowacts">
+                  <span class="act act--amber">補點名</span>
+                </div>
+              </div>
+
+              <div class="row row--done">
+                <div class="rowmain">
+                  <div class="rowtop"><b>王志豪</b></div>
+                  <div class="plate">BKW-3376</div>
+                  <div><span class="badge b-ok">已到 09:47</span></div>
+                </div>
+              </div>
+
+              <div class="row row--done">
+                <div class="rowmain">
+                  <div class="rowtop"><span class="badge b-info">現場</span><b>—</b></div>
+                  <div class="plate">RBH-2076</div>
+                  <div><span class="badge b-info">現場登記 10:02</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="footer">
+              <span class="wide wide--green">＋ 登記現場車輛</span>
+              <span class="wide wide--move">🚗 通知移車</span>
+            </div>
+          </div>
+
+          <p class="colnote">
+            入口放 footer，與「登記現場車輛」並排，紫框沿用移車一貫的顏色。
+            <strong>列上的「請移車」已拿掉</strong>——每一列少一顆按鈕，已到的列現在完全沒有按鈕，
+            <strong>清單回到「只做點名」這一件事</strong>。通知移車自此只有這一個入口。
+          </p>
+        </div>
+
+        <!-- ── 2 輸入即篩選 ───────────────────────────────────── -->
+        <div class="col">
+          <div class="coltag"><span class="step">2</span><b>輸入 76，兩台都出來</b></div>
+
+          <div class="app">
+            <div class="appbar">
+              <div class="barrow">
+                <h3>8/10 主日</h3>
+                <div class="barbtns">
+                  <span class="iconbtn">🔄</span>
+                  <span class="settlebtn">結束點名</span>
+                  <span class="textbtn">登出</span>
+                </div>
+              </div>
+              <div class="counts"><span>已到 3</span><span>未到 2</span><span>已釋出 1</span><span>現場 1</span></div>
+            </div>
+
+            <div class="scrim">
+              <div class="sheet">
+                <h4>通知移車</h4>
+                <div class="field field--focus">76<span class="caret"></span></div>
+                <p class="fine">輸入車牌上<strong>任意連續數字</strong>即可，不必從頭打。</p>
+
+                <div class="cands">
+                  <div class="cand">
+                    <div class="candmain">
+                      <div class="candplate">DEA-<span class="hit">76</span>11</div>
+                      <div class="candname"><span class="badge b-pri">⭐ 優先</span><b>陳美玲</b></div>
+                    </div>
+                    <span class="go">通知移車</span>
+                  </div>
+
+                  <div class="cand">
+                    <div class="candmain">
+                      <div class="candplate">EAB-1<span class="hit">76</span>2</div>
+                      <div class="candname"><b>林建宏</b></div>
+                    </div>
+                    <span class="go">通知移車</span>
+                  </div>
+
+                  <div class="cand cand--off">
+                    <div class="candmain">
+                      <div class="candplate">RBH-20<span class="hit">76</span></div>
+                      <div class="candname"><span class="badge b-info">現場</span><span class="reason">未綁定 LINE，無法通知</span></div>
+                    </div>
+                    <span class="go go--off">無法通知</span>
+                  </div>
+                </div>
+
+                <div class="sheetbtns"><span class="sbtn sbtn--ghost">取消</span></div>
+              </div>
+            </div>
+          </div>
+
+          <p class="colnote">
+            打 <code>76</code> → <strong>DEA-7611、EAB-1762</strong> 都出來，命中的數字<strong>反白標出來</strong>，一眼確認打對了。
+            未綁定 LINE 的車<strong>照樣列出但不能送</strong>，並寫明理由——不假裝送得到。
+          </p>
+        </div>
+
+        <!-- ── 3 確認 ─────────────────────────────────────────── -->
+        <div class="col">
+          <div class="coltag"><span class="step">3</span><b>確認後才送出</b></div>
+
+          <div class="app">
+            <div class="appbar">
+              <div class="barrow">
+                <h3>8/10 主日</h3>
+                <div class="barbtns">
+                  <span class="iconbtn">🔄</span>
+                  <span class="settlebtn">結束點名</span>
+                  <span class="textbtn">登出</span>
+                </div>
+              </div>
+              <div class="counts"><span>已到 3</span><span>未到 2</span><span>已釋出 1</span><span>現場 1</span></div>
+            </div>
+
+            <div class="scrim">
+              <div class="sheet">
+                <h4>請車主移車</h4>
+                <p>透過教會 LINE 通知車牌 <b style="font-family:var(--mono);letter-spacing:.05em">DEA-7611</b> 的車主移車？</p>
+                <p class="fine">通知由教會官方帳號代發，不會顯示您的個人聯絡方式。</p>
+                <div class="sheetbtns">
+                  <span class="sbtn sbtn--ghost">取消</span>
+                  <span class="sbtn sbtn--purple">送出通知</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="toast">已建立移車通知，系統將透過 LINE 發送</div>
+          </div>
+
+          <p class="colnote">
+            這一格<strong>完全是今天既有的畫面與文案</strong>，一個字都沒改（標題仍是「請車主移車」）。
+            38a 只是換一條路走到這裡，<strong>不新增第二套送出流程</strong>——推播送出去收不回來，這條路必須只有一條。
+          </p>
+        </div>
+
+        <!-- ── 4 查無 ─────────────────────────────────────────── -->
+        <div class="col">
+          <div class="coltag"><span class="step">4</span><b>⚠️ 查無此車牌</b></div>
+
+          <div class="app">
+            <div class="appbar">
+              <div class="barrow">
+                <h3>8/10 主日</h3>
+                <div class="barbtns">
+                  <span class="iconbtn">🔄</span>
+                  <span class="settlebtn">結束點名</span>
+                  <span class="textbtn">登出</span>
+                </div>
+              </div>
+              <div class="counts"><span>已到 3</span><span>未到 2</span><span>已釋出 1</span><span>現場 1</span></div>
+            </div>
+
+            <div class="scrim">
+              <div class="sheet">
+                <h4>通知移車</h4>
+                <div class="field field--focus">8899<span class="caret"></span></div>
+
+                <div class="empty">
+                  <p><b>本週清單中沒有含「8899」的車牌</b></p>
+                  <p class="fine">
+                    這裡只找得到<strong>本週已核准</strong>與<strong>已登記的現場車輛</strong>。
+                    若是訪客或沒登記就開進來的車，目前無法從系統查到車主，請循現場既有方式處理。
+                  </p>
+                  <span class="sbtn sbtn--green" style="flex:none;padding:0 1rem">＋ 登記為現場車輛</span>
+                </div>
+
+                <div class="sheetbtns"><span class="sbtn sbtn--ghost">取消</span></div>
+              </div>
+            </div>
+          </div>
+
+          <p class="colnote">
+            <strong>這格是最需要你點頭的地方。</strong>文案刻意<strong>不提「未來會支援」</strong>——現場同工要的是「現在怎麼辦」，
+            承諾未來只會讓人一直回來試。順手給一條出口：既然車就在現場，可以直接登記成現場車輛。
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <section class="section">
+      <h2>四項定案</h2>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>項目</th><th>定案</th><th>沒有採用的那條路</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>入口位置</b></td>
+              <td class="yes">footer 右側，名稱<b>「通知移車」</b></td>
+              <td class="no">放搜尋框那一列的右端（更省空間，但容易被當成搜尋的一部分）</td>
+            </tr>
+            <tr>
+              <td><b>列上的「請移車」</b></td>
+              <td class="yes"><b>拿掉</b>，只留統一入口</td>
+              <td class="no">保留兩個入口（已看到那列時比較快，但每列多一顆按鈕）</td>
+            </tr>
+            <tr>
+              <td><b>未綁定 LINE 的車</b></td>
+              <td class="yes">照樣列出，寫明「無法通知」</td>
+              <td class="no">直接不列（比較乾淨，但同工會以為系統壞了）</td>
+            </tr>
+            <tr>
+              <td><b>查無車牌</b></td>
+              <td class="yes">說明查得到什麼，給「登記為現場車輛」出口</td>
+              <td class="no">加一句「跨週查詢規劃中」（會讓人一直回來試）</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="callout warn">
+      <p><b>拿掉列上按鈕的一個連帶影響</b>（不影響定案，但值得知道）：</p>
+      <p>
+        那顆按鈕原本兼任一件事——<strong>它是不是可按，等於顯示了「這位車主有沒有綁定 LINE」</strong>。
+        拿掉之後，清單上看不出誰綁了、誰沒綁；那個資訊改為<strong>只在通知移車的候選清單裡出現</strong>。
+        這其實比較合理：綁定狀態只在「要通知他」的當下才有意義，平常掛在每一列上只是雜訊。
+      </p>
+    </section>
+
+    <section class="callout">
+      <p><b>這一刀不會動到的事</b>：</p>
+      <ul>
+        <li><strong>不新增任何 API、不新增任何欄位</strong>——候選名單就是畫面上已經有的那份清單，只是換個方式呈現。</li>
+        <li>送出走的是<strong>既有的移車通知</strong>，確認文案、隱私說明、「未綁定不假送」的擋法全部照舊。</li>
+        <li>入口與搜尋這兩個<strong>新畫面</strong>叫「通知移車」；<strong>最後的確認視窗維持既有的「請車主移車」</strong>不動——那是既有畫面，這一刀不改它的字。</li>
+        <li>搜尋提示改成「輸入車牌任意數字」：<strong>它本來就能比對任意位置</strong>，只是寫成「後四碼」把能力藏起來了。</li>
+        <li>資料全是示意，但欄位、狀態、色條、未綁定的擋法都照真實邏輯畫。</li>
+      </ul>
+    </section>
+
+  </div>
+</div>

@@ -1,0 +1,130 @@
+name: App CI
+
+# Until this existed, the app's quality gate was a human one: tsc / lint / test / build ran
+# only on a developer's machine and the result reached reviewers as prose ("1506 passed").
+# That is the same trust level as any other self-report — it survives a skipped run, a dirty
+# working tree, the wrong branch, or an exit code swallowed by a shell pipeline. This job is
+# the machine half: the same commands, on a clean runner, from the committed tree.
+#
+# `npm run verify` in parking-system/package.json is the single authoritative definition of
+# those commands. CI must never grow its own copy — the review packet (and any local check)
+# calls the same script, so there is exactly one thing to keep honest.
+#
+# No `env:` block, and that is a finding-detector, not an oversight. A 2026-07-30 clean-tree
+# probe (git archive of HEAD, no .env.local, no app env in the environment) ran npm ci, tsc,
+# lint, test and build to exit 0. If this job ever needs a dummy value to go green, that means
+# a module started reading a secret at import time — investigate it, do not paper over it with
+# a fake value.
+#
+# NOT covered here (by design, so nobody assumes it is): anything needing a database. The 41
+# skipped test files are RUN_DB_TESTS-gated, and `db:reset` / `db:verify` are not run. Schema
+# work is still gated by the PR template's A/B/R compatibility section and the local DB checks.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# This job only reads the repo — no statuses, no comments, no releases. Do not inherit the
+# repository default token permissions.
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # Vercel's Root Directory for this project is parking-system/ (docs/prod-deploy-runbook.md
+    # §2.1). The repo root holds an unrelated Notion-sync package.json, which this job does not
+    # build or test.
+    defaults:
+      run:
+        working-directory: parking-system
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pinned to the major that Vercel actually builds production with — NOT to whatever the
+      # developer laptop happens to run (it was on 26.x when this was written). If the Vercel
+      # project setting changes, change it here in the same breath, or this gate stops proving
+      # anything about production. Deliberately not `engines` in package.json: that would feed
+      # back into Vercel's own runtime selection, making a CI change a production change.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+
+      # Cheap, and the only way to compare this runner against the local clean-tree probe. The
+      # probe already showed npm's installer policy matters: npm 11.16 blocked unrs-resolver's
+      # postinstall (lint passed anyway). If `npm ci` ever behaves differently here, this is the
+      # evidence that says which npm did it.
+      - name: Show toolchain
+        run: |
+          node --version
+          npm --version
+
+      - run: npm ci
+
+      - run: npm run verify
+
+  # The repo-level gates, on a clean checkout — which is the only place they mean anything.
+  #
+  # This job exists because of a specific failure: `npm run check:docs` passed on the author's
+  # machine and failed on the reviewer's, because docs/ links to a deliberately gitignored local
+  # artifact that happened to exist locally. A link checker validated against a working tree that
+  # contains untracked files is checking the wrong tree, and every "全綠" it produces is a claim
+  # about one laptop. A fresh runner has exactly the files the repository has.
+  #
+  # check:pii is deliberately NOT run here: it scans a staged diff, which on a CI checkout is
+  # empty, so a pass would prove nothing. Its behaviour is covered by the throwaway-repo tests
+  # below instead — that is what can actually fail when the detector regresses.
+  #
+  # No Node setup and no npm install: `npm run` only needs package.json, and both checkers are
+  # Python with no third-party imports.
+  repo-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Doc references resolve (clean tree)
+        run: npm run check:docs
+
+      - name: PII detector behaviour tests (throwaway git repos)
+        run: bash scripts/test-check-staged-pii.sh
+
+  # The review-pack script is the thing that decides whether an evidence bundle is allowed to
+  # exist — it refuses a dirty tree, a failed verification, a leaked secret. A guard nobody
+  # runs is a comment, so its own failure-path tests are enforced here rather than left to
+  # whoever remembers. Same arrangement backup-ci.yml uses for the backup scripts.
+  #
+  # No Node setup: the tests stub `npm` with a fake on PATH, so they need neither a real
+  # install nor the network.
+  review-pack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ShellCheck covers the review tooling AND the repo-level gate script at scripts/*.sh —
+      # a gate whose own script is unchecked is exactly the hole it claims to close. The glob
+      # is deliberate: a future top-level script is covered without anyone remembering to add
+      # it. scripts/backup/ belongs to backup-ci.yml, which shellchecks its own directory.
+      - name: ShellCheck
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          shellcheck --version
+          shellcheck scripts/*.sh scripts/review/*.sh
+
+      - name: Failure-path tests (fake npm, throwaway git repos)
+        run: bash scripts/review/test-review-pack.sh
+
+      # The workspace check is what makes a review verdict admissible (docs/review-protocol.md),
+      # so the grading it applies has to hold: an integrity failure must void, and a rebased base
+      # branch must NOT. Getting that backwards in either direction breaks the protocol — one
+      # way accepts reviews of the wrong commit, the other makes routine stacking void them.
+      - name: Workspace-check tests
+        run: bash scripts/review/test-check-review-workspace.sh

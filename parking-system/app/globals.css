@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/* Parking design system (Phase 9 Slice 3.5). Single light theme — the LIFF /
+   kiosk / back-office surfaces are all light. Tokens are semantic so brand,
+   operational, and status greens stay distinct. See docs/ui-mockups/design-spec.md. */
+@theme {
+  /* neutrals retained for the create-next-app landing (app/page.tsx) */
+  --color-background: #ffffff;
+  --color-foreground: #171717;
+
+  /* fonts — system stacks (CJK has no practical webfont; matches production) */
+  --font-sans: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC",
+    "Microsoft JhengHei", "Segoe UI", sans-serif;
+  --font-mono: "SF Mono", ui-monospace, "Roboto Mono", Menlo, Consolas, monospace;
+
+  /* brand vs operational vs status — kept separate on purpose */
+  --color-brand: #06c755; /* LINE brand identity ONLY; never a white-text bg (fails AA) */
+  --color-primary: #15803d; /* main action green (AA on white) */
+  --color-primary-deep: #14532d;
+  --color-primary-strong: #166534;
+
+  /* green-tinted neutrals */
+  --color-page: #f4f6f1;
+  --color-surface: #ffffff;
+  --color-ink: #1c241f;
+  --color-muted: #63736a;
+  --color-border: #e1e6dd;
+  --color-border-subtle: #edf0ea;
+
+  /* status tones — always paired with text/icon in <Badge>, never colour-only */
+  --color-success-fg: #15803d;
+  --color-success-bg: #dcfce7;
+  --color-warning-fg: #92400e;
+  --color-warning-bg: #fef3c7;
+  --color-info-fg: #1d4ed8;
+  --color-info-bg: #dbeafe;
+  --color-priority-fg: #6d28d9;
+  --color-priority-bg: #f3e8ff;
+  --color-danger-fg: #b91c1c;
+  --color-danger-bg: #fee2e2;
+  --color-neutral-fg: #57605a;
+  --color-neutral-bg: #eef1ee;
+}
+
+body {
+  background: var(--color-page);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}

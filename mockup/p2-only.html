@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>內湖信友堂 停車管理系統 — P2 先行 Mockup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: -apple-system, 'PingFang TC', 'Microsoft JhengHei', sans-serif; background: #f3f4f6; }
+
+    /* ── Phone frame (會友端) ── */
+    .phone-shell {
+      width: 375px;
+      background: #111;
+      border-radius: 48px;
+      padding: 14px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.4), inset 0 0 0 1px #333;
+    }
+    .phone-inner { border-radius: 36px; overflow: hidden; background: white; position: relative; }
+    .phone-notch {
+      position: absolute; top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 110px; height: 26px;
+      background: #111; border-radius: 0 0 18px 18px; z-index: 20;
+    }
+    .phone-screen { min-height: 720px; padding-top: 26px; display: none; }
+    .phone-screen.active { display: block; }
+
+    /* ── Tablet frame (同工端) ── */
+    .tablet-shell {
+      width: 768px;
+      background: #1c1c1e;
+      border-radius: 28px;
+      padding: 18px 16px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.45), inset 0 0 0 1px #3a3a3c;
+      position: relative;
+    }
+    .tablet-shell::before {
+      content: '';
+      position: absolute;
+      top: 50%; right: 8px;
+      transform: translateY(-50%);
+      width: 4px; height: 40px;
+      background: #3a3a3c; border-radius: 2px;
+    }
+    .tablet-camera {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #3a3a3c; margin: 0 auto 10px;
+    }
+    .tablet-inner {
+      border-radius: 14px;
+      overflow: hidden;
+      background: white;
+    }
+    .tablet-screen { display: none; min-height: 960px; }
+    .tablet-screen.active { display: block; }
+
+    .main-tab { transition: border-color .15s, color .15s; }
+    .main-tab.active { border-bottom: 3px solid #16a34a; color: #16a34a; font-weight: 600; }
+
+    .badge { display: inline-flex; align-items: center; gap: 4px; border-radius: 9999px; padding: 2px 10px; font-size: 11.5px; font-weight: 600; }
+    .badge-green  { background: #dcfce7; color: #15803d; }
+    .badge-amber  { background: #fef3c7; color: #b45309; }
+    .badge-blue   { background: #dbeafe; color: #1d4ed8; }
+    .badge-purple { background: #f3e8ff; color: #7e22ce; }
+    .badge-gray   { background: #f3f4f6; color: #6b7280; }
+    .badge-red    { background: #fee2e2; color: #b91c1c; }
+    .badge-teal   { background: #ccfbf1; color: #0f766e; }
+    .badge-pink   { background: #fce7f3; color: #be185d; }
+
+    .screen-pill {
+      padding: 4px 12px; border-radius: 9999px; font-size: 12px;
+      border: 1px solid #e5e7eb; background: white; color: #374151; cursor: pointer;
+    }
+    .screen-pill:hover { background: #f0fdf4; border-color: #86efac; color: #16a34a; }
+
+    .panel.hidden { display: none; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- ══════════ HEADER ══════════ -->
+<header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
+  <div class="max-w-screen-xl mx-auto px-6">
+    <div class="flex items-center justify-between py-3">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">⛪</span>
+        <div>
+          <p class="font-bold text-gray-800 text-base leading-tight">內湖信友堂 停車管理系統</p>
+          <p class="text-xs text-gray-400">P2 先行部署 Mockup — Phase 1</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs bg-blue-50 border border-blue-200 text-blue-700 rounded-full px-3 py-1">🔵 僅 P2 關懷優先會友使用數位系統</span>
+        <span class="text-xs bg-amber-50 border border-amber-200 text-amber-700 rounded-full px-3 py-1">📐 原型草稿，非最終設計</span>
+      </div>
+    </div>
+    <nav class="flex gap-0">
+      <button onclick="switchTab('member')" id="tab-member" class="main-tab active px-6 py-3 text-sm text-gray-500">
+        📱 P2 會友端
+      </button>
+      <button onclick="switchTab('staff')" id="tab-staff" class="main-tab px-6 py-3 text-sm text-gray-500">
+        🅿️ 同工端（主日點名）
+      </button>
+      <button onclick="switchTab('admin')" id="tab-admin" class="main-tab px-6 py-3 text-sm text-gray-500">
+        ⚙️ 管理員後台
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-screen-xl mx-auto px-6 py-8">
+
+<!-- ══════════════════════════════════════
+     PANEL 1 — P2 會友端
+══════════════════════════════════════ -->
+<section id="panel-member" class="panel">
+
+  <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6 flex gap-3 items-start">
+    <span class="text-blue-400 text-xl mt-0.5">📌</span>
+    <div>
+      <p class="text-sm text-blue-700 font-semibold mb-0.5">P2 先行部署說明</p>
+      <p class="text-sm text-blue-600">目前開放 <strong>P2 關懷優先資格</strong>的會友使用 LINE LIFF 線上申請。P1 全職同工名額由管理員每週手動設定保留；P3 一般會友暫維持現場先到先停，不使用此系統。</p>
+    </div>
+  </div>
+
+  <div class="flex gap-10 items-start">
+
+    <!-- Phone -->
+    <div class="flex-shrink-0">
+      <div class="phone-shell">
+        <div class="phone-inner">
+          <div class="phone-notch"></div>
+
+          <!-- ── Screen A：行動不便（自動套用）— 已核准 ── -->
+          <div id="ms-auto-approved" class="phone-screen active">
+            <div style="background:#06C755">
+              <div class="px-4 pt-5 pb-4 flex items-center gap-2">
+                <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center text-lg">⛪</div>
+                <p class="text-white font-semibold text-sm">內湖信友堂 停車服務</p>
+              </div>
+            </div>
+            <div class="bg-gray-50 min-h-full p-4 -mt-2 rounded-t-3xl">
+              <div class="bg-green-700 text-white rounded-2xl p-4 mb-3 shadow">
+                <p class="text-xs opacity-75 mb-0.5">本週主日</p>
+                <p class="text-xl font-bold">2026 年 6 月 21 日（日）</p>
+                <p class="text-sm opacity-80 mt-0.5">主日崇拜 10:30</p>
+              </div>
+              <!-- P2 type tag -->
+              <div class="bg-teal-50 border border-teal-200 rounded-2xl p-3 mb-3 flex items-center gap-2">
+                <span class="text-teal-600 text-xl">♿</span>
+                <div>
+                  <p class="text-xs font-semibold text-teal-700">P2 關懷優先 — 長期行動不便</p>
+                  <p class="text-xs text-teal-500">每週自動套用，無需宣告</p>
+                </div>
+              </div>
+              <!-- Status -->
+              <div class="bg-white rounded-2xl p-4 mb-3 shadow-sm border border-green-100">
+                <p class="text-xs text-gray-400 mb-2 uppercase tracking-wide">本週停車狀態</p>
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="badge badge-green text-sm">✅ 已核准</span>
+                  <span class="text-xs text-gray-400">週五 18:01 確認</span>
+                </div>
+                <div class="border-t pt-3 space-y-1.5">
+                  <p class="text-sm text-gray-700">🚗 本週車輛：<strong>ABC-1234</strong></p>
+                  <p class="text-sm text-gray-500">⏰ 請 <strong>10:45</strong> 前抵達地下室入口</p>
+                  <p class="text-xs text-teal-600 bg-teal-50 rounded-lg px-2 py-1 mt-1">💙 P2 車位保留至 10:45（一般 10:30）</p>
+                </div>
+              </div>
+              <div class="space-y-2">
+                <button class="w-full bg-white border border-red-200 text-red-500 rounded-2xl py-3 text-sm font-medium shadow-sm">
+                  取消本週預約
+                </button>
+                <button onclick="setMemberScreen('plates')" class="w-full bg-white border border-gray-200 text-gray-600 rounded-2xl py-3 text-sm font-medium shadow-sm">
+                  管理我的車牌
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Screen B：幼兒同行（需宣告）— 未申請主頁 ── -->
+          <div id="ms-declare-home" class="phone-screen">
+            <div style="background:#06C755">
+              <div class="px-4 pt-5 pb-4 flex items-center gap-2">
+                <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center text-lg">⛪</div>
+                <p class="text-white font-semibold text-sm">內湖信友堂 停車服務</p>
+              </div>
+            </div>
+            <div class="bg-gray-50 min-h-full p-4 -mt-2 rounded-t-3xl">
+              <div class="bg-green-700 text-white rounded-2xl p-4 mb-3 shadow">
+                <p class="text-xs opacity-75 mb-0.5">本週主日</p>
+                <p class="text-xl font-bold">2026 年 6 月 21 日（日）</p>
+              </div>
+              <div class="bg-blue-50 border border-blue-200 rounded-2xl p-3 mb-3 flex items-center gap-2">
+                <span class="text-blue-600 text-xl">👶</span>
+                <div>
+                  <p class="text-xs font-semibold text-blue-700">P2 關懷優先 — 幼兒同行</p>
+                  <p class="text-xs text-blue-500">申請時需宣告本週幼兒同行</p>
+                </div>
+              </div>
+              <div class="bg-white rounded-2xl p-4 mb-3 shadow-sm border border-gray-100">
+                <p class="text-xs text-gray-400 mb-2 uppercase tracking-wide">本週停車狀態</p>
+                <span class="badge badge-gray">尚未申請</span>
+                <p class="text-xs text-gray-400 mt-3">申請截止：週五 18:00<br>結果週五晚間 LINE 推播</p>
+              </div>
+              <button onclick="setMemberScreen('declare-apply')" class="w-full bg-green-600 text-white rounded-2xl py-3 font-semibold shadow active:scale-95">
+                申請本週停車
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Screen C：幼兒同行 — 申請頁（需勾選宣告） ── -->
+          <div id="ms-declare-apply" class="phone-screen">
+            <div style="background:#06C755" class="px-4 pt-10 pb-3 flex items-center gap-3">
+              <button onclick="setMemberScreen('declare-home')" class="text-white text-lg">‹</button>
+              <p class="text-white font-semibold text-sm">申請本週停車</p>
+            </div>
+            <div class="bg-gray-50 min-h-full p-4">
+              <!-- 選車 -->
+              <div class="bg-white rounded-2xl p-4 shadow-sm mb-3">
+                <p class="text-sm font-medium text-gray-700 mb-2">本週開哪台車？</p>
+                <select class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-400">
+                  <option>🚗 XYZ-5566（預設）</option>
+                  <option>🚗 KKK-8899（備用）</option>
+                </select>
+                <button class="mt-2 text-xs text-green-600 underline">＋ 新增車牌</button>
+              </div>
+              <!-- 本週宣告 -->
+              <div class="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 mb-3">
+                <p class="text-xs text-gray-400 uppercase tracking-wide mb-3">P2 資格確認（每週必填）</p>
+                <label class="flex items-start gap-3 cursor-pointer">
+                  <input type="checkbox" checked class="mt-0.5 w-4 h-4 accent-blue-600 flex-shrink-0" />
+                  <div>
+                    <p class="text-sm font-medium text-blue-700">本週有幼兒同行</p>
+                    <p class="text-xs text-gray-500 mt-0.5">
+                      家中小孩 <strong>陳小明</strong>（2022/3/15）<br>
+                      本週一同前來聚會，享 P2 優先排序
+                    </p>
+                  </div>
+                </label>
+                <div class="mt-3 pt-3 border-t border-blue-50">
+                  <p class="text-xs text-gray-400">若本週幼兒未同行，請取消勾選<br>本次申請將不列入數位排序</p>
+                </div>
+              </div>
+              <div class="bg-amber-50 rounded-2xl p-3 border border-amber-100 mb-4">
+                <p class="text-xs text-amber-700">📅 <strong>截止：週五 18:00</strong><br>結果將由 LINE 推播通知</p>
+              </div>
+              <button onclick="setMemberScreen('declare-success')" class="w-full bg-green-600 text-white rounded-2xl py-3 font-semibold shadow">
+                送出申請
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Screen D：申請成功 ── -->
+          <div id="ms-declare-success" class="phone-screen">
+            <div style="background:#06C755" class="px-4 pt-10 pb-3">
+              <p class="text-white font-semibold text-sm">申請結果</p>
+            </div>
+            <div class="bg-gray-50 min-h-full p-4 flex flex-col items-center text-center pt-10">
+              <div class="text-6xl mb-4">✅</div>
+              <h2 class="text-xl font-bold text-gray-800 mb-1">申請已送出！</h2>
+              <p class="text-sm text-gray-500 mb-6">週五 18:00 後，LINE 將推播分配結果</p>
+              <div class="w-full bg-white rounded-2xl p-4 text-left shadow-sm mb-4">
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">申請摘要</p>
+                <div class="space-y-1.5 text-sm text-gray-700">
+                  <p>🗓 主日：2026 / 6 / 21</p>
+                  <p>🚗 車牌：XYZ-5566</p>
+                  <p>👶 宣告：本週幼兒同行（P2）</p>
+                </div>
+              </div>
+              <button onclick="setMemberScreen('declare-home')" class="w-full bg-green-600 text-white rounded-2xl py-3 font-semibold shadow">
+                返回首頁
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Screen E：車牌管理 ── -->
+          <div id="ms-plates" class="phone-screen">
+            <div style="background:#06C755" class="px-4 pt-10 pb-3 flex items-center gap-3">
+              <button onclick="setMemberScreen('auto-approved')" class="text-white text-lg">‹</button>
+              <p class="text-white font-semibold text-sm">我的車牌</p>
+            </div>
+            <div class="bg-gray-50 min-h-full p-4">
+              <div class="space-y-3 mb-3">
+                <div class="bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between">
+                  <div>
+                    <p class="font-bold text-gray-800 font-mono">ABC-1234</p>
+                    <p class="text-xs text-green-600 mt-0.5">⭐ 預設車牌</p>
+                  </div>
+                  <button class="text-xs text-gray-400 border border-gray-200 rounded-lg px-3 py-1.5">刪除</button>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between">
+                  <div>
+                    <p class="font-bold text-gray-800 font-mono">XYZ-9876</p>
+                    <p class="text-xs text-gray-400 mt-0.5">備用車</p>
+                  </div>
+                  <div class="flex gap-1.5">
+                    <button class="text-xs text-blue-500 border border-blue-200 rounded-lg px-2 py-1.5">設為預設</button>
+                    <button class="text-xs text-gray-400 border border-gray-200 rounded-lg px-2 py-1.5">刪除</button>
+                  </div>
+                </div>
+              </div>
+              <button class="w-full border-2 border-dashed border-gray-300 text-gray-500 rounded-2xl py-3 text-sm">
+                ＋ 新增車牌
+              </button>
+            </div>
+          </div>
+
+        </div><!-- /phone-inner -->
+      </div><!-- /phone-shell -->
+
+      <!-- Screen nav pills -->
+      <div class="mt-5 flex flex-wrap gap-2 justify-center" style="max-width:375px">
+        <p class="w-full text-center text-xs text-gray-400 mb-1">點選切換情境</p>
+        <p class="w-full text-center text-xs font-semibold text-teal-600">♿ 行動不便（自動套用）</p>
+        <button onclick="setMemberScreen('auto-approved')" class="screen-pill">已核准</button>
+        <p class="w-full text-center text-xs font-semibold text-blue-600 mt-1">👶 幼兒同行（每週宣告）</p>
+        <button onclick="setMemberScreen('declare-home')" class="screen-pill">未申請</button>
+        <button onclick="setMemberScreen('declare-apply')" class="screen-pill">申請頁</button>
+        <button onclick="setMemberScreen('declare-success')" class="screen-pill">申請成功</button>
+        <button onclick="setMemberScreen('plates')" class="screen-pill mt-1">管理車牌</button>
+      </div>
+    </div>
+
+    <!-- Annotations -->
+    <div class="flex-1 space-y-4">
+      <h2 class="text-xl font-bold text-gray-800">P2 會友端 — 兩種申請情境</h2>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-teal-50 rounded-2xl p-4 border border-teal-200">
+          <p class="font-semibold text-teal-700 mb-2">♿ 自動套用類型</p>
+          <ul class="text-sm text-teal-700 space-y-1">
+            <li>• 長期行動不便（領有身障手冊）</li>
+            <li>• 短期行動不便（Admin 設追蹤期）</li>
+            <li>• 孕婦</li>
+          </ul>
+          <p class="text-xs text-teal-500 mt-3">申請時只需選車牌，P2 身份自動生效，無需每週宣告</p>
+        </div>
+        <div class="bg-blue-50 rounded-2xl p-4 border border-blue-200">
+          <p class="font-semibold text-blue-700 mb-2">👨‍👩‍👧 每週宣告類型</p>
+          <ul class="text-sm text-blue-700 space-y-1">
+            <li>• 幼兒同行（5 歲以下）</li>
+            <li>• 年長者同行（75 歲以上）</li>
+          </ul>
+          <p class="text-xs text-blue-500 mt-3">申請時需勾選「本週同行」。未勾選則本次不適用 P2 優先</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+        <p class="font-semibold text-gray-800 mb-3">P2 先行版的重要差異</p>
+        <div class="space-y-2 text-sm">
+          <div class="flex gap-2 items-start">
+            <span class="text-green-500 mt-0.5 flex-shrink-0">✅</span>
+            <span class="text-gray-700">P2 會友全程線上操作（LINE LIFF）：申請、宣告、查狀態、取消</span>
+          </div>
+          <div class="flex gap-2 items-start">
+            <span class="text-green-500 mt-0.5 flex-shrink-0">✅</span>
+            <span class="text-gray-700">P2 保留時間延至 10:45，一般到場只保留到 10:30</span>
+          </div>
+          <div class="flex gap-2 items-start">
+            <span class="text-blue-400 mt-0.5 flex-shrink-0">⚙️</span>
+            <span class="text-gray-600">P1 全職同工名額由 Admin 手動設定保留位數，不進入此系統</span>
+          </div>
+          <div class="flex gap-2 items-start">
+            <span class="text-gray-400 mt-0.5 flex-shrink-0">🚶</span>
+            <span class="text-gray-500">P3 一般會友暫維持現場先到先停，不使用此系統</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-green-50 rounded-2xl p-4 border border-green-200">
+        <p class="font-semibold text-green-700 mb-2">💚 恩慈設計保留</p>
+        <ul class="text-sm text-green-700 space-y-1.5">
+          <li>• 主日 10:30 前取消，<strong>不計任何違規紀錄</strong></li>
+          <li>• P2 未到場，不累積 penalty，系統產生牧養關懷提醒</li>
+          <li>• 10:20 LINE 提醒 P2 未到場者，可回「正在路上」延至 10:45</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PANEL 2 — 同工端
+══════════════════════════════════════ -->
+<section id="panel-staff" class="panel hidden">
+
+  <!-- Device notice + toggle -->
+  <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6 flex items-center gap-4">
+    <span class="text-blue-400 text-xl flex-shrink-0">📱</span>
+    <div class="flex-1">
+      <p class="text-sm text-blue-700 font-semibold mb-0.5">同工端 — 手機 / 平板專用介面</p>
+      <p class="text-sm text-blue-600">停車場地下室現場無電腦，同工以個人手機或教會平板操作。按鈕觸控目標 ≥ 48px。</p>
+    </div>
+    <!-- Frame toggle -->
+    <div class="flex-shrink-0 flex bg-white border border-blue-200 rounded-xl overflow-hidden shadow-sm">
+      <button id="staff-toggle-phone"
+        onclick="switchStaffFrame('phone')"
+        class="px-4 py-2 text-sm font-medium text-gray-500 flex items-center gap-1.5 transition">
+        📱 手機
+      </button>
+      <button id="staff-toggle-tablet"
+        onclick="switchStaffFrame('tablet')"
+        class="px-4 py-2 text-sm font-medium bg-blue-600 text-white flex items-center gap-1.5 transition">
+        📟 平板
+      </button>
+    </div>
+  </div>
+
+  <div class="flex gap-10 items-start">
+
+    <!-- Device frame wrapper -->
+    <div class="flex-shrink-0">
+
+    <!-- ════ TABLET FRAME ════ -->
+    <div id="staff-frame-tablet" class="tablet-shell">
+        <div class="tablet-camera"></div>
+        <div class="tablet-inner">
+
+          <!-- ── Screen A：點名清單 ── -->
+          <div id="ts-checkin" class="tablet-screen active">
+            <!-- Top bar -->
+            <div class="bg-gray-800 text-white px-5 py-3 flex items-center justify-between">
+              <div>
+                <p class="font-bold text-base">主日停車點名</p>
+                <p class="text-xs text-gray-300">2026/6/21（日）10:00 – 10:30</p>
+              </div>
+              <div class="flex gap-2 text-sm">
+                <div class="bg-green-600 rounded-xl px-3 py-1.5 text-center">
+                  <p class="font-bold text-lg leading-none">8</p>
+                  <p class="text-xs text-green-100">到場</p>
+                </div>
+                <div class="bg-amber-500 rounded-xl px-3 py-1.5 text-center">
+                  <p class="font-bold text-lg leading-none">5</p>
+                  <p class="text-xs text-amber-100">未到</p>
+                </div>
+                <div class="bg-gray-600 rounded-xl px-3 py-1.5 text-center">
+                  <p class="font-bold text-lg leading-none">3</p>
+                  <p class="text-xs text-gray-300">剩位</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action bar -->
+            <div class="bg-gray-50 border-b border-gray-200 px-5 py-3 flex items-center gap-3">
+              <button onclick="setStaffScreen('walkin')" class="bg-blue-600 text-white rounded-xl px-4 py-3 text-sm font-semibold flex-shrink-0">
+                ＋ 散客登記
+              </button>
+              <div class="flex-1 relative">
+                <input type="text" placeholder="搜尋姓名或車牌後四碼…" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white" />
+              </div>
+            </div>
+
+            <!-- List -->
+            <div class="overflow-y-auto" style="max-height: 720px;">
+
+              <!-- 未到 section -->
+              <div class="px-5 pt-4 pb-1">
+                <p class="text-xs font-semibold text-amber-600 uppercase tracking-wide">⏳ 尚未到場（5 位）</p>
+              </div>
+
+              <!-- Row: 未到 -->
+              <div class="mx-4 mb-2 bg-white rounded-2xl border border-amber-100 shadow-sm overflow-hidden">
+                <div class="flex items-center px-4 py-4 gap-4">
+                  <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 font-bold text-sm flex-shrink-0">張</div>
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-0.5">
+                      <p class="font-semibold text-gray-800 text-base">張三豐</p>
+                      <span class="badge badge-teal text-xs">⭐ 優先車位</span>
+                    </div>
+                    <p class="text-sm text-gray-500 font-mono">DEF-7788</p>
+                  </div>
+                  <button class="bg-green-500 text-white rounded-xl px-5 py-3 font-semibold text-base min-w-[80px]">
+                    到場
+                  </button>
+                </div>
+              </div>
+
+              <!-- Row: 路上 (延伸) -->
+              <div class="mx-4 mb-2 bg-blue-50 rounded-2xl border border-blue-200 shadow-sm overflow-hidden">
+                <div class="flex items-center px-4 py-4 gap-4">
+                  <div class="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center text-blue-700 font-bold text-sm flex-shrink-0">陳</div>
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-0.5">
+                      <p class="font-semibold text-gray-800 text-base">陳美麗</p>
+                      <span class="badge badge-teal text-xs">⭐ 優先車位</span>
+                      <span class="badge badge-blue text-xs">🚗 路上</span>
+                    </div>
+                    <p class="text-sm text-gray-500 font-mono">GHI-9900</p>
+                    <p class="text-xs text-blue-500 mt-0.5">保留至 10:45（已回覆正在路上）</p>
+                  </div>
+                  <button class="bg-green-500 text-white rounded-xl px-5 py-3 font-semibold text-base min-w-[80px]">
+                    到場
+                  </button>
+                </div>
+              </div>
+
+              <!-- Row: 未到 -->
+              <div class="mx-4 mb-2 bg-white rounded-2xl border border-amber-100 shadow-sm overflow-hidden">
+                <div class="flex items-center px-4 py-4 gap-4">
+                  <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 font-bold text-sm flex-shrink-0">趙</div>
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-0.5">
+                      <p class="font-semibold text-gray-800 text-base">趙小芬</p>
+                      <span class="badge badge-teal text-xs">⭐ 優先車位</span>
+                    </div>
+                    <p class="text-sm text-gray-500 font-mono">JKL-1122</p>
+                  </div>
+                  <button class="bg-green-500 text-white rounded-xl px-5 py-3 font-semibold text-base min-w-[80px]">
+                    到場
+                  </button>
+                </div>
+              </div>
+
+              <!-- 已到場 section -->
+              <div class="px-5 pt-4 pb-1">
+                <p class="text-xs font-semibold text-green-600 uppercase tracking-wide">✅ 已到場（8 位）</p>
+              </div>
+
+              <div class="mx-4 mb-2 bg-green-50 rounded-2xl border border-green-100 shadow-sm">
+                <div class="flex items-center px-4 py-3.5 gap-4">
+                  <div class="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center text-green-700 font-bold text-sm flex-shrink-0">王</div>
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                      <p class="font-semibold text-gray-700 text-base">王大明</p>
+                      <span class="badge badge-teal text-xs">⭐ 優先車位</span>
+                    </div>
+                    <p class="text-sm text-gray-400 font-mono">ABC-1234</p>
+                  </div>
+                  <p class="text-sm text-green-600 font-medium flex-shrink-0">10:08 ✓</p>
+                </div>
+              </div>
+
+              <div class="mx-4 mb-2 bg-green-50 rounded-2xl border border-green-100 shadow-sm">
+                <div class="flex items-center px-4 py-3.5 gap-4">
+                  <div class="w-10 h-10 bg-green-200 rounded-full flex items-center justify-center text-green-700 font-bold text-sm flex-shrink-0">李</div>
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                      <p class="font-semibold text-gray-700 text-base">李小花</p>
+                      <span class="badge badge-teal text-xs">⭐ 優先車位</span>
+                    </div>
+                    <p class="text-sm text-gray-400 font-mono">XYZ-5566</p>
+                  </div>
+                  <p class="text-sm text-green-600 font-medium flex-shrink-0">10:15 ✓</p>
+                </div>
+              </div>
+
+              <div class="mx-4 mb-2 text-center text-xs text-gray-400 py-1">另有 6 位已到場（略）</div>
+
+              <!-- 散客 section -->
+              <div class="px-5 pt-3 pb-1">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">現場散客（2 位）</p>
+              </div>
+              <div class="mx-4 mb-2 bg-gray-50 rounded-2xl border border-gray-200 shadow-sm">
+                <div class="flex items-center px-4 py-3.5 gap-4">
+                  <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold text-sm flex-shrink-0">散</div>
+                  <div class="flex-1">
+                    <p class="font-semibold text-gray-700 text-base font-mono">PQR-4455</p>
+                    <p class="text-xs text-gray-400">10:22 登記</p>
+                  </div>
+                  <button class="text-xs text-red-400 border border-red-200 rounded-lg px-3 py-2">移除</button>
+                </div>
+              </div>
+              <div class="mx-4 mb-4 bg-gray-50 rounded-2xl border border-gray-200 shadow-sm">
+                <div class="flex items-center px-4 py-3.5 gap-4">
+                  <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold text-sm flex-shrink-0">散</div>
+                  <div class="flex-1">
+                    <p class="font-semibold text-gray-700 text-base font-mono">STU-7788</p>
+                    <p class="text-xs text-gray-400">10:27 登記</p>
+                  </div>
+                  <button class="text-xs text-red-400 border border-red-200 rounded-lg px-3 py-2">移除</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom action -->
+            <div class="border-t border-gray-200 px-5 py-4 bg-white">
+              <button onclick="setStaffScreen('end')" class="w-full bg-gray-800 text-white rounded-2xl py-4 font-bold text-lg shadow">
+                結束本週點名
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Screen B：散客登記 ── -->
+          <div id="ts-walkin" class="tablet-screen">
+            <div class="bg-gray-800 text-white px-5 py-4 flex items-center gap-3">
+              <button onclick="setStaffScreen('checkin')" class="text-gray-300 text-2xl leading-none">‹</button>
+              <p class="font-bold text-lg">散客登記</p>
+            </div>
+            <div class="p-6">
+              <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
+                <p class="text-sm text-blue-700">現場剩餘空位：<strong class="text-xl text-blue-800">3 位</strong>（可供散客停入）</p>
+              </div>
+              <div class="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">車牌號碼（必填）</label>
+                <input type="text" placeholder="例：VWX-1234" class="w-full border-2 border-gray-200 rounded-2xl px-4 py-4 text-xl font-mono font-bold text-center focus:outline-none focus:border-green-400 tracking-widest uppercase" />
+              </div>
+              <div class="bg-white rounded-2xl border border-gray-200 p-5 mb-6">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">姓名（選填）</label>
+                <input type="text" placeholder="選填" class="w-full border-2 border-gray-200 rounded-2xl px-4 py-4 text-lg focus:outline-none focus:border-green-400" />
+              </div>
+              <button onclick="setStaffScreen('checkin')" class="w-full bg-green-600 text-white rounded-2xl py-5 font-bold text-xl shadow">
+                確認登記
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Screen C：結束點名確認 ── -->
+          <div id="ts-end" class="tablet-screen">
+            <div class="bg-gray-800 text-white px-5 py-4 flex items-center gap-3">
+              <button onclick="setStaffScreen('checkin')" class="text-gray-300 text-2xl leading-none">‹</button>
+              <p class="font-bold text-lg">結束本週點名</p>
+            </div>
+            <div class="p-6 flex flex-col items-center text-center pt-12">
+              <div class="text-6xl mb-4">📋</div>
+              <h2 class="text-2xl font-bold text-gray-800 mb-2">確認結束點名？</h2>
+              <p class="text-gray-500 mb-8">系統將對未到場且未取消的預約進行結算</p>
+              <div class="w-full bg-gray-50 rounded-2xl p-5 text-left mb-8 space-y-2">
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">P2 核准人數</span><span class="font-bold text-gray-800">13 位</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">已到場</span><span class="font-bold text-green-700">11 位</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">完全未到（將結算）</span><span class="font-bold text-red-600">2 位</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">散客</span><span class="font-bold text-gray-700">2 位</span>
+                </div>
+              </div>
+              <div class="w-full space-y-3">
+                <button onclick="setStaffScreen('checkin')" class="w-full bg-gray-800 text-white rounded-2xl py-5 font-bold text-xl shadow">
+                  確認結束點名
+                </button>
+                <button onclick="setStaffScreen('checkin')" class="w-full bg-white border-2 border-gray-200 text-gray-600 rounded-2xl py-4 text-lg">
+                  返回繼續點名
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /tablet-inner -->
+      </div><!-- /tablet-shell (id=staff-frame-tablet) -->
+
+    <!-- ════ PHONE FRAME ════ -->
+    <div id="staff-frame-phone" class="phone-shell hidden">
+      <div class="phone-inner">
+        <div class="phone-notch"></div>
+
+        <!-- ── Phone Screen A：點名清單 ── -->
+        <div id="ps-checkin" class="phone-screen active">
+          <!-- Top bar -->
+          <div class="bg-gray-800 text-white px-4 py-2.5 flex items-center justify-between">
+            <div>
+              <p class="font-bold text-sm">主日停車點名</p>
+              <p class="text-xs text-gray-400">2026/6/21　10:00–10:30</p>
+            </div>
+            <div class="flex gap-1.5">
+              <div class="bg-green-600 rounded-lg px-2 py-1 text-center">
+                <p class="font-bold text-base leading-none">8</p>
+                <p class="text-xs text-green-100">到場</p>
+              </div>
+              <div class="bg-amber-500 rounded-lg px-2 py-1 text-center">
+                <p class="font-bold text-base leading-none">5</p>
+                <p class="text-xs text-amber-100">未到</p>
+              </div>
+              <div class="bg-gray-600 rounded-lg px-2 py-1 text-center">
+                <p class="font-bold text-base leading-none">3</p>
+                <p class="text-xs text-gray-300">剩位</p>
+              </div>
+            </div>
+          </div>
+          <!-- Action bar -->
+          <div class="bg-gray-50 border-b border-gray-200 px-3 py-2 flex gap-2">
+            <button onclick="setPhoneStaffScreen('walkin')" class="bg-blue-600 text-white rounded-xl px-3 py-2.5 text-sm font-semibold flex-shrink-0">
+              ＋ 散客
+            </button>
+            <input type="text" placeholder="搜尋姓名或車牌…" class="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-white" />
+          </div>
+          <!-- List -->
+          <div class="overflow-y-auto bg-gray-50" style="max-height:580px">
+
+            <div class="px-3 pt-3 pb-1">
+              <p class="text-xs font-semibold text-amber-600 uppercase tracking-wide">⏳ 未到場（5）</p>
+            </div>
+
+            <div class="mx-3 mb-2 bg-white rounded-2xl border border-amber-100 shadow-sm">
+              <div class="flex items-center px-3 py-3.5 gap-3">
+                <div class="w-9 h-9 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 font-bold text-sm flex-shrink-0">張</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <p class="font-semibold text-gray-800 text-sm">張三豐</p>
+                    <span class="badge badge-teal" style="font-size:10px;padding:1px 7px">⭐ 優先</span>
+                  </div>
+                  <p class="text-xs text-gray-500 font-mono">DEF-7788</p>
+                </div>
+                <button class="bg-green-500 text-white rounded-xl px-4 py-3 font-bold text-sm flex-shrink-0">到場</button>
+              </div>
+            </div>
+
+            <div class="mx-3 mb-2 bg-blue-50 rounded-2xl border border-blue-200 shadow-sm">
+              <div class="flex items-center px-3 py-3.5 gap-3">
+                <div class="w-9 h-9 bg-blue-200 rounded-full flex items-center justify-center text-blue-700 font-bold text-sm flex-shrink-0">陳</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <p class="font-semibold text-gray-800 text-sm">陳美麗</p>
+                    <span class="badge badge-teal" style="font-size:10px;padding:1px 7px">⭐ 優先</span>
+                    <span class="badge badge-blue" style="font-size:10px;padding:1px 7px">🚗 路上</span>
+                  </div>
+                  <p class="text-xs text-blue-500">保留至 10:45</p>
+                </div>
+                <button class="bg-green-500 text-white rounded-xl px-4 py-3 font-bold text-sm flex-shrink-0">到場</button>
+              </div>
+            </div>
+
+            <div class="mx-3 mb-2 bg-white rounded-2xl border border-amber-100 shadow-sm">
+              <div class="flex items-center px-3 py-3.5 gap-3">
+                <div class="w-9 h-9 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 font-bold text-sm flex-shrink-0">趙</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <p class="font-semibold text-gray-800 text-sm">趙小芬</p>
+                    <span class="badge badge-teal" style="font-size:10px;padding:1px 7px">⭐ 優先</span>
+                  </div>
+                  <p class="text-xs text-gray-500 font-mono">JKL-1122</p>
+                </div>
+                <button class="bg-green-500 text-white rounded-xl px-4 py-3 font-bold text-sm flex-shrink-0">到場</button>
+              </div>
+            </div>
+
+            <div class="px-3 pt-3 pb-1">
+              <p class="text-xs font-semibold text-green-600 uppercase tracking-wide">✅ 已到場（8）</p>
+            </div>
+
+            <div class="mx-3 mb-2 bg-green-50 rounded-2xl border border-green-100 shadow-sm">
+              <div class="flex items-center px-3 py-3 gap-3">
+                <div class="w-9 h-9 bg-green-200 rounded-full flex items-center justify-center text-green-700 font-bold text-sm flex-shrink-0">王</div>
+                <div class="flex-1">
+                  <p class="font-semibold text-gray-700 text-sm">王大明　<span class="font-mono font-normal text-gray-400 text-xs">ABC-1234</span></p>
+                </div>
+                <p class="text-xs text-green-600 flex-shrink-0">10:08 ✓</p>
+              </div>
+            </div>
+
+            <div class="mx-3 mb-2 bg-green-50 rounded-2xl border border-green-100 shadow-sm">
+              <div class="flex items-center px-3 py-3 gap-3">
+                <div class="w-9 h-9 bg-green-200 rounded-full flex items-center justify-center text-green-700 font-bold text-sm flex-shrink-0">李</div>
+                <div class="flex-1">
+                  <p class="font-semibold text-gray-700 text-sm">李小花　<span class="font-mono font-normal text-gray-400 text-xs">XYZ-5566</span></p>
+                </div>
+                <p class="text-xs text-green-600 flex-shrink-0">10:15 ✓</p>
+              </div>
+            </div>
+
+            <div class="mx-3 mb-3 text-center text-xs text-gray-400">另 6 位已到場（略）</div>
+
+            <div class="px-3 pb-1">
+              <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">散客（2）</p>
+            </div>
+            <div class="mx-3 mb-3 bg-gray-50 rounded-2xl border border-gray-200 shadow-sm">
+              <div class="flex items-center px-3 py-3 gap-3">
+                <div class="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-xs flex-shrink-0">散</div>
+                <div class="flex-1">
+                  <p class="font-mono text-sm font-bold text-gray-700">PQR-4455</p>
+                  <p class="text-xs text-gray-400">10:22</p>
+                </div>
+                <button class="text-xs text-red-400 border border-red-200 rounded-lg px-2.5 py-1.5">移除</button>
+              </div>
+            </div>
+          </div>
+          <!-- Bottom -->
+          <div class="border-t border-gray-200 px-3 py-3 bg-white">
+            <button onclick="setPhoneStaffScreen('end')" class="w-full bg-gray-800 text-white rounded-2xl py-4 font-bold text-base shadow">
+              結束本週點名
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Phone Screen B：散客登記 ── -->
+        <div id="ps-walkin" class="phone-screen">
+          <div class="bg-gray-800 text-white px-4 py-3 flex items-center gap-3">
+            <button onclick="setPhoneStaffScreen('checkin')" class="text-gray-300 text-xl">‹</button>
+            <p class="font-bold text-sm">散客登記</p>
+          </div>
+          <div class="p-4">
+            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-3 mb-4">
+              <p class="text-sm text-blue-700">現場剩餘：<strong class="text-xl text-blue-800">3 位</strong></p>
+            </div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">車牌號碼（必填）</label>
+            <input type="text" placeholder="VWX-1234" class="w-full border-2 border-gray-200 rounded-2xl px-4 py-4 text-2xl font-mono font-bold text-center focus:outline-none focus:border-green-400 tracking-widest uppercase mb-4" />
+            <label class="block text-sm font-semibold text-gray-700 mb-2">姓名（選填）</label>
+            <input type="text" placeholder="選填" class="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-base focus:outline-none focus:border-green-400 mb-6" />
+            <button onclick="setPhoneStaffScreen('checkin')" class="w-full bg-green-600 text-white rounded-2xl py-4 font-bold text-lg shadow">確認登記</button>
+          </div>
+        </div>
+
+        <!-- ── Phone Screen C：結束點名 ── -->
+        <div id="ps-end" class="phone-screen">
+          <div class="bg-gray-800 text-white px-4 py-3 flex items-center gap-3">
+            <button onclick="setPhoneStaffScreen('checkin')" class="text-gray-300 text-xl">‹</button>
+            <p class="font-bold text-sm">結束點名</p>
+          </div>
+          <div class="p-4 text-center pt-8">
+            <div class="text-5xl mb-3">📋</div>
+            <h2 class="text-xl font-bold text-gray-800 mb-1">確認結束點名？</h2>
+            <p class="text-sm text-gray-500 mb-6">系統將對未到場者進行結算</p>
+            <div class="bg-gray-50 rounded-2xl p-4 text-left mb-6 space-y-2 text-sm">
+              <div class="flex justify-between"><span class="text-gray-500">P2 核准</span><span class="font-bold">13 位</span></div>
+              <div class="flex justify-between"><span class="text-gray-500">已到場</span><span class="font-bold text-green-700">11 位</span></div>
+              <div class="flex justify-between"><span class="text-gray-500">未到（結算）</span><span class="font-bold text-red-600">2 位</span></div>
+              <div class="flex justify-between"><span class="text-gray-500">散客</span><span class="font-bold">2 位</span></div>
+            </div>
+            <button onclick="setPhoneStaffScreen('checkin')" class="w-full bg-gray-800 text-white rounded-2xl py-4 font-bold text-base shadow mb-3">確認結束點名</button>
+            <button onclick="setPhoneStaffScreen('checkin')" class="w-full bg-white border-2 border-gray-200 text-gray-600 rounded-2xl py-3 text-sm">返回繼續點名</button>
+          </div>
+        </div>
+
+      </div><!-- /phone-inner -->
+    </div><!-- /phone-shell (staff) -->
+
+    </div><!-- /device frame wrapper -->
+
+      <!-- Screen nav pills -->
+      <div id="staff-nav-tablet" class="mt-5 flex flex-wrap gap-2 justify-center" style="max-width:768px">
+        <p class="w-full text-center text-xs text-gray-400 mb-1">點選切換畫面</p>
+        <button onclick="setStaffScreen('checkin')" class="screen-pill">點名清單</button>
+        <button onclick="setStaffScreen('walkin')" class="screen-pill">散客登記</button>
+        <button onclick="setStaffScreen('end')" class="screen-pill">結束點名</button>
+      </div>
+      <div id="staff-nav-phone" class="mt-5 flex-wrap gap-2 justify-center hidden" style="max-width:375px">
+        <p class="w-full text-center text-xs text-gray-400 mb-1">點選切換畫面</p>
+        <button onclick="setPhoneStaffScreen('checkin')" class="screen-pill">點名清單</button>
+        <button onclick="setPhoneStaffScreen('walkin')" class="screen-pill">散客登記</button>
+        <button onclick="setPhoneStaffScreen('end')" class="screen-pill">結束點名</button>
+      </div>
+    </div>
+
+    <!-- Annotations -->
+    <div class="flex-1 space-y-4">
+      <h2 class="text-xl font-bold text-gray-800">同工端設計原則</h2>
+
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+        <p class="font-semibold text-gray-800 mb-3">裝置規格</p>
+        <div class="space-y-2 text-sm text-gray-600">
+          <div class="flex gap-2"><span class="text-gray-400 flex-shrink-0">📱</span> 目標裝置：手機（≥390px）/ 平板（≥768px）</div>
+          <div class="flex gap-2"><span class="text-gray-400 flex-shrink-0">👆</span> 按鈕觸控目標 ≥ 48px，防止地下室站立時誤觸</div>
+          <div class="flex gap-2"><span class="text-gray-400 flex-shrink-0">🔤</span> 字體 ≥ 16px，車牌用 mono 加粗，一眼辨識</div>
+          <div class="flex gap-2"><span class="text-gray-400 flex-shrink-0">🔋</span> 地下室 Wi-Fi 環境，需評估離線降級策略</div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+        <p class="font-semibold text-gray-800 mb-3">同工可做什麼</p>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li class="flex gap-2">✅ <span>到場點名（大按鈕，一鍵點擊）</span></li>
+          <li class="flex gap-2">✅ <span>遲到補點名（10:30 後仍可補，免違規）</span></li>
+          <li class="flex gap-2">✅ <span>登記現場散客車牌</span></li>
+          <li class="flex gap-2">✅ <span>查看剩餘空位數（供現場判斷）</span></li>
+          <li class="flex gap-2">✅ <span>結束本週點名（觸發結算）</span></li>
+        </ul>
+      </div>
+
+      <div class="bg-teal-50 rounded-2xl p-4 border border-teal-200">
+        <p class="font-semibold text-teal-700 mb-2">🔒 隱私保護</p>
+        <p class="text-sm text-teal-700">同工只看到「姓名、車牌、⭐ 優先車位」。<strong>不顯示</strong> P2 具體原因（行動不便 / 孕婦 / 幼兒 / 年長者）與違規分數。</p>
+      </div>
+
+      <div class="bg-amber-50 rounded-2xl p-4 border border-amber-200">
+        <p class="font-semibold text-amber-700 mb-2">⏰ 關鍵時間點</p>
+        <ul class="text-sm text-amber-700 space-y-1">
+          <li>10:20 — 系統自動 LINE 通知 P2 未到場者</li>
+          <li>10:30 — P3 逾時自動釋出（此版無 P3，同工知即可）</li>
+          <li>10:45 — P2 逾時釋出（未回「正在路上」者）</li>
+          <li>10:55 — P2 grace 最終釋出（已回「路上」者）</li>
+        </ul>
+      </div>
+
+      <div class="bg-gray-50 rounded-2xl p-4 border border-gray-200">
+        <p class="font-semibold text-gray-700 mb-2">🛡️ 防呆機制</p>
+        <p class="text-sm text-gray-600">12:30 系統提醒同工結束點名；14:00 仍未結束則通知 Admin 手動補結算，避免資料卡死。</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PANEL 3 — 管理員後台
+══════════════════════════════════════ -->
+<section id="panel-admin" class="panel hidden">
+  <h2 class="text-xl font-bold text-gray-800 mb-5">管理員後台</h2>
+
+  <!-- Top row -->
+  <div class="grid grid-cols-3 gap-4 mb-6">
+
+    <!-- 本週車位設定 -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm border-t-4 border-green-500">
+      <p class="font-semibold text-gray-800 mb-4">本週車位設定</p>
+      <div class="space-y-3">
+        <div class="flex justify-between items-center text-sm">
+          <span class="text-gray-600">地下室總車位</span>
+          <span class="font-bold text-gray-800">23 位</span>
+        </div>
+        <div class="flex justify-between items-center text-sm">
+          <span class="text-gray-600">P1 手動保留（同工）</span>
+          <div class="flex items-center gap-1.5">
+            <input type="number" value="5" min="0" max="23"
+              class="w-12 border border-gray-200 rounded-lg px-2 py-1 text-center text-sm font-bold focus:outline-none focus:ring-2 focus:ring-green-400" />
+            <span class="text-gray-500 text-xs">位</span>
+          </div>
+        </div>
+        <div class="flex justify-between items-center text-sm">
+          <span class="text-gray-600">停用 / 異常車位</span>
+          <div class="flex items-center gap-1.5">
+            <input type="number" value="2" min="0" max="23"
+              class="w-12 border border-gray-200 rounded-lg px-2 py-1 text-center text-sm font-bold focus:outline-none focus:ring-2 focus:ring-green-400" />
+            <span class="text-gray-500 text-xs">位</span>
+          </div>
+        </div>
+        <div class="border-t pt-3">
+          <div class="flex justify-between items-center">
+            <span class="font-semibold text-gray-700 text-sm">P2 可分配</span>
+            <span class="text-2xl font-bold text-green-600">16 位</span>
+          </div>
+          <p class="text-xs text-gray-400 mt-1">23 − 5（P1）− 2（停用）= 16</p>
+        </div>
+        <button class="w-full bg-green-600 text-white rounded-xl py-2 text-sm font-medium hover:bg-green-700 transition">
+          儲存本週設定
+        </button>
+      </div>
+    </div>
+
+    <!-- 本週概況 -->
+    <div class="col-span-2 bg-white rounded-2xl p-5 shadow-sm">
+      <div class="flex items-center justify-between mb-4">
+        <p class="font-semibold text-gray-800">本週概況</p>
+        <span class="text-xs text-gray-400">2026 / 6 / 21（週五 18:00 分配後）</span>
+      </div>
+      <div class="grid grid-cols-4 gap-3 mb-4">
+        <div class="bg-green-50 rounded-xl p-3 text-center">
+          <p class="text-2xl font-bold text-green-700">16</p>
+          <p class="text-xs text-green-600">P2 可分配</p>
+        </div>
+        <div class="bg-blue-50 rounded-xl p-3 text-center">
+          <p class="text-2xl font-bold text-blue-700">19</p>
+          <p class="text-xs text-blue-600">P2 申請人數</p>
+        </div>
+        <div class="bg-green-50 rounded-xl p-3 text-center">
+          <p class="text-2xl font-bold text-green-700">13</p>
+          <p class="text-xs text-green-600">已核准</p>
+        </div>
+        <div class="bg-amber-50 rounded-xl p-3 text-center">
+          <p class="text-2xl font-bold text-amber-600">3</p>
+          <p class="text-xs text-amber-600">候補中</p>
+        </div>
+      </div>
+      <div class="bg-amber-50 rounded-xl p-3 border border-amber-100">
+        <p class="text-xs text-amber-700">⚠️ <strong>牧養關懷提醒：</strong>吳小美已連續 4 週核准未到場，建議主動聯繫了解狀況。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- P2 資格名單 -->
+  <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-6">
+    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+      <div>
+        <p class="font-semibold text-gray-800">P2 資格名單</p>
+        <p class="text-xs text-gray-400 mt-0.5">對應紙本「停車申請單」，線上審核管理</p>
+      </div>
+      <button class="bg-green-600 text-white rounded-xl px-4 py-1.5 text-sm font-medium">
+        ＋ 新增資格
+      </button>
+    </div>
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-gray-50 text-xs text-gray-500">
+          <th class="text-left px-5 py-3">姓名</th>
+          <th class="text-left px-5 py-3">P2 類型</th>
+          <th class="text-left px-5 py-3">被攜帶者</th>
+          <th class="text-left px-5 py-3">有效期 / 追蹤日</th>
+          <th class="text-center px-5 py-3">狀態</th>
+          <th class="text-center px-5 py-3">操作</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-50">
+        <tr>
+          <td class="px-5 py-3.5 font-medium text-gray-800">王大明</td>
+          <td class="px-5 py-3.5"><span class="badge badge-teal">♿ 長期行動不便</span></td>
+          <td class="px-5 py-3.5 text-gray-400 text-xs">—</td>
+          <td class="px-5 py-3.5 text-gray-500 text-xs">長期有效</td>
+          <td class="px-5 py-3.5 text-center"><span class="badge badge-green">有效</span></td>
+          <td class="px-5 py-3.5 text-center">
+            <button class="text-xs text-blue-500 border border-blue-100 rounded-lg px-3 py-1">編輯</button>
+          </td>
+        </tr>
+        <tr>
+          <td class="px-5 py-3.5 font-medium text-gray-800">趙小芬</td>
+          <td class="px-5 py-3.5"><span class="badge badge-amber">🩹 短期行動不便</span></td>
+          <td class="px-5 py-3.5 text-gray-400 text-xs">—</td>
+          <td class="px-5 py-3.5">
+            <span class="text-amber-600 text-xs font-medium">追蹤日：2026/7/15</span>
+          </td>
+          <td class="px-5 py-3.5 text-center"><span class="badge badge-green">有效</span></td>
+          <td class="px-5 py-3.5 text-center">
+            <button class="text-xs text-blue-500 border border-blue-100 rounded-lg px-3 py-1">編輯</button>
+          </td>
+        </tr>
+        <tr>
+          <td class="px-5 py-3.5 font-medium text-gray-800">林美月</td>
+          <td class="px-5 py-3.5"><span class="badge badge-pink">🤰 孕婦</span></td>
+          <td class="px-5 py-3.5 text-gray-400 text-xs">—</td>
+          <td class="px-5 py-3.5 text-gray-500 text-xs">至學齡（約 2030/9）</td>
+          <td class="px-5 py-3.5 text-center"><span class="badge badge-green">有效</span></td>
+          <td class="px-5 py-3.5 text-center">
+            <button class="text-xs text-blue-500 border border-blue-100 rounded-lg px-3 py-1">編輯</button>
+          </td>
+        </tr>
+        <tr>
+          <td class="px-5 py-3.5 font-medium text-gray-800">李小花</td>
+          <td class="px-5 py-3.5"><span class="badge badge-blue">👶 幼兒同行</span></td>
+          <td class="px-5 py-3.5">
+            <p class="text-gray-700 text-xs font-medium">陳小明</p>
+            <p class="text-gray-400 text-xs">2022/3/15（4 歲）</p>
+          </td>
+          <td class="px-5 py-3.5 text-gray-500 text-xs">至學齡（約 2028/9）</td>
+          <td class="px-5 py-3.5 text-center"><span class="badge badge-green">有效</span></td>
+          <td class="px-5 py-3.5 text-center">
+            <button class="text-xs text-blue-500 border border-blue-100 rounded-lg px-3 py-1">編輯</button>
+          </td>
+        </tr>
+        <tr>
+          <td class="px-5 py-3.5 font-medium text-gray-800">張三豐</td>
+          <td class="px-5 py-3.5"><span class="badge badge-purple">👴 年長者同行</span></td>
+          <td class="px-5 py-3.5">
+            <p class="text-gray-700 text-xs font-medium">張老太</p>
+            <p class="text-gray-400 text-xs">1945/8/20（80 歲）</p>
+          </td>
+          <td class="px-5 py-3.5 text-gray-500 text-xs">長期有效</td>
+          <td class="px-5 py-3.5 text-center"><span class="badge badge-green">有效</span></td>
+          <td class="px-5 py-3.5 text-center">
+            <button class="text-xs text-blue-500 border border-blue-100 rounded-lg px-3 py-1">編輯</button>
+          </td>
+        </tr>
+        <!-- 追蹤到期 row -->
+        <tr class="bg-red-50">
+          <td class="px-5 py-3.5 font-medium text-gray-800">吳小萍</td>
+          <td class="px-5 py-3.5"><span class="badge badge-amber">🩹 短期行動不便</span></td>
+          <td class="px-5 py-3.5 text-gray-400 text-xs">—</td>
+          <td class="px-5 py-3.5">
+            <span class="text-red-600 text-xs font-semibold">⚠️ 追蹤日：6/15（已逾期）</span>
+          </td>
+          <td class="px-5 py-3.5 text-center"><span class="badge badge-red">待確認</span></td>
+          <td class="px-5 py-3.5 text-center">
+            <div class="flex gap-1 justify-center">
+              <button class="text-xs text-green-600 border border-green-200 rounded-lg px-2 py-1 bg-green-50">續期</button>
+              <button class="text-xs text-gray-400 border border-gray-200 rounded-lg px-2 py-1">停用</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 新增 / 審核申請 -->
+  <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-100">
+      <p class="font-semibold text-gray-800">新增 P2 資格申請（對應紙本審核）</p>
+      <p class="text-xs text-gray-400 mt-0.5">依紙本「內湖信友堂主日崇拜停車申請單」填入並入碼</p>
+    </div>
+    <div class="p-5 grid grid-cols-3 gap-4">
+      <div>
+        <label class="text-xs text-gray-500 block mb-1">申請人姓名</label>
+        <input type="text" placeholder="例：黃阿嬤" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300" />
+      </div>
+      <div>
+        <label class="text-xs text-gray-500 block mb-1">車牌號碼</label>
+        <input type="text" placeholder="例：STU-7788" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-green-300" />
+      </div>
+      <div>
+        <label class="text-xs text-gray-500 block mb-1">P2 資格類型</label>
+        <select class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300">
+          <option>♿ 長期行動不便（領有身障手冊）</option>
+          <option>🩹 短期行動不便</option>
+          <option>🤰 孕婦（懷有身孕）</option>
+          <option>👶 幼兒同行（5 歲以下）</option>
+          <option>👴 年長者同行（75 歲以上）</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs text-gray-500 block mb-1">被攜帶者姓名（幼兒 / 年長者）</label>
+        <input type="text" placeholder="選填" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300" />
+      </div>
+      <div>
+        <label class="text-xs text-gray-500 block mb-1">被攜帶者生日</label>
+        <input type="date" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300" />
+      </div>
+      <div>
+        <label class="text-xs text-gray-500 block mb-1">追蹤日期（短期行動不便必填）</label>
+        <input type="date" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300" />
+      </div>
+      <div class="col-span-3">
+        <label class="text-xs text-gray-500 block mb-1">備註</label>
+        <input type="text" placeholder="選填" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300" />
+      </div>
+      <div class="col-span-3 flex gap-3">
+        <button class="flex-1 bg-green-600 text-white rounded-xl py-2.5 text-sm font-semibold shadow hover:bg-green-700 transition">
+          核准並入碼
+        </button>
+        <button class="flex-1 bg-white border border-gray-200 text-gray-600 rounded-xl py-2.5 text-sm hover:bg-gray-50 transition">
+          退回申請
+        </button>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+</main>
+
+<!-- Walk-in modal (simple) -->
+<div id="walkin-modal" class="hidden fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
+  <div class="bg-white rounded-2xl p-6 shadow-xl w-80">
+    <p class="font-semibold text-gray-800 mb-4">登記現場散客</p>
+    <label class="text-xs text-gray-500 block mb-1">車牌號碼</label>
+    <input type="text" placeholder="例：VWX-1234" class="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-mono mb-4 focus:outline-none focus:ring-2 focus:ring-green-300" />
+    <div class="flex gap-3">
+      <button onclick="hideWalkinModal()" class="flex-1 bg-green-600 text-white rounded-xl py-2 text-sm font-medium">確認登記</button>
+      <button onclick="hideWalkinModal()" class="flex-1 bg-white border border-gray-200 text-gray-600 rounded-xl py-2 text-sm">取消</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchTab(name) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
+    document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.remove('hidden');
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+
+  function setMemberScreen(name) {
+    document.querySelectorAll('.phone-screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('ms-' + name).classList.add('active');
+  }
+
+  function setStaffScreen(name) {
+    document.querySelectorAll('.tablet-screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('ts-' + name).classList.add('active');
+  }
+
+  function setPhoneStaffScreen(name) {
+    document.querySelectorAll('.phone-screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('ps-' + name).classList.add('active');
+  }
+
+  function switchStaffFrame(type) {
+    const tablet = document.getElementById('staff-frame-tablet');
+    const phone  = document.getElementById('staff-frame-phone');
+    const navT   = document.getElementById('staff-nav-tablet');
+    const navP   = document.getElementById('staff-nav-phone');
+    const btnT   = document.getElementById('staff-toggle-tablet');
+    const btnP   = document.getElementById('staff-toggle-phone');
+
+    if (type === 'tablet') {
+      tablet.classList.remove('hidden');
+      phone.classList.add('hidden');
+      navT.classList.remove('hidden'); navT.style.display = '';
+      navP.classList.add('hidden');
+      btnT.classList.add('bg-blue-600','text-white');
+      btnT.classList.remove('text-gray-500');
+      btnP.classList.remove('bg-blue-600','text-white');
+      btnP.classList.add('text-gray-500');
+    } else {
+      phone.classList.remove('hidden');
+      tablet.classList.add('hidden');
+      navP.classList.remove('hidden'); navP.style.display = 'flex';
+      navT.classList.add('hidden');
+      btnP.classList.add('bg-blue-600','text-white');
+      btnP.classList.remove('text-gray-500');
+      btnT.classList.remove('bg-blue-600','text-white');
+      btnT.classList.add('text-gray-500');
+    }
+  }
+
+  function showWalkinModal() {
+    document.getElementById('walkin-modal').classList.remove('hidden');
+  }
+
+  function hideWalkinModal() {
+    document.getElementById('walkin-modal').classList.add('hidden');
+  }
+</script>
+</body>
+</html>

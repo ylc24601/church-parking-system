@@ -1,0 +1,1215 @@
+<title>會友自助維護 — 可點流程 mockup</title>
+
+<style>
+  /* Sibling of staff-action-color-and-settle.html / staff-move-car-entry.html — same chrome
+     tokens on purpose, so the mockups read as one set. Chrome is theme-aware; the phone frame
+     is not (the product is deliberately single-light-theme, see globals.css / design-spec §1.1). */
+  :root {
+    --page: #f4f6f1;
+    --card: #ffffff;
+    --ink: #1c241f;
+    --muted: #63736a;
+    --line: #e1e6dd;
+    --line-soft: #edf0ea;
+    --accent: #15803d;
+    --accent-soft: #dcfce7;
+    --on-accent: #ffffff;
+    --warn-fg: #92400e;
+    --warn-soft: #fef3c7;
+    --shadow: 0 1px 2px rgba(28, 36, 31, .06), 0 8px 24px rgba(28, 36, 31, .06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #12160f; --card: #1a1f18; --ink: #e8ede4; --muted: #96a394;
+      --line: #2b332a; --line-soft: #232a22; --accent: #6ee7a0; --accent-soft: #17301f;
+      --on-accent: #10231a; --warn-fg: #fbbf24; --warn-soft: #2e2413;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --page: #12160f; --card: #1a1f18; --ink: #e8ede4; --muted: #96a394;
+    --line: #2b332a; --line-soft: #232a22; --accent: #6ee7a0; --accent-soft: #17301f;
+    --on-accent: #10231a; --warn-fg: #fbbf24; --warn-soft: #2e2413;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+  }
+
+  .page {
+    --sans: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC",
+      "Microsoft JhengHei", "Segoe UI", sans-serif;
+    --mono: "SF Mono", ui-monospace, "Roboto Mono", Menlo, Consolas, monospace;
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    min-height: 100dvh;
+    padding: clamp(1.5rem, 4vw, 3.5rem) 0 5rem;
+  }
+
+  .page *, .page *::before, .page *::after { box-sizing: border-box; }
+
+  .wrap {
+    max-width: 74rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 3vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .eyebrow {
+    font-size: .75rem; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent); margin: 0;
+  }
+
+  h1 {
+    font-size: clamp(1.5rem, 3.6vw, 2.1rem); font-weight: 800;
+    letter-spacing: -.01em; text-wrap: balance; margin: .35rem 0 0;
+  }
+
+  h2 { font-size: 1.05rem; font-weight: 700; margin: 0; }
+  h3 { font-size: .95rem; font-weight: 750; margin: 0; }
+  .lede { max-width: 62ch; color: var(--muted); margin: .75rem 0 0; }
+  .section { display: flex; flex-direction: column; gap: 1rem; }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: 0; }
+  .prose { max-width: 62ch; margin: 0; font-size: .92rem; color: var(--muted); }
+  .prose strong { color: var(--ink); font-weight: 650; }
+  .page a { color: var(--accent); }
+  .page :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+  /* ── Screen index ─────────────────────────────────────────────────── */
+  .groups { display: flex; flex-wrap: wrap; gap: 1.25rem; }
+  .group { display: flex; flex-direction: column; gap: .5rem; min-width: 15rem; flex: 1; }
+  .grouptag { display: flex; align-items: baseline; gap: .45rem; }
+  .grouptag b { font-size: .95rem; font-weight: 750; }
+
+  .code {
+    font-family: var(--mono); font-size: .7rem; font-weight: 700;
+    color: var(--on-accent); background: var(--accent); border-radius: 5px; padding: .1rem .4rem;
+  }
+
+  .page code {
+    font-family: var(--mono); font-size: .85em;
+    background: var(--line-soft); border-radius: 5px; padding: .05rem .3rem;
+  }
+
+  .steps { display: flex; flex-direction: column; gap: .3rem; }
+
+  .stepbtn {
+    appearance: none; text-align: left; font: inherit; font-size: .84rem;
+    background: var(--card); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: .45rem .7rem; cursor: pointer;
+    display: flex; align-items: baseline; gap: .5rem;
+  }
+
+  .stepbtn:hover { border-color: var(--accent); }
+  .stepbtn.on { background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
+  .stepbtn i { font-style: normal; font-family: var(--mono); font-size: .72rem; color: var(--muted); }
+  .stepbtn.on i { color: var(--accent); }
+
+  /* ── Stage: phone + live annotation ───────────────────────────────── */
+  .stage { display: grid; gap: 1.5rem; grid-template-columns: 1fr; align-items: start; }
+  @media (min-width: 60rem) { .stage { grid-template-columns: 22rem 1fr; } }
+
+  .phonewrap { position: sticky; top: 1.5rem; display: flex; flex-direction: column; gap: .6rem; }
+  .phonecap { font-size: .78rem; color: var(--muted); margin: 0; }
+
+  /* ── Phone frame: Member product tokens verbatim (design-spec §1.1 / §2.1) ── */
+  .app {
+    --brand: #06c755; --p: #15803d; --p-deep: #14532d; --p-strong: #166534;
+    --bg: #f4f6f1; --surface: #ffffff; --t-ink: #1c241f; --t-muted: #63736a;
+    --border: #e1e6dd; --border-soft: #edf0ea;
+    --ok-fg: #15803d; --ok-bg: #dcfce7; --warn-f: #92400e; --warn-b: #fef3c7;
+    --info-f: #1d4ed8; --info-b: #dbeafe; --danger-f: #b91c1c; --danger-b: #fee2e2;
+    --neutral-f: #57605a; --neutral-b: #eef1ee;
+
+    background: var(--bg); color: var(--t-ink);
+    border: 1px solid var(--line); border-radius: 22px; overflow: hidden;
+    box-shadow: var(--shadow); color-scheme: light;
+    display: flex; flex-direction: column; min-height: 36rem;
+    font-size: 15px;
+  }
+
+  [data-screen] { display: flex; flex-direction: column; flex: 1; }
+  .page [hidden] { display: none !important; }
+
+  .app button { appearance: none; font: inherit; border: 0; background: none; color: inherit; cursor: pointer; }
+
+  /* LINE-brand strip. #06C755 is ~1.9:1 against white, so text/logo are dark ink — never
+     white — per design-spec §2.1 品牌綠 a11y. */
+  .brandbar {
+    background: var(--brand); color: var(--p-deep);
+    padding: .8rem .9rem .7rem;
+    display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+  }
+  .brandbar .who { display: flex; align-items: center; gap: .5rem; font-size: .88rem; font-weight: 700; }
+  .dot { width: 1.55rem; height: 1.55rem; border-radius: 999px; background: #fff; display: grid; place-items: center; font-size: .9rem; }
+  .brandbar .back { font-size: .84rem; font-weight: 650; color: var(--p-deep); opacity: .85; }
+
+  .body { padding: .9rem; display: flex; flex-direction: column; gap: .7rem; flex: 1; }
+  .hi { font-size: .82rem; color: var(--t-muted); margin: 0; }
+
+  .hero {
+    border-radius: 18px; padding: .85rem .9rem; color: #fff;
+    background: linear-gradient(135deg, #15803d, #166534);
+    box-shadow: 0 8px 20px rgba(21, 128, 61, .22);
+  }
+  .hero small { display: block; font-size: .68rem; font-weight: 600; letter-spacing: .06em; color: rgba(255, 255, 255, .82); }
+  .hero b { display: block; font-size: 1.4rem; font-weight: 800; letter-spacing: -.01em; margin-top: .1rem; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: .9rem; display: flex; flex-direction: column; gap: .55rem;
+  }
+  .card.tight { gap: .4rem; }
+  .label { font-size: .64rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--t-muted); margin: 0; }
+  .app p { margin: 0; }
+  .muted { color: var(--t-muted); font-size: .82rem; }
+  .plate { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; letter-spacing: .04em; }
+
+  .badge { display: inline-flex; align-items: center; gap: .2rem; align-self: flex-start;
+    font-size: .72rem; font-weight: 700; padding: .2rem .55rem; border-radius: 999px; }
+  .b-ok { background: var(--ok-bg); color: var(--ok-fg); }
+  .b-warn { background: var(--warn-b); color: var(--warn-f); }
+  .b-info { background: var(--info-b); color: var(--info-f); }
+  .b-neutral { background: var(--neutral-b); color: var(--neutral-f); }
+  .b-danger { background: var(--danger-b); color: var(--danger-f); }
+
+  .btn { min-height: 2.9rem; border-radius: 16px; font-size: .95rem; font-weight: 750;
+    display: inline-flex; align-items: center; justify-content: center; gap: .35rem; padding: 0 1rem; width: 100%; }
+  .btn-primary { background: var(--p); color: #fff; }
+  .btn-ghost { background: var(--surface); color: var(--t-ink); border: 1px solid var(--border); }
+  .btn-danger { background: var(--surface); color: var(--danger-f); border: 1px solid var(--danger-f); }
+  .btn-sm { min-height: 2.3rem; width: auto; font-size: .84rem; border-radius: 12px; padding: 0 .8rem; }
+
+  /* completeness banner — warning tone, links into M1 */
+  .banner {
+    display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+    background: var(--warn-b); color: var(--warn-f);
+    border: 1px solid rgba(146, 64, 14, .22); border-radius: 16px; padding: .65rem .8rem;
+    font-size: .86rem; font-weight: 650; text-align: left; width: 100%;
+  }
+  .banner.calm { background: var(--info-b); color: var(--info-f); border-color: rgba(29, 78, 216, .22); }
+  .banner span.go { font-size: .82rem; font-weight: 750; white-space: nowrap; }
+
+  .entry {
+    display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+    padding: .8rem .9rem; width: 100%; text-align: left;
+  }
+  .entry b { font-size: .95rem; font-weight: 750; }
+  .entry .sub { display: block; font-size: .78rem; color: var(--t-muted); font-weight: 400; }
+  .chev { color: var(--t-muted); font-size: 1.1rem; }
+
+  .field { display: flex; flex-direction: column; gap: .2rem; padding: .55rem 0; border-bottom: 1px solid var(--border-soft); }
+  .field:last-child { border-bottom: 0; }
+  .field .k { font-size: .74rem; color: var(--t-muted); }
+  .field .v { font-size: .95rem; font-weight: 650; }
+  .field .lock { font-size: .74rem; color: var(--t-muted); }
+  .field.act { flex-direction: row; align-items: center; justify-content: space-between; }
+
+  .missing { display: flex; flex-direction: column; gap: .4rem; }
+  .missing li { list-style: none; display: flex; gap: .4rem; font-size: .88rem; color: var(--warn-f); }
+  .missing ul { margin: 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; }
+
+  .vrow { display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+    padding: .6rem 0; border-bottom: 1px solid var(--border-soft); }
+  .vrow:last-of-type { border-bottom: 0; }
+  .vrow .pl { font-family: var(--mono); font-size: 1.05rem; font-weight: 700; letter-spacing: .04em; }
+  .vrow.off .pl { color: var(--t-muted); text-decoration: line-through; }
+
+  .empty { text-align: center; display: flex; flex-direction: column; gap: .5rem; padding: .5rem 0 0; }
+  .empty .big { font-size: 2rem; }
+
+  .sheet { background: var(--surface); border-radius: 20px 20px 0 0; padding: 1rem .9rem 1.1rem;
+    border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: .7rem;
+    box-shadow: 0 -10px 30px rgba(28, 36, 31, .12); margin-top: auto; }
+  .sheet h4 { margin: 0; font-size: 1rem; font-weight: 800; }
+  .scrim { flex: 1; background: rgba(28, 36, 31, .28); }
+
+  .check { display: flex; gap: .6rem; align-items: flex-start; padding: .6rem .7rem;
+    border: 1px solid var(--border); border-radius: 14px; text-align: left; width: 100%; }
+  .check.on { border-color: var(--p); background: #f2fbf5; }
+  .box { flex: none; width: 1.15rem; height: 1.15rem; border-radius: 6px; border: 1.5px solid var(--t-muted);
+    display: grid; place-items: center; font-size: .8rem; color: #fff; margin-top: .1rem; }
+  .check.on .box { background: var(--p); border-color: var(--p); }
+  .check .t { font-size: .9rem; font-weight: 650; }
+  .check .s { display: block; font-size: .76rem; color: var(--t-muted); font-weight: 400; }
+
+  .sub-field { margin-left: 1.75rem; display: flex; flex-direction: column; gap: .25rem; }
+  .input { height: 2.6rem; border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+    display: flex; align-items: center; padding: 0 .75rem; font-size: .9rem; color: var(--t-muted); }
+  .hint { font-size: .74rem; color: var(--t-muted); }
+
+  .addmore { align-self: flex-start; margin-top: .15rem; font-size: .82rem; font-weight: 700;
+    color: var(--p); border: 1px dashed var(--p); border-radius: 12px; padding: .4rem .7rem; }
+
+  .err { background: var(--danger-b); color: var(--danger-f); border-radius: 14px; padding: .6rem .7rem; font-size: .84rem; }
+
+  .foot { text-align: center; font-size: .74rem; color: var(--t-muted); padding-top: .4rem; }
+
+  /* ── Annotation panel ─────────────────────────────────────────────── */
+  .notes { display: flex; flex-direction: column; gap: 1rem; }
+  .note { display: flex; flex-direction: column; gap: .7rem; }
+  .notehead { display: flex; align-items: baseline; gap: .55rem; flex-wrap: wrap; }
+  .notehead b { font-size: 1.05rem; font-weight: 780; }
+  .src { font-size: .74rem; font-weight: 700; color: var(--muted); font-family: var(--mono); }
+
+  .why { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: .85rem 1rem;
+    display: flex; flex-direction: column; gap: .5rem; }
+  .why p { margin: 0; font-size: .9rem; }
+  .why p.k { font-size: .7rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+  .why strong { font-weight: 700; }
+
+  .flag { border-left: 3px solid var(--warn-fg); background: var(--warn-soft); color: var(--ink);
+    border-radius: 0 12px 12px 0; padding: .75rem .9rem; font-size: .9rem; }
+  .flag b { font-weight: 750; }
+
+  .callout { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 12px;
+    padding: .85rem 1.1rem; font-size: .92rem; }
+  .callout b { font-weight: 750; }
+
+  /* ── Copy comparison ──────────────────────────────────────────────── */
+  .cmp { display: grid; gap: .9rem; grid-template-columns: 1fr; }
+  @media (min-width: 48rem) { .cmp { grid-template-columns: 1fr 1fr; } }
+  .cmpcard { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: .9rem 1rem;
+    display: flex; flex-direction: column; gap: .45rem; }
+  .cmpcard.bad { border-color: var(--warn-fg); }
+  .cmptag { font-size: .7rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+  .cmpcard q { font-size: .95rem; font-weight: 650; quotes: "「" "」"; }
+  .cmpcard .src { font-family: var(--mono); font-size: .72rem; }
+
+  .list { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: .4rem; font-size: .92rem; }
+  .list strong { font-weight: 700; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .stepbtn, .banner, .entry { transition: background-color .15s ease, border-color .15s ease; }
+  }
+</style>
+
+<div class="page">
+  <div class="wrap">
+
+    <header>
+      <p class="eyebrow">Mockup · 走查第二步</p>
+      <h1>會友自助維護 — 可點流程</h1>
+      <p class="lede">
+        流程與邏輯已在
+        <a href="member-self-service-flow.md">member-self-service-flow.md</a>
+        定案；這一份只處理版面、文案語氣與手感。左邊的手機可以真的點——每個畫面上的按鈕都會帶你走到它該去的地方，
+        右邊同步顯示這個狀態的規則與出處。
+      </p>
+      <p class="lede">
+        ⚠️ <strong>這份畫的是 #11 上線後的終態。</strong>34a 首刀交付時，<strong>P2 缺項顯示「請洽停車同工」且不可點進 M3</strong>（由同工透過 #41 補），M3 本身尚不存在；車輛缺項兩個階段都由本人補。差異表見
+        <a href="member-self-service-flow.md">member-self-service-flow.md</a> 開頭。
+      </p>
+      <p class="lede">
+        產品 token 取自 <a href="design-spec.md">design-spec.md</a> §2.1（Member ＝ 方向 A）：
+        LINE 綠頂條配深綠字（品牌綠對白字不足 AA）、卡片圓角 20、按鈕 16、主操作綠 <code>#15803D</code>。
+        手機框刻意維持單一淺色主題，與 production 一致。
+      </p>
+    </header>
+
+    <hr class="rule" />
+
+    <section class="section">
+      <h2>畫面索引</h2>
+      <div class="groups">
+        <div class="group">
+          <div class="grouptag"><span class="code">M0</span><b>本週狀態（既有畫面增修）</b></div>
+          <div class="steps">
+            <button type="button" class="stepbtn" data-goto="m0-incomplete"><i>M0-b</i>有缺項</button>
+            <button type="button" class="stepbtn" data-goto="m0-confirm"><i>M0-c</i>完整但未確認</button>
+            <button type="button" class="stepbtn" data-goto="m0-done"><i>M0-a</i>資料完整</button>
+            <button type="button" class="stepbtn" data-goto="m0-zero"><i>M0-e</i>零台車</button>
+          </div>
+        </div>
+        <div class="group">
+          <div class="grouptag"><span class="code">M1</span><b>我的資料</b></div>
+          <div class="steps">
+            <button type="button" class="stepbtn" data-goto="m1-missing"><i>M1-a</i>有缺項（無確認鍵）</button>
+            <button type="button" class="stepbtn" data-goto="m1-ready"><i>M1-b</i>完整未確認</button>
+            <button type="button" class="stepbtn" data-goto="m1-confirmed"><i>M1-c</i>已確認</button>
+          </div>
+        </div>
+        <div class="group">
+          <div class="grouptag"><span class="code">M2</span><b>我的車牌</b></div>
+          <div class="steps">
+            <button type="button" class="stepbtn" data-goto="m2-list"><i>M2-a</i>一般（兩台）</button>
+            <button type="button" class="stepbtn" data-goto="m2-one"><i>M2-a</i>只剩一台（該台有本週車位）</button>
+            <button type="button" class="stepbtn" data-goto="m2-one-free"><i>M2-a</i>只剩一台（無本週車位）</button>
+            <button type="button" class="stepbtn" data-goto="m2-last"><i>M2-c</i>停用最後一台</button>
+            <button type="button" class="stepbtn" data-goto="m2-zero"><i>M2-b</i>零台</button>
+            <button type="button" class="stepbtn" data-goto="m2-add"><i>M2</i>新增車牌</button>
+            <button type="button" class="stepbtn" data-goto="m2-conflict"><i>M2-e</i>撞到他人車牌</button>
+            <button type="button" class="stepbtn" data-goto="m2-reactivate"><i>M2-f</i>恢復自己停用過的</button>
+            <button type="button" class="stepbtn" data-goto="m2-blocked"><i>M2-d</i>有未結束預約</button>
+          </div>
+        </div>
+        <div class="group">
+          <div class="grouptag"><span class="code">M3</span><b>優先停車申請</b></div>
+          <div class="steps">
+            <button type="button" class="stepbtn" data-goto="m3-form"><i>M3-a</i>空白表單</button>
+            <button type="button" class="stepbtn" data-goto="m3-filled"><i>M3-b</i>複選＋條件欄位</button>
+            <button type="button" class="stepbtn" data-goto="m3-submitted"><i>M3-c</i>審核中</button>
+            <button type="button" class="stepbtn" data-goto="m3-approved"><i>M3-e</i>已核准＋效期</button>
+            <button type="button" class="stepbtn" data-goto="m3-rejected"><i>M3-f</i>已退回</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="stage">
+
+      <div class="phonewrap">
+        <div class="app">
+
+          <!-- ══ M0 本週狀態 ══════════════════════════════════════════ -->
+          <div data-screen="m0-incomplete">
+            <div class="brandbar">
+              <span class="who"><span class="dot" aria-hidden="true">⛪</span>教會停車 · 會友專區</span>
+              <span class="back">登出</span>
+            </div>
+            <div class="body">
+              <p class="hi">王小明，平安</p>
+              <button type="button" class="banner" data-goto="m1-missing">
+                你的資料還有 2 項需補填
+                <span class="go">前往補填 ›</span>
+              </button>
+              <div class="hero"><small>本週主日</small><b>8 月 17 日</b></div>
+              <div class="card tight">
+                <p class="label">本週停車狀態</p>
+                <span class="badge b-ok">✓ 已核准</span>
+                <p class="plate">ABC-1234</p>
+                <p class="muted">請於 10:30 前抵達，逾時車位將釋出給候補</p>
+              </div>
+              <button type="button" class="entry" data-goto="m1-missing">
+                <span><b>我的資料</b><span class="sub">車牌、優先停車資格</span></span>
+                <span class="chev" aria-hidden="true">›</span>
+              </button>
+              <p class="foot">姓名與手機如需變更，請洽停車同工</p>
+            </div>
+          </div>
+
+          <div data-screen="m0-confirm" hidden>
+            <div class="brandbar">
+              <span class="who"><span class="dot" aria-hidden="true">⛪</span>教會停車 · 會友專區</span>
+              <span class="back">登出</span>
+            </div>
+            <div class="body">
+              <p class="hi">王小明，平安</p>
+              <button type="button" class="banner calm" data-goto="m1-ready">
+                請確認你的資料是否正確
+                <span class="go">前往確認 ›</span>
+              </button>
+              <div class="hero"><small>本週主日</small><b>8 月 17 日</b></div>
+              <div class="card tight">
+                <p class="label">本週停車狀態</p>
+                <span class="badge b-ok">✓ 已核准</span>
+                <p class="plate">ABC-1234</p>
+                <p class="muted">請於 10:30 前抵達，逾時車位將釋出給候補</p>
+              </div>
+              <button type="button" class="entry" data-goto="m1-ready">
+                <span><b>我的資料</b><span class="sub">車牌、優先停車資格</span></span>
+                <span class="chev" aria-hidden="true">›</span>
+              </button>
+              <p class="foot">姓名與手機如需變更，請洽停車同工</p>
+            </div>
+          </div>
+
+          <div data-screen="m0-done" hidden>
+            <div class="brandbar">
+              <span class="who"><span class="dot" aria-hidden="true">⛪</span>教會停車 · 會友專區</span>
+              <span class="back">登出</span>
+            </div>
+            <div class="body">
+              <p class="hi">王小明，平安</p>
+              <div class="hero"><small>本週主日</small><b>8 月 17 日</b></div>
+              <div class="card tight">
+                <p class="label">本週停車狀態</p>
+                <span class="badge b-ok">✓ 已核准</span>
+                <p class="plate">ABC-1234</p>
+                <p class="muted">請於 10:30 前抵達，逾時車位將釋出給候補</p>
+              </div>
+              <button type="button" class="entry" data-goto="m1-confirmed">
+                <span><b>我的資料</b><span class="sub">車牌、優先停車資格</span></span>
+                <span class="chev" aria-hidden="true">›</span>
+              </button>
+              <p class="foot">姓名與手機如需變更，請洽停車同工</p>
+            </div>
+          </div>
+
+          <div data-screen="m0-zero" hidden>
+            <div class="brandbar">
+              <span class="who"><span class="dot" aria-hidden="true">⛪</span>教會停車 · 會友專區</span>
+              <span class="back">登出</span>
+            </div>
+            <div class="body">
+              <p class="hi">王小明，平安</p>
+              <div class="hero"><small>本週主日</small><b>8 月 17 日</b></div>
+              <div class="card">
+                <p class="label">登記本週停車</p>
+                <p style="font-weight:700">尚未登記車輛資料</p>
+                <p class="muted">新增車牌後即可登記停車</p>
+                <button type="button" class="btn btn-primary" data-goto="m2-add">新增車牌</button>
+              </div>
+              <button type="button" class="entry" data-goto="m2-zero">
+                <span><b>我的資料</b><span class="sub">車牌、優先停車資格</span></span>
+                <span class="chev" aria-hidden="true">›</span>
+              </button>
+              <p class="foot">姓名與手機如需變更，請洽停車同工</p>
+            </div>
+          </div>
+
+          <!-- ══ M1 我的資料 ══════════════════════════════════════════ -->
+          <div data-screen="m1-missing" hidden>
+            <div class="brandbar">
+              <span class="who"><button type="button" class="back" data-goto="m0-incomplete">‹ 本週</button></span>
+              <span class="who">我的資料</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="body">
+              <div class="card missing">
+                <span class="badge b-warn">還有 2 項需補填</span>
+                <ul>
+                  <li><span aria-hidden="true">⚠</span>尚未填寫孩童生日</li>
+                  <li><span aria-hidden="true">⚠</span>尚未登記車牌</li>
+                </ul>
+                <p class="muted">補齊後才能確認你的資料。</p>
+              </div>
+              <div class="card tight">
+                <div class="field"><span class="k">姓名</span><span class="v">王小明</span><span class="lock">如需更改請洽同工</span></div>
+                <div class="field"><span class="k">手機</span><span class="v">09xx-xxx-xxx</span><span class="lock">如需變更請洽同工</span></div>
+              </div>
+              <button type="button" class="entry" data-goto="m2-zero">
+                <span><b>我的車牌</b><span class="sub" style="color:var(--warn-f)">尚未登記</span></span>
+                <span class="chev" aria-hidden="true">›</span>
+              </button>
+              <button type="button" class="entry" data-goto="m3-form">
+                <span><b>優先停車資格</b><span class="sub" style="color:var(--warn-f)">學齡前幼兒同行 · 尚缺孩童生日</span>
+                <span class="sub">⚠️ 34a 首刀：此列<strong>不可點</strong>，改顯示「請洽停車同工」</span></span>
+                <span class="chev" aria-hidden="true">›</span>
+              </button>
+            </div>
+          </div>
+
+          <div data-screen="m1-ready" hidden>
+            <div class="brandbar">
+              <span class="who"><button type="button" class="back" data-goto="m0-confirm">‹ 本週</button></span>
+              <span class="who">我的資料</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="body">
+              <div class="card tight">
+                <span class="badge b-ok">✓ 資料完整</span>
+                <div class="field"><span class="k">姓名</span><span class="v">王小明</span><span class="lock">如需更改請洽同工</span></div>
+                <div class="field"><span class="k">手機</span><span class="v">09xx-xxx-xxx</span><span class="lock">如需變更請洽同工</span></div>
+              </div>
+              <button type="button" class="entry" data-goto="m2-list">
+                <span><b>我的車牌</b><span class="sub">ABC-1234</span></span>
+                <span class="chev" aria-hidden="true">›</span>
+              </button>
+              <button type="button" class="entry" data-goto="m3-approved">
+                <span><b>優先停車資格</b><span class="sub">學齡前幼兒同行 · 有效至 2028/08/31</span></span>
+                <span class="chev" aria-hidden="true">›</span>
+              </button>
+              <div class="card tight">
+                <p class="label">同行的家人</p>
+                <div class="field"><span class="k">學齡前幼兒</span><span class="v">王小美</span><span class="lock">2022/03/05</span></div>
+                <p class="muted">這些是你目前登記的同行家人。若有錯或已不適用，請點上方「優先停車資格」重新送出申請。</p>
+              </div>
+              <div class="card">
+                <p class="muted">以上<strong>全部</strong>資料若正確，請按下確認。日後任何一項變更，會再請你確認一次。</p>
+                <button type="button" class="btn btn-primary" data-goto="m1-confirmed">確認我的資料</button>
+              </div>
+            </div>
+          </div>
+
+          <div data-screen="m1-confirmed" hidden>
+            <div class="brandbar">
+              <span class="who"><button type="button" class="back" data-goto="m0-done">‹ 本週</button></span>
+              <span class="who">我的資料</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="body">
+              <div class="card tight">
+                <span class="badge b-ok">✓ 你已於 2026-08-10 確認</span>
+                <div class="field"><span class="k">姓名</span><span class="v">王小明</span><span class="lock">如需更改請洽同工</span></div>
+                <div class="field"><span class="k">手機</span><span class="v">09xx-xxx-xxx</span><span class="lock">如需變更請洽同工</span></div>
+              </div>
+              <button type="button" class="entry" data-goto="m2-list">
+                <span><b>我的車牌</b><span class="sub">ABC-1234</span></span>
+                <span class="chev" aria-hidden="true">›</span>
+              </button>
+              <button type="button" class="entry" data-goto="m3-approved">
+                <span><b>優先停車資格</b><span class="sub">學齡前幼兒同行 · 有效至 2028/08/31</span></span>
+                <span class="chev" aria-hidden="true">›</span>
+              </button>
+              <div class="card tight">
+                <p class="label">同行的家人</p>
+                <div class="field"><span class="k">學齡前幼兒</span><span class="v">王小美</span><span class="lock">2022/03/05</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ M2 我的車牌 ══════════════════════════════════════════ -->
+          <div data-screen="m2-list" hidden>
+            <div class="brandbar">
+              <span class="who"><button type="button" class="back" data-goto="m1-confirmed">‹ 我的資料</button></span>
+              <span class="who">我的車牌</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="body">
+              <div class="card tight">
+                <div class="vrow">
+                  <span class="pl">ABC-1234</span>
+                  <span class="badge b-ok">本週已核准</span>
+                  <button type="button" class="btn btn-ghost btn-sm" data-goto="m2-blocked">停用</button>
+                </div>
+                <div class="vrow">
+                  <span class="pl">XYZ-5678</span>
+                  <button type="button" class="btn btn-ghost btn-sm" data-goto="m2-one">停用</button>
+                </div>
+              </div>
+              <button type="button" class="btn btn-primary" data-goto="m2-add">＋ 新增車牌</button>
+            </div>
+          </div>
+
+          <div data-screen="m2-one" hidden>
+            <div class="brandbar">
+              <span class="who"><button type="button" class="back" data-goto="m1-confirmed">‹ 我的資料</button></span>
+              <span class="who">我的車牌</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="body">
+              <div class="card tight">
+                <div class="vrow">
+                  <span class="pl">ABC-1234</span>
+                  <span class="badge b-ok">本週已核准</span>
+                  <button type="button" class="btn btn-ghost btn-sm" data-goto="m2-blocked">停用</button>
+                </div>
+              </div>
+              <button type="button" class="btn btn-primary" data-goto="m2-add">＋ 新增車牌</button>
+              <div class="card tight">
+                <p class="label">已停用的車牌</p>
+                <div class="vrow off">
+                  <span class="pl">XYZ-5678</span>
+                  <button type="button" class="btn btn-ghost btn-sm" data-goto="m2-list">重新啟用</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div data-screen="m2-one-free" hidden>
+            <div class="brandbar">
+              <span class="who"><button type="button" class="back" data-goto="m1-confirmed">‹ 我的資料</button></span>
+              <span class="who">我的車牌</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="body">
+              <div class="card tight">
+                <div class="vrow">
+                  <span class="pl">ABC-1234</span>
+                  <button type="button" class="btn btn-ghost btn-sm" data-goto="m2-last">停用</button>
+                </div>
+              </div>
+              <button type="button" class="btn btn-primary" data-goto="m2-add">＋ 新增車牌</button>
+              <div class="card tight">
+                <p class="label">已停用的車牌</p>
+                <div class="vrow off">
+                  <span class="pl">XYZ-5678</span>
+                  <button type="button" class="btn btn-ghost btn-sm" data-goto="m2-one">重新啟用</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div data-screen="m2-last" hidden>
+            <div class="brandbar">
+              <span class="who">我的車牌</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="scrim"></div>
+            <div class="sheet">
+              <h4>停用 ABC-1234？</h4>
+              <p class="muted">這是你唯一登記中的車牌。停用後你將無法申請停車位，可隨時重新新增。</p>
+              <button type="button" class="btn btn-danger" data-goto="m2-zero">確定停用</button>
+              <button type="button" class="btn btn-ghost" data-goto="m2-one-free">取消</button>
+            </div>
+          </div>
+
+          <div data-screen="m2-zero" hidden>
+            <div class="brandbar">
+              <span class="who"><button type="button" class="back" data-goto="m0-zero">‹ 本週</button></span>
+              <span class="who">我的車牌</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="body">
+              <div class="card empty">
+                <span class="big" aria-hidden="true">🚗</span>
+                <p style="font-weight:750">你目前沒有登記中的車牌</p>
+                <p class="muted">因此無法申請停車位。新增一個車牌就可以恢復登記。</p>
+                <button type="button" class="btn btn-primary" data-goto="m2-add">新增車牌</button>
+              </div>
+              <div class="card tight">
+                <p class="label">已停用的車牌</p>
+                <div class="vrow off">
+                  <span class="pl">ABC-1234</span>
+                  <button type="button" class="btn btn-ghost btn-sm" data-goto="m2-reactivate">重新啟用</button>
+                </div>
+                <div class="vrow off">
+                  <span class="pl">XYZ-5678</span>
+                  <button type="button" class="btn btn-ghost btn-sm" data-goto="m2-reactivate">重新啟用</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div data-screen="m2-add" hidden>
+            <div class="brandbar">
+              <span class="who"><button type="button" class="back" data-goto="m2-zero">‹ 我的車牌</button></span>
+              <span class="who">新增車牌</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="body">
+              <div class="card">
+                <p class="label">車牌號碼</p>
+                <div class="input" style="font-family:var(--mono);font-size:1.1rem;color:var(--t-ink)">ABC-1234</div>
+                <p class="hint">大小寫與連字號都可以，系統會自動對齊格式。</p>
+                <button type="button" class="btn btn-primary" data-goto="m2-conflict">新增</button>
+              </div>
+            </div>
+          </div>
+
+          <div data-screen="m2-conflict" hidden>
+            <div class="brandbar">
+              <span class="who"><button type="button" class="back" data-goto="m2-zero">‹ 我的車牌</button></span>
+              <span class="who">新增車牌</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="body">
+              <div class="card">
+                <p class="label">車牌號碼</p>
+                <div class="input" style="font-family:var(--mono);font-size:1.1rem;color:var(--t-ink)">ABC-1234</div>
+                <p class="err">
+                  此車牌目前由其他會友使用。<br />
+                  若是家人共用的車，請先請對方在自己的頁面停用，再回來新增；或洽停車同工協助。
+                </p>
+                <button type="button" class="btn btn-primary" data-goto="m2-conflict">新增</button>
+              </div>
+            </div>
+          </div>
+
+          <div data-screen="m2-reactivate" hidden>
+            <div class="brandbar">
+              <span class="who">我的車牌</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="scrim"></div>
+            <div class="sheet">
+              <h4>重新啟用 ABC-1234？</h4>
+              <p class="muted">這個車牌你先前停用過，資料還在，啟用後即可用來申請停車位。</p>
+              <button type="button" class="btn btn-primary" data-goto="m2-one-free">重新啟用</button>
+              <button type="button" class="btn btn-ghost" data-goto="m2-zero">取消</button>
+            </div>
+          </div>
+
+          <div data-screen="m2-blocked" hidden>
+            <div class="brandbar">
+              <span class="who">我的車牌</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="scrim"></div>
+            <div class="sheet">
+              <h4>這台車還不能停用</h4>
+              <p class="muted">ABC-1234 目前有本週已核准的車位。請先取消本週的登記，再回來停用這個車牌。</p>
+              <button type="button" class="btn btn-ghost" data-goto="m0-done">前往本週狀態取消登記</button>
+              <button type="button" class="btn btn-ghost" data-goto="m2-one">知道了</button>
+              <button type="button" class="btn btn-ghost" data-goto="m2-one-free">▸ 走查用：跳到「已取消登記後」</button>
+            </div>
+          </div>
+
+          <!-- ══ M3 優先停車申請 ══════════════════════════════════════ -->
+          <div data-screen="m3-form" hidden>
+            <div class="brandbar">
+              <span class="who"><button type="button" class="back" data-goto="m1-missing">‹ 我的資料</button></span>
+              <span class="who">優先停車申請</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="body">
+              <div class="card">
+                <p class="muted">請勾選符合的情形，可複選。送出後由停車同工覆核。</p>
+                <button type="button" class="check" data-goto="m3-filled">
+                  <span class="box" aria-hidden="true"></span>
+                  <span><span class="t">行動不便（長期）</span><span class="s">本人或同車家人</span></span>
+                </button>
+                <button type="button" class="check" data-goto="m3-filled">
+                  <span class="box" aria-hidden="true"></span>
+                  <span><span class="t">行動不便（短期）</span><span class="s">例如手術後復原期</span></span>
+                </button>
+                <button type="button" class="check" data-goto="m3-filled">
+                  <span class="box" aria-hidden="true"></span>
+                  <span><span class="t">孕婦</span></span>
+                </button>
+                <button type="button" class="check" data-goto="m3-filled">
+                  <span class="box" aria-hidden="true"></span>
+                  <span><span class="t">長者同行</span></span>
+                </button>
+                <button type="button" class="check" data-goto="m3-filled">
+                  <span class="box" aria-hidden="true"></span>
+                  <span><span class="t">學齡前幼兒同行</span></span>
+                </button>
+                <button type="button" class="btn btn-ghost">送出申請</button>
+              </div>
+              <p class="foot">系統不會要求你上傳診斷證明或任何文件</p>
+            </div>
+          </div>
+
+          <div data-screen="m3-filled" hidden>
+            <div class="brandbar">
+              <span class="who"><button type="button" class="back" data-goto="m3-form">‹ 返回</button></span>
+              <span class="who">優先停車申請</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="body">
+              <div class="card">
+                <p class="muted">請勾選符合的情形，可複選。送出後由停車同工覆核。</p>
+                <button type="button" class="check on" data-goto="m3-form">
+                  <span class="box" aria-hidden="true">✓</span>
+                  <span><span class="t">行動不便（長期）</span><span class="s">本人或同車家人</span></span>
+                </button>
+                <div class="sub-field">
+                  <p class="hint">行動不便者姓名</p>
+                  <div class="input" style="color:var(--t-ink)">王大華</div>
+                </div>
+                <button type="button" class="check on" data-goto="m3-form">
+                  <span class="box" aria-hidden="true">✓</span>
+                  <span><span class="t">學齡前幼兒同行</span></span>
+                </button>
+                <div class="sub-field">
+                  <p class="hint">孩童姓名</p>
+                  <div class="input" style="color:var(--t-ink)">王小美</div>
+                  <p class="hint">生日</p>
+                  <div class="input" style="color:var(--t-ink)">2022 / 03 / 05</div>
+                  <button type="button" class="addmore">＋ 再新增一位孩子</button>
+                  <p class="hint">資格效期由<strong>最小的孩子</strong>決定；其他孩子可以不填。</p>
+                </div>
+                <button type="button" class="btn btn-primary" data-goto="m3-submitted">送出申請</button>
+              </div>
+              <p class="foot">系統不會要求你上傳診斷證明或任何文件</p>
+            </div>
+          </div>
+
+          <div data-screen="m3-submitted" hidden>
+            <div class="brandbar">
+              <span class="who"><button type="button" class="back" data-goto="m0-done">‹ 本週</button></span>
+              <span class="who">優先停車申請</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="body">
+              <div class="card">
+                <span class="badge b-info">審核中</span>
+                <p class="muted">已於 2026-08-10 送出，由停車同工覆核。</p>
+                <div class="field"><span class="k">申請項目</span><span class="v">行動不便（長期）、學齡前幼兒同行</span></div>
+                <p class="muted">覆核期間你目前的資格不受影響。若要修改，重新送出會取代這一筆。</p>
+                <button type="button" class="btn btn-ghost" data-goto="m3-filled">修改申請內容</button>
+              </div>
+            </div>
+          </div>
+
+          <div data-screen="m3-approved" hidden>
+            <div class="brandbar">
+              <span class="who"><button type="button" class="back" data-goto="m1-confirmed">‹ 我的資料</button></span>
+              <span class="who">優先停車資格</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="body">
+              <div class="card tight">
+                <span class="badge b-ok">✓ 目前具備優先資格</span>
+                <div class="field"><span class="k">資格</span><span class="v">學齡前幼兒同行</span></div>
+                <div class="field"><span class="k">同行家人</span><span class="v">王小美（2022/03/05）</span></div>
+                <div class="field"><span class="k">有效期限</span><span class="v">有效至 2028/08/31</span></div>
+              </div>
+              <div class="card tight">
+                <p class="label">另一種情形的顯示方式</p>
+                <div class="field"><span class="k">資格</span><span class="v">行動不便（長期）</span></div>
+                <div class="field"><span class="k">有效期限</span><span class="v">長期有效</span></div>
+              </div>
+              <button type="button" class="btn btn-ghost" data-goto="m3-form">重新申請或變更</button>
+            </div>
+          </div>
+
+          <div data-screen="m3-rejected" hidden>
+            <div class="brandbar">
+              <span class="who"><button type="button" class="back" data-goto="m0-done">‹ 本週</button></span>
+              <span class="who">優先停車申請</span>
+              <span class="back" aria-hidden="true"> </span>
+            </div>
+            <div class="body">
+              <div class="card">
+                <span class="badge b-neutral">已退回</span>
+                <p class="muted">你於 2026-08-10 送出的申請已退回。如需了解，請洽停車同工。</p>
+                <button type="button" class="btn btn-primary" data-goto="m3-form">重新送出申請</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <p class="phonecap">手機框寬度模擬 LIFF（<code>max-w-md</code>）。畫面上的按鈕都可以點。</p>
+      </div>
+
+      <!-- ══ Annotations ═══════════════════════════════════════════════ -->
+      <div class="notes">
+
+        <div class="note" data-note="m0-incomplete">
+          <div class="notehead"><b>M0-b 本週狀態 · 有缺項</b><span class="src">34a／INV-02</span></div>
+          <div class="why">
+            <p class="k">為什麼 banner 在這裡</p>
+            <p>完整度提示放在<strong>最常被打開的那一頁</strong>。只放在子頁裡等人點進去，等於沒做——會友一週只會為了「本週有沒有位子」開這個畫面。</p>
+          </div>
+          <div class="why">
+            <p class="k">語氣</p>
+            <p>寫「還有 2 項需補填」而不是「資料不完整」。前者告訴他要做什麼、還剩多少；後者只是給了一個評語。</p>
+          </div>
+          <p class="prose">頁尾那句已經改寫：自助做得到的事給入口，做不到的（姓名、手機）才請他找同工。</p>
+        </div>
+
+        <div class="note" data-note="m0-confirm" hidden>
+          <div class="notehead"><b>M0-c 完整但未確認</b><span class="src">34a</span></div>
+          <div class="why">
+            <p class="k">為什麼換一種顏色</p>
+            <p>缺項是<strong>待辦</strong>（琥珀），確認是<strong>邀請</strong>（藍）。同一個位置用同一種警示色，會讓「你還沒做完」和「請看一眼」讀起來一樣急。</p>
+          </div>
+          <div class="why">
+            <p class="k">這個狀態也會從已確認掉回來</p>
+            <p>任一相關欄位被改動——<strong>包含他自己改的</strong>——確認時間戳歸零，就回到這一格。</p>
+          </div>
+        </div>
+
+        <div class="note" data-note="m0-done" hidden>
+          <div class="notehead"><b>M0-a 資料完整且已確認</b><span class="src">34a</span></div>
+          <div class="why">
+            <p class="k">沒有 banner，但入口常駐</p>
+            <p>提示消失，入口不消失——他隨時可能要換車。已確認的狀態不在這一頁宣告，進到「我的資料」才看得到日期，主畫面不需要為此多一行字。</p>
+          </div>
+        </div>
+
+        <div class="note" data-note="m0-zero" hidden>
+          <div class="notehead"><b>M0-e 零台車</b><span class="src">#28</span></div>
+          <div class="flag">
+            <b>這一格是既有文案的修正點。</b>現在寫的是「請聯繫停車同工登記您的車牌後再使用線上登記」（<code>MemberStatus.tsx:447-453</code>）——#28 上線後這句就是錯的，他自己就能加。
+          </div>
+          <div class="why">
+            <p class="k">改成</p>
+            <p>「尚未登記車輛資料／新增車牌後即可登記停車」＋一顆直接到新增畫面的按鈕。<strong>把下一步放在他看到問題的地方</strong>，而不是叫他去找人。</p>
+          </div>
+        </div>
+
+        <div class="note" data-note="m1-missing" hidden>
+          <div class="notehead"><b>M1-a 我的資料 · 有缺項</b><span class="src">34a Acceptance</span></div>
+          <div class="callout">
+            <b>「確認我的資料」按鈕在這一格不存在</b>——不是變灰。灰按鈕會讓人一直去戳、找不到原因；缺項已經逐條列在上方，因果自明。（走查已確認）
+          </div>
+          <div class="why">
+            <p class="k">三種權限在同一頁上要一眼分得出來</p>
+            <p><strong>姓名／手機</strong>是唯讀灰字＋「請洽同工」；<strong>車牌／資格</strong>是可點的整列。可自助的東西長得像按鈕，不能自助的長得像文字。</p>
+          </div>
+          <div class="why">
+            <p class="k">缺項要指得到地方</p>
+            <p>「尚未登記車牌」對應下方那一列，點下去就到 M2；缺項清單不是純粹的抱怨列表。</p>
+          </div>
+          <div class="flag">
+            <b>兩個階段不一樣。</b>34a 首刀交付時 <strong>M3 還不存在</strong>（它屬 #11），所以「優先停車資格」那一列<strong>不可點</strong>、文案是「請洽停車同工」，由同工透過 #41 補。<strong>車輛</strong>那一列兩個階段都由本人補。本頁其餘畫面兩階段相同。
+          </div>
+        </div>
+
+        <div class="note" data-note="m1-ready" hidden>
+          <div class="notehead"><b>M1-b 完整但未確認</b><span class="src">34a</span></div>
+          <div class="callout">
+            <b>確認頁必須展示「所有會觸發歸零的欄位」。</b>34a 把相關欄位定義成姓名／手機／車輛／P2 資料四類全算——那就包含<strong>眷屬姓名與生日</strong>。看不到卻要他背書，那個 audit 保證就是假的（外部審查 F-006）。
+          </div>
+          <div class="why">
+            <p class="k">按鈕上方那句話是保證的說明書</p>
+            <p>「日後任何一項變更，會再請你確認一次」——先講清楚才按，比事後突然又跳出來要求確認好。</p>
+          </div>
+          <div class="why">
+            <p class="k">資格列顯示到期日</p>
+            <p>走查 Q1 定案：他看得到自己的效期。幼兒同行會在某年 8/31 到期，突然失去優先權而不知道為什麼更糟。</p>
+          </div>
+        </div>
+
+        <div class="note" data-note="m1-confirmed" hidden>
+          <div class="notehead"><b>M1-c 已確認</b><span class="src">34a ①③</span></div>
+          <div class="why">
+            <p class="k">顯示日期，不顯示「已驗證」之類的字</p>
+            <p>時間戳的語意是「<strong>本人在這天看過並背書</strong>」，不是系統查證過。文案不能讓它聽起來像後者。</p>
+          </div>
+          <div class="why">
+            <p class="k">背後每次確認都寫稽核</p>
+            <p>畫面上只留最後一次；誰在什麼時候確認過幾次，留在稽核紀錄裡（<code>actor_type='member'</code>）。</p>
+          </div>
+        </div>
+
+        <div class="note" data-note="m2-list" hidden>
+          <div class="notehead"><b>M2-a 我的車牌 · 一般</b><span class="src">#28／INV-03</span></div>
+          <div class="why">
+            <p class="k">本輪只有三個動作</p>
+            <p>新增／停用／恢復。<strong>暱稱與「設為預設」退出本輪</strong>（走查 Q3）。</p>
+          </div>
+          <div class="why">
+            <p class="k">已停用的車牌是摺在下面的一區，不是消失</p>
+            <p>停用是 soft delete，歷史還在——換回來走的是「重新啟用」，不是重新登記。夫妻換車來回切換因此很便宜。</p>
+          </div>
+          <p class="prose">試著點兩台車各自的「停用」：ABC-1234 有本週車位會被擋下；XYZ-5678 可以停用，停完就進到「只剩一台」。</p>
+        </div>
+
+        <div class="note" data-note="m2-one" hidden>
+          <div class="notehead"><b>M2-a 只剩一台（該台有本週車位）</b><span class="src">#28／0038</span></div>
+          <div class="why">
+            <p class="k">為什麼要有這一格</p>
+            <p>「停用最後一台」的二次確認<strong>只能從真的只剩一台的狀態進入</strong>。從兩台直接跳到那個對話框，會教出一個資料上不可能發生的轉移——外部審查在這裡抓到過一次（F-003）。</p>
+          </div>
+          <div class="why">
+            <p class="k">這一格還走不到二次確認</p>
+            <p>剩下的 ABC-1234 有本週已核准的車位，停用會被 <code>unfinished_reservations</code> 擋住。要看二次確認，得先取消本週登記——見下一格。</p>
+          </div>
+        </div>
+
+        <div class="note" data-note="m2-one-free" hidden>
+          <div class="notehead"><b>M2-a 只剩一台（無本週車位）</b><span class="src">#28</span></div>
+          <div class="why">
+            <p class="k">這才是 M2-c 的合法來源</p>
+            <p>一台 active、且該台沒有未結束的預約——只有在這個狀態，「停用」才會走到最後一台的二次確認，確認後的零台也才跟剩餘台數對得上。</p>
+          </div>
+          <div class="why">
+            <p class="k">怎麼到這裡的</p>
+            <p>從上一格取消本週登記之後。走查時也可以從被擋下的對話框裡那顆標示「走查用」的按鈕直接跳過來——那顆按鈕<strong>不是產品的一部分</strong>。</p>
+          </div>
+        </div>
+
+        <div class="note" data-note="m2-last" hidden>
+          <div class="notehead"><b>M2-c 停用最後一台</b><span class="src">#28 Decision</span></div>
+          <div class="why">
+            <p class="k">問，但不擋</p>
+            <p>「至少留一台」原本定過又被推翻——夫妻共用一台車要換申請人時，那條護欄會讓兩邊都動不了。所以這裡是<strong>二次確認</strong>，不是禁止。</p>
+          </div>
+          <div class="why">
+            <p class="k">文案要同時給後果與退路</p>
+            <p>「停用後你將無法申請停車位<strong>，可隨時重新新增</strong>」——只講後果會嚇住人，只講退路他不會警覺。</p>
+          </div>
+        </div>
+
+        <div class="note" data-note="m2-zero" hidden>
+          <div class="notehead"><b>M2-b 零台</b><span class="src">#28 Decision</span></div>
+          <div class="callout">
+            <b>這一格的文案要讓「為什麼我不能申請」一眼可解釋。</b>（走查已確認）夫妻換手的中間窗口——先生已停用、太太還沒加——兩邊都會落在這裡。
+          </div>
+          <div class="why">
+            <p class="k">寫法</p>
+            <p>先講<strong>事實</strong>（沒有登記中的車牌）、再講<strong>後果</strong>（因此無法申請）、最後給<strong>出路</strong>（新增一個就恢復）。三句話的順序不能換。</p>
+          </div>
+          <div class="why">
+            <p class="k">不是空白畫面</p>
+            <p>零台是合法狀態——匯入時沒填車牌的會友本來就是零台。這一頁要像一個「還沒開始」的狀態，不像壞掉。</p>
+          </div>
+        </div>
+
+        <div class="note" data-note="m2-add" hidden>
+          <div class="notehead"><b>M2 新增車牌</b><span class="src">#28／INV-03</span></div>
+          <div class="why">
+            <p class="k">不必教他格式</p>
+            <p>大小寫、連字號都由系統正規化。表單只要說「都可以」，不要列規則——列了規則反而像在出考題。</p>
+          </div>
+          <p class="prose">點「新增」會走到撞車牌那一格，看那句最難寫的錯誤訊息。</p>
+        </div>
+
+        <div class="note" data-note="m2-conflict" hidden>
+          <div class="notehead"><b>M2-e 撞到他人使用中的車牌</b><span class="src">#28／active_plate_owned_by_other</span></div>
+          <div class="why">
+            <p class="k">兩個限制同時成立</p>
+            <p><strong>不能出現對方姓名</strong>（後端本來就不回傳），但<strong>要講得出下一步</strong>。只寫「此車牌已被使用」會讓夫妻卡在這裡完全不知道怎麼辦。</p>
+          </div>
+          <div class="why">
+            <p class="k">所以訊息分兩句</p>
+            <p>第一句是事實，第二句是最常見的那個情境（家人共用）＋做法，最後才是「洽同工」這個保底。</p>
+          </div>
+        </div>
+
+        <div class="note" data-note="m2-reactivate" hidden>
+          <div class="notehead"><b>M2-f 恢復自己停用過的車牌</b><span class="src">INV-03 soft delete</span></div>
+          <div class="why">
+            <p class="k">說「重新啟用」，不說「新增」</p>
+            <p>資料還在，過去的停車紀錄仍指著同一列。用「新增」會讓他以為要重打一次、也會讓人擔心歷史不見了。</p>
+          </div>
+        </div>
+
+        <div class="note" data-note="m2-blocked" hidden>
+          <div class="notehead"><b>M2-d 有未結束預約，擋停用</b><span class="src">0038 unfinished_reservations</span></div>
+          <div class="why">
+            <p class="k">這條才是真正重要的護欄</p>
+            <p>停用一台<strong>還有本週車位</strong>的車，會讓主日現場的點名清單和他自己的畫面對不起來。它在交易內、車列鎖下判定，<strong>不因零台可行而放寬</strong>。</p>
+          </div>
+          <div class="why">
+            <p class="k">擋的時候要給路</p>
+            <p>「請先取消本週的登記」＋一顆能直接過去的按鈕。擋住而不說怎麼解，等於把人丟在原地。</p>
+          </div>
+          <div class="flag">
+            <b>第三顆按鈕是走查用的，不是產品。</b>真實流程要繞經「本週狀態 → 取消登記」才會回到可停用的狀態；mockup 不實作取消流程，所以給一個標示清楚的跳板，而不是假裝那個轉移會自己發生。
+          </div>
+        </div>
+
+        <div class="note" data-note="m3-form" hidden>
+          <div class="notehead"><b>M3-a 優先停車申請 · 空白表單</b><span class="src">#11</span></div>
+          <div class="callout">
+            <b>這裡的勾選框和「本週有幼兒同行」不是同一件事。</b>（走查已確認）這一頁問的是<strong>資格</strong>（要人覆核）；本週那個勾選框問的是<strong>這禮拜有沒有帶</strong>（當下就生效）。畫成同一個東西，會友會以為勾了就有資格。
+          </div>
+          <div class="why">
+            <p class="k">可複選，而且一開始就長這樣</p>
+            <p>會友同時符合兩種情形是真實存在的。強迫擇一等於要他判斷「哪個效期長」——那是系統知道的事，不該丟給他。</p>
+          </div>
+          <div class="why">
+            <p class="k">底下那句是承諾</p>
+            <p>「不會要求你上傳診斷證明」——系統刻意不索取，寫出來才擋得住日後有人想加。</p>
+          </div>
+        </div>
+
+        <div class="note" data-note="m3-filled" hidden>
+          <div class="notehead"><b>M3-b 複選＋條件欄位</b><span class="src">#11／#31</span></div>
+          <div class="why">
+            <p class="k">勾了才展開</p>
+            <p>五種情形各自要的欄位不同，全部攤開會是一張很長的表。展開的欄位縮排在勾選框下面，從屬關係才看得出來。</p>
+          </div>
+          <div class="why">
+            <p class="k">眷屬要姓名，不只生日</p>
+            <p><code>eligibility_dependents.dependent_name</code> 是 <strong>NOT NULL</strong>（0020），匯入也在收 child_1..3 的姓名。只收生日會有三個問題：那一列建不出來、<strong>本人送的資料比同工代填還少</strong>（違背整個 Epic 的目的）、覆核者「憑認識」時沒有東西可對——生日對不上任何人。</p>
+          </div>
+          <div class="why">
+            <p class="k">可以多筆，但不強迫</p>
+            <p>效期只由<strong>最小的孩子</strong>決定（<code>child_companion_valid_until</code> 取 youngest），所以 hint 寫「其他孩子可以不填」——填得下，但不逼他交出全家的生日。</p>
+            <p>⚠️ 實作方向：<strong>最年幼 ＝ 生日日期最「大」</strong>（<code>maxISO</code>），不是最小。寫反了會挑到最年長的孩子、算出過早的到期日。</p>
+          </div>
+          <div class="flag">
+            <b>到期日一律由權威函式算，mockup 不得手寫。</b>本檔曾把 2022-03-05 寫成 2029/08/31，正確是 <strong>2028/08/31</strong>（<code>childCompanionValidUntil</code>：出生年 ＋6，3/5 未過 9/1 cutoff 故不再 +1）——外部審查 F-002 抓到。手寫日期是雙重真相的最小單位。
+          </div>
+          <div class="flag">
+            <b>送出成功的畫面不能讓人期待「兩種資格都會出現」。</b>核准後 canonical 只落一項（#31 未解），本週宣告的勾選框仍只會出現一種。
+          </div>
+        </div>
+
+        <div class="note" data-note="m3-submitted" hidden>
+          <div class="notehead"><b>M3-c 審核中</b><span class="src">#11 Constraints</span></div>
+          <div class="why">
+            <p class="k">必須明說現有資格不受影響</p>
+            <p>已經有資格的人送新申請時，最怕的是「我一送出是不是就先沒了」。這句話要在畫面上，不能只寫在說明文件裡。</p>
+          </div>
+          <div class="why">
+            <p class="k">重送＝取代，不是排隊</p>
+            <p>「重新送出會取代這一筆」——後端就是這個語意（單調 revision），文案要說同一件事。</p>
+          </div>
+        </div>
+
+        <div class="note" data-note="m3-approved" hidden>
+          <div class="notehead"><b>M3-e 已核准＋效期</b><span class="src">走查 Q1</span></div>
+          <div class="why">
+            <p class="k">永久型不能留白</p>
+            <p>行動不便（長期）與長者同行沒有到期日，此時寫<strong>「長期有效」</strong>而不是空白——空白會被讀成「資料缺了」。</p>
+          </div>
+          <div class="why">
+            <p class="k">不顯示是誰核准的</p>
+            <p>覆核者姓名與內部備註都不出現在會友端。</p>
+          </div>
+        </div>
+
+        <div class="note" data-note="m3-rejected" hidden>
+          <div class="notehead"><b>M3-f 已退回</b><span class="src">走查 Q2</span></div>
+          <div class="why">
+            <p class="k">沒有理由欄位，這是刻意的</p>
+            <p>退回之前<strong>幹事要先與當事人溝通</strong>；系統的退回是那次溝通的<strong>紀錄</strong>，不是通知手段。所以這一格也<strong>不發推播</strong>——推播正好是讓系統代替人開口。</p>
+          </div>
+          <div class="why">
+            <p class="k">連帶</p>
+            <p>內部備註（會寫「與某某傳道確認」）維持單一欄位，不必拆成對外說明欄。</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <hr class="rule" />
+
+    <section class="section">
+      <h2>兩處既有文案的修正</h2>
+      <p class="prose">這兩句今天都是對的，#28 上線後就會變成錯的——它們預設了「會友不能自己改」。</p>
+      <div class="cmp">
+        <div class="cmpcard bad">
+          <span class="cmptag">現在</span>
+          <q>尚未登記車輛資料。請聯繫停車同工登記您的車牌後再使用線上登記</q>
+          <span class="src">MemberStatus.tsx:447-453</span>
+        </div>
+        <div class="cmpcard">
+          <span class="cmptag">改成</span>
+          <q>尚未登記車輛資料。新增車牌後即可登記停車</q>
+          <span class="src">＋ 一顆到「新增車牌」的按鈕</span>
+        </div>
+        <div class="cmpcard bad">
+          <span class="cmptag">現在</span>
+          <q>如有停車需求或異動，請聯繫教會停車同工</q>
+          <span class="src">MemberStatus.tsx:205-207</span>
+        </div>
+        <div class="cmpcard">
+          <span class="cmptag">改成</span>
+          <q>姓名與手機如需變更，請洽停車同工</q>
+          <span class="src">不是刪掉，是降級到自助做不到的那些事</span>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <section class="section">
+      <h2>這一份沒有涵蓋的</h2>
+      <ul class="list">
+        <li><strong>新會友 intake（34c）</strong>——入口在綁定<strong>之前</strong>，脈絡不同，另一份。</li>
+        <li><strong>幹事端的待審 inbox 與覆核頁</strong>——含「退回前請先與當事人溝通」那句提醒、系統建議選效期最長的事由、以及待審件數的側欄徽章。</li>
+        <li><strong>同工代填入口</strong>——canonical 寫入點與會友端同一個（覆核那一步）。送出端有兩種形狀：已綁定走 member session、未綁定重驗 LINE ID token。</li>
+        <li><strong>手機變更請求</strong>——本輪唯讀；變更走 admin confirmation，排在 #11 那一組（走查 Q4）。</li>
+      </ul>
+    </section>
+
+  </div>
+</div>
+
+<script>
+  (function () {
+    var screens = Array.prototype.slice.call(document.querySelectorAll('[data-screen]'));
+    var notes = Array.prototype.slice.call(document.querySelectorAll('[data-note]'));
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.stepbtn'));
+
+    function show(id) {
+      var found = false;
+      screens.forEach(function (s) {
+        var on = s.getAttribute('data-screen') === id;
+        s.hidden = !on;
+        if (on) found = true;
+      });
+      if (!found) return;
+      notes.forEach(function (n) { n.hidden = n.getAttribute('data-note') !== id; });
+      tabs.forEach(function (t) {
+        var on = t.getAttribute('data-goto') === id;
+        t.classList.toggle('on', on);
+        if (on) { t.setAttribute('aria-current', 'true'); } else { t.removeAttribute('aria-current'); }
+      });
+    }
+
+    document.addEventListener('click', function (e) {
+      var t = e.target.closest ? e.target.closest('[data-goto]') : null;
+      if (!t) return;
+      e.preventDefault();
+      show(t.getAttribute('data-goto'));
+    });
+
+    show('m0-incomplete');
+  })();
+</script>

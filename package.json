@@ -1,0 +1,24 @@
+{
+  "name": "parking-notion-sync",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "check:repo": "bash scripts/check-repo.sh",
+    "check:docs": "python3 scripts/check-doc-refs.py",
+    "check:pii": "python3 scripts/check-staged-pii.py",
+    "sync": "tsx sync-notion.ts",
+    "sync:force-local": "tsx sync-notion.ts --force-local",
+    "sync:force-notion": "tsx sync-notion.ts --force-notion"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "@tryfabric/martian": "^1.2.0",
+    "gray-matter": "^2.0.1",
+    "notion-to-md": "^3.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}

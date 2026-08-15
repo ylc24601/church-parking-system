@@ -1,0 +1,60 @@
+# dependencies
+/node_modules
+
+# OS / editor
+.DS_Store
+.codex/
+
+# env files — keep only the placeholder examples
+.env
+.env.*
+!.env.example
+
+# typescript build info
+*.tsbuildinfo
+
+# Review packs (scripts/review/make-review-pack.sh). These are evidence bundles for a
+# reviewer, not source: they carry a full diff and raw verification logs, and they are
+# regenerated from the commit they describe. Ignoring them is also the last line of defence
+# behind the script's own secret scan — a pack can never be committed by accident.
+.review/
+.review.tmp.*/
+.review-FAILED-*/
+# The pack being replaced, kept until the new one is in place. Normally exists for
+# milliseconds; after a crash it may be the only complete pack left, so nothing sweeps it up.
+.review.prev.*/
+
+# Reviewer output (docs/review-protocol.md): findings and the implementer's responses to them.
+# Deliberately NOT inside .review/ — publishing a pack replaces that directory wholesale, so
+# notes kept there would be destroyed by the next run and a delta review would lose the baseline
+# it is measured against. Ignored rather than tracked because these are a conversation about a
+# commit, not part of it; take the directory with you before deleting a review worktree.
+.review-notes/
+
+# The implementer's narrative draft, handed to make-review-pack.sh and embedded into
+# REVIEW.md (docs/review-protocol.md §4.5). It has to be IGNORED rather than merely
+# untracked: check-review-workspace.sh refuses a tree with untracked files, so a tracked-as-
+# untracked draft would void the very pack it feeds. The finished text belongs in the PR
+# description, not in the repo.
+.review-narrative.md
+
+# stray phone photos at repo root (not source)
+/*.heic
+/*.jpeg
+/*.jpg
+
+# parking-system/ has its own .gitignore for its subtree (.next, node_modules, .env*, etc.)
+
+# Import templates: allowlist, not denylist. Working CSVs get dropped in this
+# directory next to the templates as a matter of habit, and they contain real
+# member names and phone numbers. This repo is public — one `git add -A` is all
+# it takes. Only the delivered templates are tracked; anything else here is
+# ignored by default, so a mistake has to be made deliberately.
+docs/import-templates/*
+!docs/import-templates/README.md
+!docs/import-templates/P2資格申請範本.csv
+!docs/import-templates/會友簡易名單範本.csv
+
+# generated deliverable HTML dropped at docs root (not part of the tracked docs set;
+# the tracked HTML lives under docs/staff-demo/ and docs/ui-mockups/)
+docs/*.html

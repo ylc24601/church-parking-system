@@ -1,0 +1,32 @@
+# Extended regular expressions (grep -E -f). One per line; '#' lines are stripped by the
+# caller before use, so this file stays readable.
+#
+# Scanned against the ADDED lines of DIFF.patch only — what a slice introduces is what can
+# leak. Removals are not flagged (deleting a secret is the fix, not the offence).
+#
+# These patterns are a net for KNOWN SHAPES, not a guarantee. No regex recognises a real
+# member's name. The actual control is that the pack contains only script-generated
+# artifacts — see the header of make-review-pack.sh.
+#
+# Editing this file trips the scanner against itself (the new patterns appear in the diff).
+# That is deliberate: pass --allow-pattern-file-change, by hand, when you mean to change it.
+
+# ── credentials by variable name (an empty value, as in .env.example, does not match) ──
+SUPABASE_SERVICE_ROLE_KEY[[:space:]]*=[[:space:]]*[^[:space:]"'#]
+(LINE_CHANNEL_ACCESS_TOKEN|LINE_CHANNEL_SECRET)[[:space:]]*=[[:space:]]*[^[:space:]"'#]
+(JOB_TRIGGER_SECRET|CRON_SECRET)[[:space:]]*=[[:space:]]*[^[:space:]"'#]
+SUPABASE_DB_URL[[:space:]]*=[[:space:]]*[^[:space:]"'#]
+
+# ── credentials by shape ──
+# JWT (Supabase anon/service-role keys are JWTs)
+eyJ[A-Za-z0-9_-]{20,}
+# age private key (backup encryption identity)
+AGE-SECRET-KEY-1[A-Z0-9]+
+# any PEM private key
+-----BEGIN [A-Z ]*PRIVATE KEY-----
+# a connection string carrying an inline password
+postgres(ql)?://[^/[:space:]]*:[^@[:space:]]*@
+
+# ── PII heuristic (best-effort; see the caveat above) ──
+# Taiwan mobile number, with or without separators, not part of a longer digit run
+(^|[^0-9])09[0-9]{2}-?[0-9]{3}-?[0-9]{3}([^0-9]|$)

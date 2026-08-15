@@ -1,0 +1,19 @@
+field_name,label_zh,data_type,required,notes
+application_date,申請日期,date,yes,Date the form was submitted (YYYY-MM-DD)
+applicant_name,申請人姓名,string,yes,
+license_plate,車牌號碼,string,yes,Normalize to uppercase without spaces/dashes for matching
+mobile_phone,手機號碼,string,yes,
+reason_type,申請原因,enum,yes,"1=disability_or_long_term_impaired, 2=short_term_impaired, 3=child_under_5_or_pregnant, 4=elderly_75_plus"
+impaired_person_name,行動不便者姓名,string,conditional,Required when reason_type is 1 or 2
+remarks,備註,string,no,"Free text; write ""pregnant"" (懷孕) here when reason_type=3 applies to a pregnant passenger"
+child_1_name,孩童姓名(1),string,conditional,Required when reason_type=3 and not pregnancy-only
+child_1_birthdate,孩童生日(1),date,conditional,"Gregorian YYYY/MM/DD; used to verify age <= 5"
+child_2_name,孩童姓名(2),string,no,
+child_2_birthdate,孩童生日(2),date,no,
+child_3_name,孩童姓名(3),string,no,
+child_3_birthdate,孩童生日(3),date,no,
+elder_1_name,長者姓名,string,conditional,Required when reason_type=4
+elder_1_birthdate,長者生日,date,conditional,"Gregorian YYYY/MM/DD; used to verify age >= 75"
+handled_by_usher,經手接待同工,string,no,Optional (非必填)
+reviewed_by,審核人,string,no,Filled by staff during review
+coded_date,入碼日期,date,no,Date the plate was entered into the parking system

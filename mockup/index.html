@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>內湖信友堂 主日停車管理系統 — UI Mockup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: -apple-system, 'PingFang TC', 'Microsoft JhengHei', sans-serif; background: #f3f4f6; }
+
+    /* ── Phone frame ── */
+    .phone-shell {
+      width: 375px;
+      background: #111;
+      border-radius: 48px;
+      padding: 14px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.4), inset 0 0 0 1px #333;
+    }
+    .phone-inner {
+      border-radius: 36px;
+      overflow: hidden;
+      background: white;
+      position: relative;
+    }
+    .phone-notch {
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 110px; height: 26px;
+      background: #111;
+      border-radius: 0 0 18px 18px;
+      z-index: 20;
+    }
+    .phone-screen {
+      min-height: 740px;
+      padding-top: 26px;
+      display: none;
+    }
+    .phone-screen.active { display: block; }
+
+    /* ── Tabs ── */
+    .main-tab { transition: border-color .15s, color .15s; }
+    .main-tab.active { border-bottom: 3px solid #16a34a; color: #16a34a; font-weight: 600; }
+
+    /* ── Admin sidebar nav ── */
+    .side-btn { transition: background .12s; }
+    .side-btn.active { background: #f0fdf4; color: #15803d; font-weight: 600; }
+
+    /* ── Notification bubble ── */
+    .notif-bubble {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
+      padding: 12px 14px;
+      font-size: 13px;
+      line-height: 1.55;
+      max-width: 280px;
+    }
+
+    /* ── Status badge sizes ── */
+    .badge { display: inline-flex; align-items: center; gap: 4px; border-radius: 9999px; padding: 2px 10px; font-size: 11.5px; font-weight: 600; }
+    .badge-green { background: #dcfce7; color: #15803d; }
+    .badge-amber { background: #fef3c7; color: #b45309; }
+    .badge-blue  { background: #dbeafe; color: #1d4ed8; }
+    .badge-purple{ background: #f3e8ff; color: #7e22ce; }
+    .badge-gray  { background: #f3f4f6; color: #6b7280; }
+    .badge-red   { background: #fee2e2; color: #b91c1c; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- ════════ TOP HEADER ════════ -->
+<header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
+  <div class="max-w-screen-xl mx-auto px-6">
+    <div class="flex items-center justify-between py-3">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">⛪</span>
+        <div>
+          <p class="font-bold text-gray-800 text-base leading-tight">內湖信友堂 停車管理系統</p>
+          <p class="text-xs text-gray-400">UI Mockup — 功能原型展示</p>
+        </div>
+      </div>
+      <span class="text-xs bg-amber-50 border border-amber-200 text-amber-700 rounded-full px-3 py-1">📐 原型草稿，非最終設計</span>
+    </div>
+    <!-- Main tabs -->
+    <nav class="flex gap-0">
+      <button onclick="switchTab('member')" id="tab-member" class="main-tab active px-6 py-3 text-sm text-gray-500 border-b-3 border-transparent">
+        📱 會友端（LINE LIFF）
+      </button>
+      <button onclick="switchTab('notif')" id="tab-notif" class="main-tab px-6 py-3 text-sm text-gray-500 border-b-3 border-transparent">
+        💬 LINE 通知範例
+      </button>
+      <button onclick="switchTab('staff')" id="tab-staff" class="main-tab px-6 py-3 text-sm text-gray-500 border-b-3 border-transparent">
+        🅿️ 同工端（主日點名）
+      </button>
+      <button onclick="switchTab('admin')" id="tab-admin" class="main-tab px-6 py-3 text-sm text-gray-500 border-b-3 border-transparent">
+        ⚙️ 管理員後台
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-screen-xl mx-auto px-6 py-8">
+
+<!-- ════════════════════════════════════
+     PANEL 1: 會友端
+════════════════════════════════════ -->
+<section id="panel-member" class="panel">
+  <div class="flex gap-10 items-start">
+
+    <!-- Phone -->
+    <div class="flex-shrink-0">
+      <div class="phone-shell">
+        <div class="phone-inner">
+          <div class="phone-notch"></div>
+
+          <!-- ── Screen: 首頁 已核准 ── -->
+          <div id="ms-home" class="phone-screen active">
+            <div class="h-full" style="background:#06C755">
+              <div class="px-4 pt-5 pb-4 flex items-center gap-2">
+                <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center text-lg">⛪</div>
+                <p class="text-white font-semibold text-sm">內湖信友堂 停車服務</p>
+              </div>
+            </div>
+            <div class="bg-gray-50 min-h-full p-4 -mt-2 rounded-t-3xl">
+              <!-- Week banner -->
+              <div class="bg-green-700 text-white rounded-2xl p-4 mb-3 shadow">
+                <p class="text-xs opacity-75 mb-0.5">本週主日</p>
+                <p class="text-xl font-bold">2026 年 6 月 21 日（日）</p>
+                <p class="text-sm opacity-80 mt-0.5">主日崇拜 10:30</p>
+              </div>
+              <!-- Status -->
+              <div class="bg-white rounded-2xl p-4 mb-3 shadow-sm border border-green-100">
+                <p class="text-xs text-gray-400 mb-2 uppercase tracking-wide">本週停車狀態</p>
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="badge badge-green text-sm">✅ 已核准</span>
+                  <span class="text-xs text-gray-400">週五 18:02 確認</span>
+                </div>
+                <div class="border-t pt-3 space-y-1">
+                  <p class="text-sm text-gray-700">🚗 本週車輛：<strong>ABC-1234</strong></p>
+                  <p class="text-sm text-gray-500">⏰ 請 10:30 前抵達地下室入口</p>
+                </div>
+              </div>
+              <!-- Actions -->
+              <div class="space-y-2">
+                <button onclick="setMemberScreen('cancel')" class="w-full bg-white border border-red-200 text-red-500 rounded-2xl py-3 text-sm font-medium shadow-sm active:scale-95">
+                  取消本週預約
+                </button>
+                <button onclick="setMemberScreen('plates')" class="w-full bg-white border border-gray-200 text-gray-600 rounded-2xl py-3 text-sm font-medium shadow-sm active:scale-95">
+                  管理我的車牌
+                </button>
+              </div>
+              <div class="mt-3 bg-blue-50 rounded-2xl p-3 border border-blue-100">
+                <p class="text-xs text-blue-600">💡 臨時換車可在到場前於此修改車牌，或請現場同工備註。</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Screen: 首頁 候補中 ── -->
+          <div id="ms-home-waiting" class="phone-screen">
+            <div style="background:#06C755" class="px-4 pt-10 pb-4 flex items-center gap-2">
+              <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center text-lg">⛪</div>
+              <p class="text-white font-semibold text-sm">內湖信友堂 停車服務</p>
+            </div>
+            <div class="bg-gray-50 min-h-full p-4 -mt-2 rounded-t-3xl">
+              <div class="bg-green-700 text-white rounded-2xl p-4 mb-3 shadow">
+                <p class="text-xs opacity-75 mb-0.5">本週主日</p>
+                <p class="text-xl font-bold">2026 年 6 月 21 日（日）</p>
+                <p class="text-sm opacity-80 mt-0.5">主日崇拜 10:30</p>
+              </div>
+              <div class="bg-white rounded-2xl p-4 mb-3 shadow-sm border border-amber-100">
+                <p class="text-xs text-gray-400 mb-2 uppercase tracking-wide">本週停車狀態</p>
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="badge badge-amber text-sm">⏳ 候補中</span>
+                  <span class="text-xs text-gray-400">候補序號 #4</span>
+                </div>
+                <div class="border-t pt-3 space-y-1">
+                  <p class="text-sm text-gray-700">🚗 本週車輛：<strong>ABC-1234</strong></p>
+                  <p class="text-sm text-gray-500">若有人取消，系統將自動遞補並通知您</p>
+                </div>
+              </div>
+              <div class="bg-amber-50 rounded-2xl p-3 border border-amber-100 mb-2">
+                <p class="text-xs text-amber-700">📢 週六至週日若收到遞補通知，請於 2 小時內確認。</p>
+              </div>
+              <button onclick="setMemberScreen('cancel')" class="w-full bg-white border border-gray-200 text-gray-500 rounded-2xl py-3 text-sm shadow-sm">
+                取消候補
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Screen: 首頁 未申請 ── -->
+          <div id="ms-home-none" class="phone-screen">
+            <div style="background:#06C755" class="px-4 pt-10 pb-4 flex items-center gap-2">
+              <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center text-lg">⛪</div>
+              <p class="text-white font-semibold text-sm">內湖信友堂 停車服務</p>
+            </div>
+            <div class="bg-gray-50 min-h-full p-4 -mt-2 rounded-t-3xl">
+              <div class="bg-green-700 text-white rounded-2xl p-4 mb-3 shadow">
+                <p class="text-xs opacity-75 mb-0.5">本週主日</p>
+                <p class="text-xl font-bold">2026 年 6 月 21 日（日）</p>
+                <p class="text-sm opacity-80 mt-0.5">主日崇拜 10:30</p>
+              </div>
+              <div class="bg-white rounded-2xl p-4 mb-3 shadow-sm border border-gray-100">
+                <p class="text-xs text-gray-400 mb-2 uppercase tracking-wide">本週停車狀態</p>
+                <span class="badge badge-gray text-sm">尚未申請</span>
+                <p class="text-xs text-gray-400 mt-3">申請截止：週五 18:00<br>截止後系統自動分配，週五晚間推播結果</p>
+              </div>
+              <button onclick="setMemberScreen('apply')" class="w-full bg-green-600 text-white rounded-2xl py-3 font-semibold shadow active:scale-95">
+                申請本週停車
+              </button>
+              <button onclick="setMemberScreen('plates')" class="w-full bg-white border border-gray-200 text-gray-600 rounded-2xl py-3 text-sm font-medium shadow-sm mt-2">
+                管理我的車牌
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Screen: 申請停車 ── -->
+          <div id="ms-apply" class="phone-screen">
+            <div style="background:#06C755" class="px-4 pt-10 pb-3 flex items-center gap-3">
+              <button onclick="setMemberScreen('home-none')" class="text-white text-lg">‹</button>
+              <p class="text-white font-semibold text-sm">申請本週停車</p>
+            </div>
+            <div class="bg-gray-50 min-h-full p-4 -mt-0.5">
+              <div class="bg-white rounded-2xl p-4 shadow-sm mb-3">
+                <p class="text-sm font-medium text-gray-700 mb-2">本週開哪台車？</p>
+                <select class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-400">
+                  <option>🚗 ABC-1234（預設）</option>
+                  <option>🚗 XYZ-9876（備用）</option>
+                </select>
+                <button class="mt-2 text-xs text-green-600 underline">＋ 新增車牌</button>
+              </div>
+              <!-- P2 declaration -->
+              <div class="bg-white rounded-2xl p-4 shadow-sm border border-blue-100 mb-3">
+                <label class="flex items-start gap-3 cursor-pointer">
+                  <input type="checkbox" class="mt-0.5 w-4 h-4 accent-blue-600 flex-shrink-0" />
+                  <div>
+                    <p class="text-sm font-medium text-blue-700">本週有年長者或幼兒同行</p>
+                    <p class="text-xs text-gray-500 mt-0.5">75 歲以上年長者 / 學齡前幼兒<br>勾選後本次享 P2 優先順序</p>
+                  </div>
+                </label>
+              </div>
+              <div class="bg-amber-50 rounded-2xl p-3 border border-amber-100 mb-4">
+                <p class="text-xs text-amber-700">📅 <strong>截止：週五 18:00</strong><br>結果將由 LINE 推播通知</p>
+              </div>
+              <button onclick="setMemberScreen('success')" class="w-full bg-green-600 text-white rounded-2xl py-3 font-semibold shadow active:scale-95">
+                送出申請
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Screen: 申請成功 ── -->
+          <div id="ms-success" class="phone-screen">
+            <div style="background:#06C755" class="px-4 pt-10 pb-3">
+              <p class="text-white font-semibold text-sm">申請結果</p>
+            </div>
+            <div class="bg-gray-50 min-h-full p-4 flex flex-col items-center text-center pt-10">
+              <div class="text-6xl mb-4">✅</div>
+              <h2 class="text-xl font-bold text-gray-800 mb-1">申請已送出！</h2>
+              <p class="text-sm text-gray-500 mb-6">週五 18:00 後，LINE 將推播分配結果</p>
+              <div class="w-full bg-white rounded-2xl p-4 text-left shadow-sm mb-4">
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">申請摘要</p>
+                <div class="space-y-1 text-sm text-gray-700">
+                  <p>🗓 主日：2025 / 6 / 22</p>
+                  <p>🚗 車牌：ABC-1234</p>
+                  <p>👨‍👩‍👧 同行：有年長者同行（P2）</p>
+                  <p>📊 排序：P2 第 2 位</p>
+                </div>
+              </div>
+              <button onclick="setMemberScreen('home-waiting')" class="w-full bg-green-600 text-white rounded-2xl py-3 font-semibold shadow">
+                返回首頁
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Screen: 我的車牌 ── -->
+          <div id="ms-plates" class="phone-screen">
+            <div style="background:#06C755" class="px-4 pt-10 pb-3 flex items-center gap-3">
+              <button onclick="setMemberScreen('home')" class="text-white text-lg">‹</button>
+              <p class="text-white font-semibold text-sm">我的車牌</p>
+            </div>
+            <div class="bg-gray-50 min-h-full p-4">
+              <div class="space-y-3 mb-3">
+                <div class="bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between">
+                  <div>
+                    <p class="font-bold text-gray-800 font-mono">ABC-1234</p>
+                    <p class="text-xs text-green-600 mt-0.5">⭐ 預設車牌</p>
+                  </div>
+                  <button class="text-xs text-gray-400 border border-gray-200 rounded-lg px-3 py-1.5">刪除</button>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between">
+                  <div>
+                    <p class="font-bold text-gray-800 font-mono">XYZ-9876</p>
+                    <p class="text-xs text-gray-400 mt-0.5">備用車</p>
+                  </div>
+                  <div class="flex gap-1.5">
+                    <button class="text-xs text-blue-500 border border-blue-200 rounded-lg px-2 py-1.5">設為預設</button>
+                    <button class="text-xs text-gray-400 border border-gray-200 rounded-lg px-2 py-1.5">刪除</button>
+                  </div>
+                </div>
+              </div>
+              <button class="w-full border-2 border-dashed border-gray-300 text-gray-500 rounded-2xl py-3 text-sm">
+                ＋ 新增車牌
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Screen: 取消確認 ── -->
+          <div id="ms-cancel" class="phone-screen">
+            <div style="background:#06C755" class="px-4 pt-10 pb-3 flex items-center gap-3">
+              <button onclick="setMemberScreen('home')" class="text-white text-lg">‹</button>
+              <p class="text-white font-semibold text-sm">取消預約</p>
+            </div>
+            <div class="bg-gray-50 min-h-full p-4">
+              <div class="bg-white rounded-2xl p-4 shadow-sm mb-3">
+                <p class="font-medium text-gray-800 mb-1">確認取消本週預約？</p>
+                <p class="text-sm text-gray-500">主日 2026/6/21 · 車牌 ABC-1234</p>
+              </div>
+              <div class="bg-green-50 rounded-2xl p-3 border border-green-200 mb-4">
+                <p class="text-xs text-green-700">💚 <strong>恩慈設計：</strong>主日 10:30 前取消，<strong>不計任何違規紀錄</strong>。您的車位將立即釋出給候補者。</p>
+              </div>
+              <div class="space-y-2">
+                <button onclick="setMemberScreen('home-none')" class="w-full bg-red-500 text-white rounded-2xl py-3 font-semibold active:scale-95">
+                  確認取消
+                </button>
+                <button onclick="setMemberScreen('home')" class="w-full bg-white border border-gray-200 text-gray-600 rounded-2xl py-3 text-sm">
+                  保留預約
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /phone-inner -->
+      </div><!-- /phone-shell -->
+
+      <!-- Screen nav pills -->
+      <div class="mt-5 flex flex-wrap gap-2 justify-center max-w-xs">
+        <p class="w-full text-center text-xs text-gray-400 mb-0.5">點選切換畫面</p>
+        <button onclick="setMemberScreen('home')" class="screen-pill">首頁（已核准）</button>
+        <button onclick="setMemberScreen('home-waiting')" class="screen-pill">首頁（候補中）</button>
+        <button onclick="setMemberScreen('home-none')" class="screen-pill">首頁（未申請）</button>
+        <button onclick="setMemberScreen('apply')" class="screen-pill">申請停車</button>
+        <button onclick="setMemberScreen('success')" class="screen-pill">申請成功</button>
+        <button onclick="setMemberScreen('plates')" class="screen-pill">管理車牌</button>
+        <button onclick="setMemberScreen('cancel')" class="screen-pill">取消預約</button>
+      </div>
+    </div>
+
+    <!-- Annotations -->
+    <div class="flex-1 space-y-4">
+      <h2 class="text-xl font-bold text-gray-800">會友端 — LINE LIFF 介面</h2>
+
+      <div class="bg-white rounded-2xl p-4 shadow-sm border-l-4 border-green-500">
+        <p class="font-semibold text-gray-800 mb-1">使用方式</p>
+        <p class="text-sm text-gray-600">會友在 LINE 官方帳號點選選單，即可開啟 LIFF 網頁。不需要下載額外 App，操作完全在 LINE 內完成。</p>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 shadow-sm">
+        <p class="font-semibold text-gray-800 mb-3">會友可以做什麼</p>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li class="flex gap-2 items-start"><span class="flex-shrink-0 w-5 text-center">🚗</span> 登錄多組車牌，每週選「本週開哪台」</li>
+          <li class="flex gap-2 items-start"><span class="flex-shrink-0 w-5 text-center">📝</span> 申請本週停車（週一起開放，週五 18:00 截止）</li>
+          <li class="flex gap-2 items-start"><span class="flex-shrink-0 w-5 text-center">👨‍👩‍👧</span> 宣告本週有年長者 / 幼兒同行（P2 優先）</li>
+          <li class="flex gap-2 items-start"><span class="flex-shrink-0 w-5 text-center">📊</span> 即時查看本週狀態（已核准 / 候補 / 未申請）</li>
+          <li class="flex gap-2 items-start"><span class="flex-shrink-0 w-5 text-center">❌</span> 主日 10:30 前取消，<strong>不計違規紀錄</strong></li>
+        </ul>
+      </div>
+
+      <div class="bg-green-50 rounded-2xl p-4 border border-green-200">
+        <p class="font-semibold text-green-700 mb-2">💚 恩慈設計亮點</p>
+        <p class="text-sm text-green-700">取消確認頁面明確顯示「不計違規紀錄」，目的是讓會友<strong>安心取消</strong>而不是硬撐——若臨時無法出席卻因害怕被記點而不取消，反而讓候補者白等、白白浪費一個車位。</p>
+      </div>
+
+      <div class="bg-amber-50 rounded-2xl p-4 border border-amber-200">
+        <p class="font-semibold text-amber-700 mb-2">⚠️ 待同工長執確認的規則（以下為提案，尚未定案）</p>
+        <ul class="text-sm text-amber-700 space-y-2.5">
+          <li class="border-b border-amber-100 pb-2">
+            <strong>🔑 P1 全職同工當週不到（外教會服事）</strong><br>
+            提案：週五前於系統標記「本週不停」，P1 保留名額自動釋出給一般候補
+          </li>
+          <li class="border-b border-amber-100 pb-2">
+            <strong>👶 P2 幼兒家庭遲到緩衝設計</strong><br>
+            提案：10:20 LINE 提醒 P2 未到者，可回「正在路上」；P2 車位延至 10:45 才自動釋出（一般會友仍 10:30）
+          </li>
+          <li class="border-b border-amber-100 pb-2">
+            <strong>🤰 孕婦 P2 有效期</strong><br>
+            提案：Admin 核准後持續有效至孩子達學齡（小學入學）為止
+          </li>
+          <li class="border-b border-amber-100 pb-2">
+            <strong>❓ P2 關懷會友：No-show 完全不計懲罰？</strong><br>
+            目前設計：P2 不累積 penalty score，No-show 僅觸發牧養關懷聯繫。<br>
+            <span class="text-amber-600 text-xs">設計理由：P2 群體（行動不便、孕婦、幼兒同行、年長者）因身體或家庭因素本已處於較脆弱狀態，懲罰機制恐產生心理負擔，與教會牧養精神相違。建議以關懷取代管制。</span><br>
+            <span class="text-xs italic text-amber-500 mt-1 block">⇒ 請長執確認是否接受此設計，或需區分 P2 原因類別分別處理。</span>
+          </li>
+          <li>
+            <strong>📋 其他</strong><br>
+            P2 年長/幼兒宣告需每週勾選，還是可設「常態同行」自動套用？<br>
+            首次綁定需要哪些資料？（姓名 + 車牌 + 教會會友編號？）
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     PANEL 2: LINE 通知範例
+════════════════════════════════════ -->
+<section id="panel-notif" class="panel hidden">
+  <h2 class="text-xl font-bold text-gray-800 mb-2">LINE 通知範例</h2>
+  <p class="text-sm text-gray-500 mb-6">以下為系統在各關鍵時刻自動推播給會友的 LINE 訊息。</p>
+
+  <div class="grid grid-cols-2 gap-6">
+
+    <!-- Col 1 -->
+    <div class="space-y-6">
+      <!-- Approved -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="badge badge-green">週五 18:00</span>
+          <p class="text-sm font-semibold text-gray-700">分配結果 — 核准</p>
+        </div>
+        <div class="bg-gray-100 rounded-2xl p-4">
+          <div class="flex items-end gap-2">
+            <div class="w-8 h-8 flex-shrink-0 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">⛪</div>
+            <div class="notif-bubble">
+              🚗 <strong>本週停車已核准！</strong><br><br>
+              主日：2026/6/21（日）<br>
+              車牌：ABC-1234<br>
+              請 <strong>10:30 前</strong>抵達地下室入口<br><br>
+              <span style="color:#888;font-size:11px">※ 10:30 後到場不保證車位，若遇困難請提前告知</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Waiting -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="badge badge-amber">週五 18:00</span>
+          <p class="text-sm font-semibold text-gray-700">分配結果 — 候補</p>
+        </div>
+        <div class="bg-gray-100 rounded-2xl p-4">
+          <div class="flex items-end gap-2">
+            <div class="w-8 h-8 flex-shrink-0 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">⛪</div>
+            <div class="notif-bubble">
+              ⏳ <strong>您目前在候補名單中</strong><br><br>
+              候補序號：<strong>#4</strong><br>
+              主日：2026/6/21<br><br>
+              若有會友取消，系統將依序遞補並通知您。<br>請留意後續 LINE 通知 🙏
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 10:30 release broadcast -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="badge badge-gray">週日 10:30</span>
+          <p class="text-sm font-semibold text-gray-700">逾時釋出廣播（候補者）</p>
+        </div>
+        <div class="bg-gray-100 rounded-2xl p-4">
+          <div class="flex items-end gap-2">
+            <div class="w-8 h-8 flex-shrink-0 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">⛪</div>
+            <div class="notif-bubble">
+              📢 <strong>地下室臨時有空位釋出</strong><br><br>
+              候補與現場車輛可至入口詢問停車管理同工，依現場順序停放，額滿為止。<br><br>
+              <span style="color:#888;font-size:11px">※ 本通知不代表保證車位，請勿違停影響動線</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Col 2 -->
+    <div class="space-y-6">
+      <!-- Standby offer (Sat) -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="badge badge-blue">週六（遞補）</span>
+          <p class="text-sm font-semibold text-gray-700">候補遞補通知（需確認）</p>
+        </div>
+        <div class="bg-gray-100 rounded-2xl p-4">
+          <div class="flex items-end gap-2">
+            <div class="w-8 h-8 flex-shrink-0 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">⛪</div>
+            <div class="notif-bubble">
+              🎉 <strong>您已獲得停車遞補！</strong><br><br>
+              主日：2026/6/21<br>
+              車牌：ABC-1234<br><br>
+              請在 <strong>2 小時內</strong>確認保留，逾時將自動釋出給下一位。<br><br>
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <span style="background:#06C755;color:white;padding:4px 12px;border-radius:8px;font-size:12px;cursor:pointer">✅ 確認保留</span>
+                <span style="background:#f1f5f9;color:#64748b;padding:4px 12px;border-radius:8px;font-size:12px;cursor:pointer">放棄</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="text-xs text-gray-400 mt-2 ml-12">⚠️ 遞補失敗者維持候補原排位，等待下次機會</p>
+      </div>
+
+      <!-- Sun immediate -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="badge badge-purple">週日（遞補）</span>
+          <p class="text-sm font-semibold text-gray-700">週日即時核准通知</p>
+        </div>
+        <div class="bg-gray-100 rounded-2xl p-4">
+          <div class="flex items-end gap-2">
+            <div class="w-8 h-8 flex-shrink-0 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">⛪</div>
+            <div class="notif-bubble">
+              ✅ <strong>恭喜！您的停車已即時核准</strong><br><br>
+              主日：2026/6/21<br>
+              車牌：ABC-1234<br><br>
+              請 <strong>10:30 前</strong>盡快抵達，逾時保留將取消 🙏
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- P2 10:20 reminder -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="badge badge-blue">週日 10:20</span>
+          <p class="text-sm font-semibold text-gray-700">P2 到場提醒（未到者專屬）</p>
+        </div>
+        <div class="bg-gray-100 rounded-2xl p-4">
+          <div class="flex items-end gap-2">
+            <div class="w-8 h-8 flex-shrink-0 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">⛪</div>
+            <div class="notif-bubble">
+              ⏰ <strong>停車位提醒</strong><br><br>
+              您的本週停車位保留至 <strong>10:45</strong>，目前系統尚未收到您的到場紀錄。<br><br>
+              若您正在路上，請點選下方告知同工：<br><br>
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <span style="background:#06C755;color:white;padding:4px 12px;border-radius:8px;font-size:12px;cursor:pointer">🚗 正在路上</span>
+              </div>
+              <div style="color:#888;font-size:11px;margin-top:8px">※ 若 10:45 仍未到場，車位將自動釋出給候補者</div>
+            </div>
+          </div>
+        </div>
+        <p class="text-xs text-gray-400 mt-2 ml-12">僅發送給 P2 已核准且未到場的會友；P3 一般會友不收此通知</p>
+      </div>
+
+      <!-- No-show -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="badge badge-red">結算後</span>
+          <p class="text-sm font-semibold text-gray-700">未到場提醒（P3 一般會友）</p>
+        </div>
+        <div class="bg-gray-100 rounded-2xl p-4">
+          <div class="flex items-end gap-2">
+            <div class="w-8 h-8 flex-shrink-0 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">⛪</div>
+            <div class="notif-bubble">
+              🙏 <strong>本週停車提醒</strong><br><br>
+              您本週未使用已申請的停車位，系統已記錄一次未到場。<br><br>
+              <span style="color:#888;font-size:11px">※ 因過往紀錄，下次申請排序將暫時調整。下次準時到場即可恢復。若有特殊情況請聯繫幹事。</span>
+            </div>
+          </div>
+        </div>
+        <p class="text-xs text-gray-400 mt-2 ml-12">P1 全職同工 / P2 關懷會友未到場不收此通知，不計違規</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="mt-6 bg-blue-50 rounded-2xl p-4 border border-blue-100">
+    <p class="font-semibold text-blue-700 mb-1">💬 LINE Bot 設計原則</p>
+    <p class="text-sm text-blue-700">所有通知文案以<strong>溫和、不帶審判語氣</strong>為原則。P3 未到場的通知刻意不說「違規」，而說「排序暫時調整」，符合教會文化。P1 全職同工、P2 關懷會友完全不收懲罰訊息。</p>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════
+     PANEL 3: 同工端
+════════════════════════════════════ -->
+<section id="panel-staff" class="panel hidden">
+
+  <div class="mb-6">
+    <h2 class="text-xl font-bold text-gray-800">同工端 — 主日點名</h2>
+    <p class="text-sm text-gray-500 mt-1">以手機或 iPad 操作，停車場現場無電腦。以下兩種裝置版型均支援。</p>
+  </div>
+
+  <!-- ── 雙框架並排 ── -->
+  <div class="flex gap-8 justify-start items-start flex-wrap mb-8">
+
+    <!-- ── iPad frame ── -->
+    <div class="flex-shrink-0">
+      <p class="text-center text-sm font-semibold text-gray-500 mb-3">📱 iPad 版</p>
+      <div style="background:#1a1a1a;border-radius:24px;padding:16px 12px;box-shadow:0 24px 64px rgba(0,0,0,.4),inset 0 0 0 1px #333;width:420px;">
+        <!-- Home button bar top -->
+        <div style="height:10px;display:flex;justify-content:center;align-items:center;margin-bottom:10px;">
+          <div style="width:60px;height:4px;background:#333;border-radius:2px;"></div>
+        </div>
+        <!-- Screen -->
+        <div style="border-radius:12px;overflow:hidden;background:#f3f4f6;height:640px;display:flex;flex-direction:column;">
+
+          <!-- App header -->
+          <div style="background:#15803d;padding:12px 16px;flex-shrink:0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <p style="color:white;font-weight:700;font-size:15px;">⛪ 內湖信友堂 點名</p>
+                <p style="color:#bbf7d0;font-size:11px;">2026/6/21（主日）停車管理同工</p>
+              </div>
+              <div style="display:flex;gap:6px;font-size:12px;">
+                <span style="background:rgba(255,255,255,.2);color:white;border-radius:20px;padding:3px 10px;">✅ 12</span>
+                <span style="background:rgba(255,255,255,.2);color:white;border-radius:20px;padding:3px 10px;">⏳ 6</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Time warning -->
+          <div style="background:#fef3c7;border-bottom:1px solid #fde68a;padding:8px 14px;font-size:11px;color:#92400e;flex-shrink:0;">
+            ⏰ <strong>10:20</strong> 系統提醒 P2 未到者 ｜ <strong>10:30</strong> 一般釋出 ｜ <strong>10:45</strong> P2 釋出
+          </div>
+
+          <!-- Scrollable list -->
+          <div style="flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;">
+
+            <!-- Attended card -->
+            <div style="background:white;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;border:1.5px solid #dcfce7;opacity:.75;">
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                  <span style="background:#f3e8ff;color:#7e22ce;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:600;">⭐ 優先</span>
+                  <span style="font-weight:700;font-size:14px;color:#1f2937;">陳大明</span>
+                </div>
+                <p style="font-family:monospace;font-size:13px;color:#6b7280;">ABC-1234</p>
+              </div>
+              <span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;flex-shrink:0;">✅ 已到場</span>
+            </div>
+
+            <div style="background:white;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;border:1.5px solid #dcfce7;opacity:.75;">
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                  <span style="background:#f3e8ff;color:#7e22ce;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:600;">⭐ 優先</span>
+                  <span style="font-weight:700;font-size:14px;color:#1f2937;">李小美</span>
+                </div>
+                <p style="font-family:monospace;font-size:13px;color:#6b7280;">DEF-5678</p>
+              </div>
+              <span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;flex-shrink:0;">✅ 已到場</span>
+            </div>
+
+            <!-- Pending cards (interactive) -->
+            <div id="sc-wang" style="background:white;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;border:1.5px solid #fde68a;box-shadow:0 2px 8px rgba(0,0,0,.06);">
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                  <span style="font-weight:700;font-size:14px;color:#1f2937;">王志偉</span>
+                </div>
+                <p style="font-family:monospace;font-size:13px;color:#6b7280;">GHI-9012</p>
+              </div>
+              <button onclick="staffCheckin('wang')" style="background:#16a34a;color:white;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0;">到場點名</button>
+            </div>
+
+            <div id="sc-zhang" style="background:white;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;border:1.5px solid #fde68a;box-shadow:0 2px 8px rgba(0,0,0,.06);">
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                  <span style="font-weight:700;font-size:14px;color:#1f2937;">張雅琪</span>
+                </div>
+                <p style="font-family:monospace;font-size:13px;color:#6b7280;">JKL-3456</p>
+              </div>
+              <button onclick="staffCheckin('zhang')" style="background:#16a34a;color:white;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0;">到場點名</button>
+            </div>
+
+            <div id="sc-lin" style="background:white;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;border:1.5px solid #fde68a;box-shadow:0 2px 8px rgba(0,0,0,.06);">
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                  <span style="font-weight:700;font-size:14px;color:#1f2937;">林建宏</span>
+                </div>
+                <p style="font-family:monospace;font-size:13px;color:#6b7280;">MNO-7890</p>
+              </div>
+              <button onclick="staffCheckin('lin')" style="background:#16a34a;color:white;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0;">到場點名</button>
+            </div>
+
+            <!-- Walk-in -->
+            <div style="background:#eff6ff;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;border:1.5px solid #bfdbfe;opacity:.8;">
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                  <span style="background:#dbeafe;color:#1d4ed8;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:600;">現場散客</span>
+                </div>
+                <p style="font-family:monospace;font-size:13px;color:#6b7280;">PQR-1111</p>
+              </div>
+              <span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;flex-shrink:0;">✅ 已登記</span>
+            </div>
+
+            <div style="background:#eff6ff;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;border:1.5px solid #bfdbfe;opacity:.8;">
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                  <span style="background:#dbeafe;color:#1d4ed8;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:600;">現場散客</span>
+                </div>
+                <p style="font-family:monospace;font-size:13px;color:#6b7280;">STU-2222</p>
+              </div>
+              <span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;flex-shrink:0;">✅ 已登記</span>
+            </div>
+
+          </div><!-- /scrollable list -->
+
+          <!-- Bottom action bar -->
+          <div style="background:white;border-top:1px solid #e5e7eb;padding:10px 12px;display:flex;gap:8px;flex-shrink:0;">
+            <button onclick="alert('輸入車牌，登記現場散客')" style="flex:1;background:#2563eb;color:white;border:none;border-radius:12px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;">＋ 現場散客</button>
+            <button onclick="alert('確認結束本週點名？')" style="flex:1;background:#ef4444;color:white;border:none;border-radius:12px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;">結束點名</button>
+          </div>
+
+        </div><!-- /screen -->
+        <!-- Home bar bottom -->
+        <div style="height:14px;display:flex;justify-content:center;align-items:center;margin-top:10px;">
+          <div style="width:80px;height:4px;background:#444;border-radius:2px;"></div>
+        </div>
+      </div><!-- /iPad shell -->
+    </div><!-- /iPad wrapper -->
+
+    <!-- ── Phone frame ── -->
+    <div class="flex-shrink-0">
+      <p class="text-center text-sm font-semibold text-gray-500 mb-3">📱 手機版</p>
+      <!-- Reuse phone-shell class -->
+      <div class="phone-shell" style="width:320px;">
+        <div class="phone-inner">
+          <div class="phone-notch"></div>
+
+          <!-- App header -->
+          <div style="background:#15803d;padding:30px 14px 10px;flex-shrink:0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <p style="color:white;font-weight:700;font-size:13px;">⛪ 內湖信友堂 點名</p>
+                <p style="color:#bbf7d0;font-size:10px;">2026/6/21 停車管理同工</p>
+              </div>
+              <div style="display:flex;gap:4px;font-size:11px;">
+                <span style="background:rgba(255,255,255,.2);color:white;border-radius:20px;padding:2px 8px;">✅ 12</span>
+                <span style="background:rgba(255,255,255,.2);color:white;border-radius:20px;padding:2px 8px;">⏳ 6</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Time warning -->
+          <div style="background:#fef3c7;border-bottom:1px solid #fde68a;padding:6px 12px;font-size:10px;color:#92400e;">
+            ⏰ <strong>10:30</strong> 一般釋出 ｜ <strong>10:45</strong> P2 釋出
+          </div>
+
+          <!-- Scrollable list -->
+          <div style="overflow-y:auto;height:490px;padding:8px 10px;display:flex;flex-direction:column;gap:7px;background:#f3f4f6;">
+
+            <!-- Attended -->
+            <div style="background:white;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;border:1.5px solid #dcfce7;opacity:.75;">
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;">
+                  <span style="background:#f3e8ff;color:#7e22ce;border-radius:20px;padding:1px 7px;font-size:9px;font-weight:600;">⭐ 優先</span>
+                  <span style="font-weight:700;font-size:13px;color:#1f2937;">陳大明</span>
+                </div>
+                <p style="font-family:monospace;font-size:11px;color:#6b7280;">ABC-1234</p>
+              </div>
+              <span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;flex-shrink:0;">✅ 已到場</span>
+            </div>
+
+            <div style="background:white;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;border:1.5px solid #dcfce7;opacity:.75;">
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;">
+                  <span style="background:#f3e8ff;color:#7e22ce;border-radius:20px;padding:1px 7px;font-size:9px;font-weight:600;">⭐ 優先</span>
+                  <span style="font-weight:700;font-size:13px;color:#1f2937;">李小美</span>
+                </div>
+                <p style="font-family:monospace;font-size:11px;color:#6b7280;">DEF-5678</p>
+              </div>
+              <span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;flex-shrink:0;">✅ 已到場</span>
+            </div>
+
+            <!-- Pending -->
+            <div id="sp-wang" style="background:white;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;border:1.5px solid #fde68a;box-shadow:0 1px 6px rgba(0,0,0,.06);">
+              <div style="flex:1;min-width:0;">
+                <p style="font-weight:700;font-size:13px;color:#1f2937;margin-bottom:2px;">王志偉</p>
+                <p style="font-family:monospace;font-size:11px;color:#6b7280;">GHI-9012</p>
+              </div>
+              <button onclick="staffCheckinP('wang')" style="background:#16a34a;color:white;border:none;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;">點名</button>
+            </div>
+
+            <div id="sp-zhang" style="background:white;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;border:1.5px solid #fde68a;box-shadow:0 1px 6px rgba(0,0,0,.06);">
+              <div style="flex:1;min-width:0;">
+                <p style="font-weight:700;font-size:13px;color:#1f2937;margin-bottom:2px;">張雅琪</p>
+                <p style="font-family:monospace;font-size:11px;color:#6b7280;">JKL-3456</p>
+              </div>
+              <button onclick="staffCheckinP('zhang')" style="background:#16a34a;color:white;border:none;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;">點名</button>
+            </div>
+
+            <div id="sp-lin" style="background:white;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;border:1.5px solid #fde68a;box-shadow:0 1px 6px rgba(0,0,0,.06);">
+              <div style="flex:1;min-width:0;">
+                <p style="font-weight:700;font-size:13px;color:#1f2937;margin-bottom:2px;">林建宏</p>
+                <p style="font-family:monospace;font-size:11px;color:#6b7280;">MNO-7890</p>
+              </div>
+              <button onclick="staffCheckinP('lin')" style="background:#16a34a;color:white;border:none;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;">點名</button>
+            </div>
+
+            <!-- Walk-in -->
+            <div style="background:#eff6ff;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;border:1.5px solid #bfdbfe;opacity:.8;">
+              <div style="flex:1;min-width:0;">
+                <span style="background:#dbeafe;color:#1d4ed8;border-radius:20px;padding:1px 7px;font-size:9px;font-weight:600;">現場散客</span>
+                <p style="font-family:monospace;font-size:11px;color:#6b7280;margin-top:3px;">PQR-1111</p>
+              </div>
+              <span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;flex-shrink:0;">✅ 已登記</span>
+            </div>
+
+          </div><!-- /list -->
+
+          <!-- Bottom bar -->
+          <div style="background:white;border-top:1px solid #e5e7eb;padding:8px 10px;display:flex;gap:6px;">
+            <button onclick="alert('登記現場散客')" style="flex:1;background:#2563eb;color:white;border:none;border-radius:10px;padding:11px;font-size:12px;font-weight:600;cursor:pointer;">＋ 散客</button>
+            <button onclick="alert('確認結束點名？')" style="flex:1;background:#ef4444;color:white;border:none;border-radius:10px;padding:11px;font-size:12px;font-weight:600;cursor:pointer;">結束點名</button>
+          </div>
+
+        </div><!-- /phone-inner -->
+      </div><!-- /phone-shell -->
+    </div><!-- /Phone wrapper -->
+
+  </div><!-- /雙框架並排 -->
+
+  <!-- ── 設計說明 ── -->
+  <div class="grid grid-cols-4 gap-4 mb-4">
+    <div class="bg-white rounded-2xl p-4 shadow-sm border-l-4 border-blue-500">
+      <p class="font-semibold text-gray-800 text-sm mb-1">極簡操作</p>
+      <p class="text-xs text-gray-600">同工只需看名單、按「到場點名 / 點名」，無須了解系統背後邏輯。大觸控按鈕適合停車場光線不足的環境。</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 shadow-sm border-l-4 border-purple-500">
+      <p class="font-semibold text-gray-800 text-sm mb-1">隱私隔離</p>
+      <p class="text-xs text-gray-600">同工看不到 P1/P2 的具體原因（行動不便、孕婦、年長、幼兒等），僅以「⭐ 優先車位」統一標示。</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 shadow-sm border-l-4 border-amber-500">
+      <p class="font-semibold text-gray-800 text-sm mb-1">防呆提醒</p>
+      <p class="text-xs text-gray-600">若同工忘記結算，12:30 系統發 LINE 提醒同工；14:00 仍未完成則通知 Admin 手動補結算，避免影響下週。</p>
+    </div>
+    <div class="bg-white rounded-2xl p-4 shadow-sm border-l-4 border-green-500">
+      <p class="font-semibold text-gray-800 text-sm mb-1">遲到補點名</p>
+      <p class="text-xs text-gray-600">10:30 後抵達者，若同工尚在，仍可補點名（免除違規）。已釋出名字仍留在名單中方便補點。</p>
+    </div>
+  </div>
+
+</section>
+
+<script>
+function staffCheckin(id) {
+  var card = document.getElementById('sc-' + id);
+  if (!card) return;
+  card.style.border = '1.5px solid #dcfce7';
+  card.style.opacity = '.75';
+  var btn = card.querySelector('button');
+  if (btn) { btn.textContent = '✅ 已到場'; btn.style.background = '#15803d'; btn.style.cursor = 'default'; btn.onclick = null; }
+}
+function staffCheckinP(id) {
+  var card = document.getElementById('sp-' + id);
+  if (!card) return;
+  card.style.border = '1.5px solid #dcfce7';
+  card.style.opacity = '.75';
+  var btn = card.querySelector('button');
+  if (btn) { btn.textContent = '✅'; btn.style.background = '#15803d'; btn.style.cursor = 'default'; btn.onclick = null; }
+}
+</script>
+
+<!-- ════════════════════════════════════
+     PANEL 4: 管理員後台
+════════════════════════════════════ -->
+<section id="panel-admin" class="panel hidden">
+  <div class="flex gap-6">
+
+    <!-- Sidebar -->
+    <div class="w-52 flex-shrink-0">
+      <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-green-700 px-4 py-3">
+          <p class="text-white font-semibold text-sm">管理員後台</p>
+          <p class="text-green-300 text-xs">幹事 / 系統管理者</p>
+        </div>
+        <nav class="p-2 space-y-0.5">
+          <button onclick="showAdminPanel('overview', this)" class="side-btn active w-full text-left px-3 py-2.5 rounded-xl text-sm text-gray-700">
+            📊 本週概覽
+          </button>
+          <button onclick="showAdminPanel('qualify', this)" class="side-btn w-full text-left px-3 py-2.5 rounded-xl text-sm text-gray-700">
+            🏷️ 資格審核
+          </button>
+          <button onclick="showAdminPanel('care', this)" class="side-btn w-full text-left px-3 py-2.5 rounded-xl text-sm text-gray-700">
+            💚 牧養關懷 <span class="bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 ml-1">2</span>
+          </button>
+          <button onclick="showAdminPanel('settings', this)" class="side-btn w-full text-left px-3 py-2.5 rounded-xl text-sm text-gray-700">
+            ⚙️ 本週車位設定
+          </button>
+          <button onclick="showAdminPanel('audit', this)" class="side-btn w-full text-left px-3 py-2.5 rounded-xl text-sm text-gray-700">
+            📋 稽核記錄
+          </button>
+          <button onclick="showAdminPanel('stats', this)" class="side-btn w-full text-left px-3 py-2.5 rounded-xl text-sm text-gray-700">
+            📈 停車樣態分析
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Content area -->
+    <div class="flex-1">
+
+      <!-- Overview -->
+      <div id="ap-overview" class="admin-panel">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">本週概覽 — 2026/6/15–21</h2>
+        <div class="grid grid-cols-4 gap-3 mb-5">
+          <div class="bg-white rounded-2xl p-4 shadow-sm">
+            <p class="text-3xl font-bold text-gray-800">23</p>
+            <p class="text-xs text-gray-400 mt-1">地下室總車位</p>
+          </div>
+          <div class="bg-white rounded-2xl p-4 shadow-sm">
+            <p class="text-3xl font-bold text-green-600">20</p>
+            <p class="text-xs text-gray-400 mt-1">本週可分配<br><span class="text-gray-300">3 位保留外賓</span></p>
+          </div>
+          <div class="bg-white rounded-2xl p-4 shadow-sm">
+            <p class="text-3xl font-bold text-blue-600">34</p>
+            <p class="text-xs text-gray-400 mt-1">本週申請人數</p>
+          </div>
+          <div class="bg-white rounded-2xl p-4 shadow-sm">
+            <p class="text-3xl font-bold text-amber-500">14</p>
+            <p class="text-xs text-gray-400 mt-1">候補中</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-5">
+          <div class="bg-purple-50 rounded-2xl p-4 border border-purple-100">
+            <p class="text-sm font-semibold text-purple-700 mb-1">P1 全職同工 / 外賓</p>
+            <p class="text-2xl font-bold text-purple-800">5</p>
+            <p class="text-xs text-purple-500">預先保留，不佔公開名額</p>
+          </div>
+          <div class="bg-blue-50 rounded-2xl p-4 border border-blue-100">
+            <p class="text-sm font-semibold text-blue-700 mb-1">P2 行動不便 / 孕婦 / 年長 / 幼兒</p>
+            <p class="text-2xl font-bold text-blue-800">8</p>
+            <p class="text-xs text-blue-500">7 已核准，1 候補</p>
+          </div>
+          <div class="bg-gray-50 rounded-2xl p-4 border border-gray-200">
+            <p class="text-sm font-semibold text-gray-600 mb-1">P3 一般會友</p>
+            <p class="text-2xl font-bold text-gray-800">21</p>
+            <p class="text-xs text-gray-400">8 已核准，13 候補</p>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl p-4 shadow-sm">
+          <p class="font-semibold text-gray-700 mb-3">快速操作</p>
+          <div class="flex gap-2 flex-wrap">
+            <button class="border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 shadow-sm">設定外賓保留車位</button>
+            <button class="border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 shadow-sm">手動補結算點名</button>
+            <button class="border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 shadow-sm">匯出本週報表</button>
+            <button onclick="showAdminPanel('audit', document.querySelector('[onclick*=audit]'))" class="border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 shadow-sm">查看稽核記錄</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Qualification -->
+      <div id="ap-qualify" class="admin-panel hidden">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">P2 關懷資格審核</h2>
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 mb-4">
+          <p class="text-sm text-amber-700">⚠️ 資料最小化原則：系統<strong>不索取、不顯示</strong>診斷證明或病歷。幹事依人工確認後核准，所有操作自動寫入稽核軌跡。</p>
+        </div>
+
+        <!-- P1 全職同工 管理 -->
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-4 border border-purple-100">
+          <div class="border-b border-purple-100 px-4 py-3 bg-purple-50 flex items-center justify-between">
+            <p class="text-sm font-semibold text-purple-700">P1 全職同工名單（由幹事直接管理）</p>
+            <button onclick="alert('新增全職同工')" class="text-xs bg-purple-600 text-white rounded-lg px-3 py-1.5">＋ 新增</button>
+          </div>
+          <div class="divide-y divide-gray-50">
+            <div class="px-4 py-3 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="badge badge-purple">P1 同工</span>
+                <div>
+                  <p class="text-sm text-gray-800">林傳道</p>
+                  <p class="text-xs text-green-600">✅ 本週在本堂停車</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <button onclick="this.closest('tr, div.px-4').querySelector('p.text-xs').textContent='⚠️ 本週不停車，名額已釋出';this.textContent='取消標記';this.className='text-xs text-green-600 border border-green-300 rounded-lg px-2 py-1'" class="text-xs text-amber-600 border border-amber-200 rounded-lg px-2 py-1">標記本週不停</button>
+                <button onclick="alert('移除全職同工 P1 身份')" class="text-xs text-red-400 hover:text-red-600">移除</button>
+              </div>
+            </div>
+            <div class="px-4 py-3 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="badge badge-purple">P1 同工</span>
+                <div>
+                  <p class="text-sm text-gray-800">王幹事</p>
+                  <p class="text-xs text-amber-500">⚠️ 本週不停車（外教會服事），名額已釋出</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <button onclick="this.closest('div.px-4').querySelector('p.text-xs').className='text-xs text-green-600';this.closest('div.px-4').querySelector('p.text-xs').textContent='✅ 本週在本堂停車';this.textContent='標記本週不停';this.className='text-xs text-amber-600 border border-amber-200 rounded-lg px-2 py-1'" class="text-xs text-green-600 border border-green-300 rounded-lg px-2 py-1">取消標記</button>
+                <button onclick="alert('移除全職同工 P1 身份')" class="text-xs text-red-400 hover:text-red-600">移除</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-amber-50 rounded-2xl p-3 mb-4 border border-amber-200">
+          <p class="text-xs text-amber-700">⚠️ <strong>提案（待確認）：</strong>全職同工若當週在外教會服事，建議於週五前自行標記「本週不停」，P1 保留名額自動釋出給候補者。</p>
+        </div>
+
+        <!-- P2 審核 -->
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-4 border border-gray-100">
+          <div class="border-b border-gray-100 px-4 py-3 bg-gray-50">
+            <p class="text-sm font-semibold text-gray-700">P2 待審核申請（3）</p>
+          </div>
+          <div class="divide-y divide-gray-50">
+            <div class="px-4 py-4 flex items-center justify-between">
+              <div>
+                <p class="font-medium text-gray-800">陳雨辰</p>
+                <p class="text-xs text-gray-400 mt-0.5">申請類型：P2（行動不便）｜送出：2026/6/10</p>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="alert('已核准 P2（行動不便）— 稽核軌跡已記錄')" class="bg-blue-600 text-white text-sm rounded-xl px-4 py-1.5 shadow-sm">核准 P2</button>
+                <button onclick="alert('已拒絕 — 稽核軌跡已記錄')" class="border border-gray-200 text-gray-500 text-sm rounded-xl px-4 py-1.5">拒絕</button>
+              </div>
+            </div>
+            <div class="px-4 py-4 flex items-center justify-between">
+              <div>
+                <p class="font-medium text-gray-800">吳美麗</p>
+                <p class="text-xs text-gray-400 mt-0.5">申請類型：P2（75 歲以上年長者同行）｜送出：2026/6/12</p>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="alert('已核准 P2（年長者）— 稽核軌跡已記錄')" class="bg-blue-600 text-white text-sm rounded-xl px-4 py-1.5 shadow-sm">核准 P2</button>
+                <button onclick="alert('已拒絕 — 稽核軌跡已記錄')" class="border border-gray-200 text-gray-500 text-sm rounded-xl px-4 py-1.5">拒絕</button>
+              </div>
+            </div>
+            <div class="px-4 py-4 flex items-center justify-between">
+              <div>
+                <p class="font-medium text-gray-800">張家瑜</p>
+                <p class="text-xs text-gray-400 mt-0.5">申請類型：P2（孕婦）｜有效期至孩子學齡｜送出：2026/6/15</p>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="alert('已核准 P2（孕婦）— 稽核軌跡已記錄')" class="bg-blue-600 text-white text-sm rounded-xl px-4 py-1.5 shadow-sm">核准 P2</button>
+                <button onclick="alert('已拒絕 — 稽核軌跡已記錄')" class="border border-gray-200 text-gray-500 text-sm rounded-xl px-4 py-1.5">拒絕</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
+          <div class="border-b border-gray-100 px-4 py-3 bg-gray-50">
+            <p class="text-sm font-semibold text-gray-700">P2 已核准名單</p>
+          </div>
+          <div class="divide-y divide-gray-50">
+            <div class="px-4 py-3 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="badge badge-blue">P2 行動不便</span>
+                <p class="text-sm text-gray-800">陳大明</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <p class="text-xs text-gray-400">核准：2026/1/5｜by 王幹事</p>
+                <button onclick="alert('確認撤銷？此操作將記錄於稽核軌跡')" class="text-xs text-red-400 hover:text-red-600">撤銷</button>
+              </div>
+            </div>
+            <div class="px-4 py-3 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="badge badge-blue">P2 年長/幼兒</span>
+                <p class="text-sm text-gray-800">李小美</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <p class="text-xs text-gray-400">核准：2026/3/2｜by 王幹事</p>
+                <button onclick="alert('確認撤銷？此操作將記錄於稽核軌跡')" class="text-xs text-red-400 hover:text-red-600">撤銷</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pastoral care -->
+      <div id="ap-care" class="admin-panel hidden">
+        <h2 class="text-xl font-bold text-gray-800 mb-1">牧養關懷提醒</h2>
+        <p class="text-sm text-gray-500 mb-4">以下 P2 會友連續 4 次預約但未到場，建議主動聯繫關心。</p>
+        <div class="space-y-4 mb-5">
+          <div class="bg-white rounded-2xl p-4 shadow-sm border-l-4 border-amber-400">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="badge badge-blue">P2 行動不便</span>
+                  <p class="font-medium text-gray-800">黃志明</p>
+                </div>
+                <p class="text-sm text-gray-500">連續未到場：<strong class="text-amber-600">4 週</strong>（2026/5/25 起）</p>
+                <p class="text-xs text-gray-400 mt-0.5">最後一次到場：2026年5月18日</p>
+              </div>
+              <button onclick="alert('已標記為已關心，稽核軌跡記錄')" class="bg-amber-500 text-white text-sm rounded-xl px-3 py-1.5 shadow-sm flex-shrink-0">標記已關心</button>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl p-4 shadow-sm border-l-4 border-amber-400">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="badge badge-blue">P2 年長/幼兒</span>
+                  <p class="font-medium text-gray-800">劉淑芬</p>
+                </div>
+                <p class="text-sm text-gray-500">連續未到場：<strong class="text-amber-600">4 週</strong>（2026/5/25 起）</p>
+                <p class="text-xs text-gray-400 mt-0.5">最後一次到場：2026年5月18日</p>
+              </div>
+              <button onclick="alert('已標記為已關心，稽核軌跡記錄')" class="bg-amber-500 text-white text-sm rounded-xl px-3 py-1.5 shadow-sm flex-shrink-0">標記已關心</button>
+            </div>
+          </div>
+        </div>
+        <div class="bg-green-50 rounded-2xl p-4 border border-green-200">
+          <p class="font-semibold text-green-700 mb-1">💚 系統設計理念</p>
+          <p class="text-sm text-green-700">P2 關懷會友（行動不便、孕婦、年長、帶幼兒）若長期未出現，可能面臨健康或生活困難。停車記錄在此成為牧養的訊號，建議透過牧長或幹事主動聯繫。</p>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div id="ap-settings" class="admin-panel hidden">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">本週車位設定</h2>
+        <div class="bg-white rounded-2xl p-5 shadow-sm mb-4 border border-gray-100">
+          <p class="font-semibold text-gray-700 mb-4">車位計算</p>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-600">地下室總車位</p>
+              <p class="font-bold text-gray-800">23</p>
+            </div>
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-600">保留外賓車位</p>
+              <div class="flex items-center gap-2">
+                <button class="w-7 h-7 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 active:scale-95">−</button>
+                <span class="font-bold w-6 text-center">3</span>
+                <button class="w-7 h-7 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 active:scale-95">＋</button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-gray-600">停用 / 維修車位</p>
+              <div class="flex items-center gap-2">
+                <button class="w-7 h-7 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 active:scale-95">−</button>
+                <span class="font-bold w-6 text-center">0</span>
+                <button class="w-7 h-7 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 active:scale-95">＋</button>
+              </div>
+            </div>
+            <div class="border-t border-gray-100 pt-3 flex items-center justify-between">
+              <p class="font-semibold text-gray-800">本週可分配車位</p>
+              <p class="text-2xl font-bold text-green-600">20</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <p class="font-semibold text-gray-700 mb-3">本週開放狀態</p>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-700 font-medium">停車申請開放中</p>
+              <p class="text-xs text-gray-400 mt-0.5">可臨時關閉（特別活動、場地維護等）</p>
+            </div>
+            <div class="w-11 h-6 bg-green-500 rounded-full flex items-center justify-end pr-0.5 cursor-pointer">
+              <div class="w-5 h-5 bg-white rounded-full shadow"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audit -->
+      <div id="ap-audit" class="admin-panel hidden">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">稽核記錄（Audit Log）</h2>
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-100">
+              <tr>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">時間</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">操作者</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">動作</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">對象</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50 text-gray-700">
+              <tr class="hover:bg-gray-50/60">
+                <td class="px-4 py-3 text-xs text-gray-400">2026/6/20 14:32</td>
+                <td class="px-4 py-3">王幹事</td>
+                <td class="px-4 py-3"><span class="badge badge-blue">核准 P2（行動不便）</span></td>
+                <td class="px-4 py-3">陳大明</td>
+              </tr>
+              <tr class="hover:bg-gray-50/60">
+                <td class="px-4 py-3 text-xs text-gray-400">2026/6/18 10:05</td>
+                <td class="px-4 py-3">系統自動</td>
+                <td class="px-4 py-3"><span class="badge badge-amber">保留外賓車位 3</span></td>
+                <td class="px-4 py-3">本週活動</td>
+              </tr>
+              <tr class="hover:bg-gray-50/60">
+                <td class="px-4 py-3 text-xs text-gray-400">2026/6/15 09:01</td>
+                <td class="px-4 py-3">系統自動</td>
+                <td class="px-4 py-3"><span class="badge badge-blue">開放本週申請</span></td>
+                <td class="px-4 py-3">2026/6/21 主日</td>
+              </tr>
+              <tr class="hover:bg-gray-50/60">
+                <td class="px-4 py-3 text-xs text-gray-400">2026/6/8 16:20</td>
+                <td class="px-4 py-3">王幹事</td>
+                <td class="px-4 py-3"><span class="badge badge-purple">手動歸零 Penalty</span></td>
+                <td class="px-4 py-3">趙小龍（特殊情況）</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-xs text-gray-400 mt-3">稽核記錄保存 2–3 年，僅 Admin 可讀取，不可刪改。</p>
+      </div>
+
+      <!-- Stats / Pattern Analysis -->
+      <div id="ap-stats" class="admin-panel hidden">
+        <h2 class="text-xl font-bold text-gray-800 mb-1">停車樣態分析</h2>
+        <p class="text-xs text-gray-400 mb-5">依主日週期統計，協助長執掌握停車資源運用情況</p>
+
+        <!-- Period selector -->
+        <div class="flex gap-2 mb-5">
+          <button class="text-xs bg-green-700 text-white rounded-full px-3 py-1.5 shadow-sm">近 3 個月</button>
+          <button class="text-xs bg-white border border-gray-200 text-gray-600 rounded-full px-3 py-1.5">近半年</button>
+          <button class="text-xs bg-white border border-gray-200 text-gray-600 rounded-full px-3 py-1.5">近一年</button>
+          <button class="text-xs bg-white border border-gray-200 text-gray-600 rounded-full px-3 py-1.5">自訂</button>
+        </div>
+
+        <!-- KPI cards -->
+        <div class="grid grid-cols-4 gap-3 mb-5">
+          <div class="bg-white rounded-2xl p-4 shadow-sm text-center">
+            <p class="text-2xl font-bold text-green-700">93%</p>
+            <p class="text-xs text-gray-400 mt-1">平均車位使用率</p>
+          </div>
+          <div class="bg-white rounded-2xl p-4 shadow-sm text-center">
+            <p class="text-2xl font-bold text-blue-600">8%</p>
+            <p class="text-xs text-gray-400 mt-1">平均 No-show 率（P3）</p>
+          </div>
+          <div class="bg-white rounded-2xl p-4 shadow-sm text-center">
+            <p class="text-2xl font-bold text-amber-500">17</p>
+            <p class="text-xs text-gray-400 mt-1">候補平均人數</p>
+          </div>
+          <div class="bg-white rounded-2xl p-4 shadow-sm text-center">
+            <p class="text-2xl font-bold text-purple-600">3.2</p>
+            <p class="text-xs text-gray-400 mt-1">平均候補等待週數</p>
+          </div>
+        </div>
+
+        <!-- Weekly chart (bar) placeholder -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm mb-4">
+          <p class="text-sm font-semibold text-gray-700 mb-3">每週申請 vs 實際到場 vs No-show</p>
+          <div class="flex items-end gap-2 h-32">
+            <!-- simplified bar chart mockup -->
+            <div class="flex flex-col items-center gap-1 flex-1">
+              <div class="w-full flex gap-0.5 items-end justify-center" style="height:100px">
+                <div class="w-3 bg-blue-300 rounded-t" style="height:90px" title="申請34"></div>
+                <div class="w-3 bg-green-400 rounded-t" style="height:75px" title="到場28"></div>
+                <div class="w-3 bg-red-300 rounded-t" style="height:12px" title="NS 3"></div>
+              </div>
+              <p class="text-xs text-gray-400">5/25</p>
+            </div>
+            <div class="flex flex-col items-center gap-1 flex-1">
+              <div class="w-full flex gap-0.5 items-end justify-center" style="height:100px">
+                <div class="w-3 bg-blue-300 rounded-t" style="height:86px"></div>
+                <div class="w-3 bg-green-400 rounded-t" style="height:78px"></div>
+                <div class="w-3 bg-red-300 rounded-t" style="height:8px"></div>
+              </div>
+              <p class="text-xs text-gray-400">6/1</p>
+            </div>
+            <div class="flex flex-col items-center gap-1 flex-1">
+              <div class="w-full flex gap-0.5 items-end justify-center" style="height:100px">
+                <div class="w-3 bg-blue-300 rounded-t" style="height:94px"></div>
+                <div class="w-3 bg-green-400 rounded-t" style="height:70px"></div>
+                <div class="w-3 bg-red-300 rounded-t" style="height:18px"></div>
+              </div>
+              <p class="text-xs text-gray-400">6/8</p>
+            </div>
+            <div class="flex flex-col items-center gap-1 flex-1">
+              <div class="w-full flex gap-0.5 items-end justify-center" style="height:100px">
+                <div class="w-3 bg-blue-300 rounded-t" style="height:88px"></div>
+                <div class="w-3 bg-green-400 rounded-t" style="height:82px"></div>
+                <div class="w-3 bg-red-300 rounded-t" style="height:6px"></div>
+              </div>
+              <p class="text-xs text-gray-400">6/15</p>
+            </div>
+            <div class="flex flex-col items-center gap-1 flex-1">
+              <div class="w-full flex gap-0.5 items-end justify-center" style="height:100px">
+                <div class="w-3 bg-blue-300 rounded-t" style="height:100px"></div>
+                <div class="w-3 bg-green-400 rounded-t" style="height:80px"></div>
+                <div class="w-3 bg-red-300 rounded-t" style="height:10px"></div>
+              </div>
+              <p class="text-xs text-gray-400">6/21</p>
+            </div>
+          </div>
+          <div class="flex gap-4 mt-3">
+            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-blue-300"></div><span class="text-xs text-gray-500">申請人數</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-green-400"></div><span class="text-xs text-gray-500">實際到場</span></div>
+            <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded bg-red-300"></div><span class="text-xs text-gray-500">No-show</span></div>
+          </div>
+        </div>
+
+        <!-- Priority breakdown & top no-show table -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-white rounded-2xl p-4 shadow-sm">
+            <p class="text-sm font-semibold text-gray-700 mb-3">車位分配結構（近 3 個月）</p>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between items-center">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500 inline-block"></span>P1 保留</span>
+                <span class="font-semibold text-gray-700">5 位<span class="text-gray-400 font-normal text-xs ml-1">/ 週平均</span></span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>P2 關懷</span>
+                <span class="font-semibold text-gray-700">4 位</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span>P3 一般</span>
+                <span class="font-semibold text-gray-700">14 位</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span>外賓保留</span>
+                <span class="font-semibold text-gray-700">2.5 位<span class="text-gray-400 font-normal text-xs ml-1">/ 週平均</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl p-4 shadow-sm">
+            <p class="text-sm font-semibold text-gray-700 mb-3">No-show 前 5 名（P3，本季）</p>
+            <div class="space-y-2">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">趙小龍</span>
+                <span class="text-red-500 font-semibold">4 次</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">李美慧</span>
+                <span class="text-red-400 font-semibold">3 次</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">黃志偉</span>
+                <span class="text-amber-500 font-semibold">2 次</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">林淑芬</span>
+                <span class="text-amber-500 font-semibold">2 次</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">蔡文通</span>
+                <span class="text-amber-400 font-semibold">1 次</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-xs text-gray-400 mt-4">📌 此頁為唯讀統計，資料依每週主日結束後自動更新。</p>
+      </div>
+
+    </div><!-- /content area -->
+  </div><!-- /flex -->
+</section>
+
+</main>
+
+<!-- ── Screen nav pill style ── -->
+<style>
+  .screen-pill {
+    font-size: 11px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 9999px;
+    padding: 4px 10px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: background .12s, color .12s;
+  }
+  .screen-pill:hover { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+</style>
+
+<script>
+  // ── Main tab switching ──
+  function switchTab(name) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
+    document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.remove('hidden');
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+
+  // ── Member screens ──
+  function setMemberScreen(id) {
+    document.querySelectorAll('.phone-screen').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById('ms-' + id);
+    if (target) target.classList.add('active');
+  }
+
+  // ── Admin sub-panels ──
+  function showAdminPanel(id, btn) {
+    document.querySelectorAll('.admin-panel').forEach(p => p.classList.add('hidden'));
+    document.getElementById('ap-' + id).classList.remove('hidden');
+    document.querySelectorAll('.side-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  }
+</script>
+
+</body>
+</html>

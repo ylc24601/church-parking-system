@@ -1,0 +1,60 @@
+name: Backup scripts CI
+
+# The backup scripts have no app test suite behind them, and their failure mode is the
+# nastiest kind: reporting success after doing nothing useful. This job is what stops that
+# regressing. It found two real bugs on the way in — an empty-array expansion that is fatal
+# under `set -u` on bash 3.2, and a cleanup trap whose own exit code masked a fatal error
+# so the script returned 0.
+#
+# NOT covered here (by design, so nobody assumes it is): the real data round-trip against a
+# live database. That is the monthly restore drill — docs/backup-restore-runbook.md §5.
+# CI proves the guards fire; the drill proves the data actually comes back.
+
+on:
+  pull_request:
+    paths:
+      - "scripts/backup/**"
+      - ".github/workflows/db-backup.yml"
+      - ".github/workflows/backup-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/backup/**"
+      - ".github/workflows/db-backup.yml"
+      - ".github/workflows/backup-ci.yml"
+  workflow_dispatch: {}
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ShellCheck
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          shellcheck --version
+          shellcheck scripts/backup/*.sh
+
+      - name: Lint workflow YAML
+        run: |
+          python3 -m pip install --quiet --disable-pip-version-check yamllint
+          # Relaxed rules: we care that it PARSES and has no real errors, not about
+          # cosmetic line length in a file full of long URLs and comments.
+          yamllint -d "{extends: relaxed, rules: {line-length: disable, comments: disable, comments-indentation: disable, truthy: disable, document-start: disable}}" \
+            .github/workflows/db-backup.yml .github/workflows/backup-ci.yml
+
+      - name: Failure-path tests (fake pg_dump / age / psql / aws)
+        run: bash scripts/backup/test-backup-scripts.sh
+
+      - name: Guard — the restore script must never print a password
+        run: |
+          # Belt-and-braces on top of the harness case: fail loudly if anyone ever
+          # reintroduces echoing the raw connection string.
+          if grep -nE 'echo .*\$(TARGET|SUPABASE_DB_URL)"?' scripts/backup/*.sh \
+             | grep -v 'sanitize_url'; then
+            echo "::error::A script echoes a raw connection string — route it through sanitize_url()."
+            exit 1
+          fi
+          echo "no raw connection string is echoed"

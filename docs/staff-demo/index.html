@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<title>現場點名（展示版）· 教會停車</title>
+<style>
+  :root {
+    --bg: #020617;        /* slate-950 */
+    --panel: #0f172a;     /* slate-900 */
+    --panel2: #1e293b;    /* slate-800 */
+    --line: #1e293b;
+    --text: #f1f5f9;      /* slate-100 */
+    --muted: #94a3b8;     /* slate-400 */
+    --sky: #0284c7;
+    --amber: #d97706;
+    --emerald: #34d399;
+    --rose: #e11d48;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Noto Sans TC", "PingFang TC", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  /* Mobile-first: optimized around 390px; centered on larger screens. */
+  .app { max-width: 420px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+
+  .demo-banner {
+    background: repeating-linear-gradient(45deg, #7c2d12, #7c2d12 12px, #9a3412 12px, #9a3412 24px);
+    color: #fff;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    padding: 6px 8px;
+  }
+
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(2,6,23,.96);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+    padding: 12px 16px;
+  }
+  .head-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .head-row h1 { font-size: 18px; margin: 0; font-weight: 600; }
+  .summary { font-size: 16px; color: #cbd5e1; font-variant-numeric: tabular-nums; }
+
+  input.search {
+    margin-top: 12px; width: 100%; height: 48px;
+    background: var(--panel); border: 0; border-radius: 12px;
+    color: var(--text); font-size: 16px; padding: 0 14px; outline: none;
+  }
+  input.search::placeholder { color: #64748b; }
+  input.search:focus { box-shadow: 0 0 0 2px var(--sky); }
+
+  .chips { display: flex; gap: 8px; margin-top: 12px; }
+  .chip {
+    border: 0; border-radius: 999px; padding: 8px 14px; font-size: 14px;
+    background: var(--panel2); color: #cbd5e1; cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { background: var(--sky); color: #fff; }
+
+  main { flex: 1; padding: 0 16px; }
+  ul.rows { list-style: none; margin: 0; padding: 0; }
+  li.row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 14px 0; border-bottom: 1px solid var(--line);
+  }
+  .row .name { font-size: 16px; font-weight: 500; }
+  .row .plate { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 16px; letter-spacing: .04em; color: #cbd5e1; margin-top: 2px; }
+  .row .state { font-size: 14px; margin-top: 2px; }
+  .state.pending { color: var(--muted); }
+  .state.released { color: #fbbf24; }
+  .state.done { color: var(--emerald); }
+  .tag-walkin { color: #64748b; font-size: 13px; margin-left: 4px; }
+
+  button.act {
+    flex: 0 0 auto; height: 48px; min-width: 84px; padding: 0 18px;
+    border: 0; border-radius: 12px; font-size: 16px; font-weight: 600; color: #fff; cursor: pointer;
+  }
+  button.act.checkin { background: var(--sky); }
+  button.act.backfill { background: var(--amber); }
+  button.act:active { filter: brightness(.9); }
+
+  .empty { text-align: center; color: var(--muted); padding: 56px 0; }
+
+  details.flowbox {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; margin: 12px 0; overflow: hidden;
+  }
+  details.flowbox > summary {
+    list-style: none; cursor: pointer; padding: 13px 14px;
+    font-size: 15px; font-weight: 600; color: #cbd5e1;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  details.flowbox > summary::-webkit-details-marker { display: none; }
+  details.flowbox > summary .chev { color: #64748b; transition: transform .2s; }
+  details.flowbox[open] > summary .chev { transform: rotate(180deg); }
+  .flowbox .content { padding: 0 14px 14px; font-size: 14px; color: #cbd5e1; line-height: 1.6; }
+  .flowbox ol { margin: 8px 0 0; padding-left: 20px; }
+  .flowbox li { margin: 6px 0; }
+  .flowbox li.soon { color: #64748b; }
+  .flowbox .oneline {
+    margin-top: 12px; padding: 9px 11px; background: #0b3a4a;
+    border-radius: 8px; color: #7dd3fc; font-weight: 600;
+  }
+
+  footer { padding: 16px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+  button.deferred {
+    height: 48px; width: 100%; border-radius: 12px; font-size: 16px;
+    background: transparent; color: #64748b; border: 1px dashed #334155; cursor: not-allowed;
+  }
+  .foot-note { text-align: center; color: #64748b; font-size: 12px; margin-top: 4px; }
+
+  .toast {
+    position: fixed; left: 50%; transform: translateX(-50%); bottom: 96px;
+    background: var(--rose); color: #fff; padding: 8px 16px; border-radius: 999px;
+    font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.4); opacity: 0; transition: opacity .2s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="demo-banner">⚠ 展示版，不是真實系統 · 全部為假資料</div>
+
+  <header>
+    <div class="head-row">
+      <h1 id="evt">6/29 主日</h1>
+      <span class="summary">已到 <span id="doneN">0</span> / <span id="totalN">0</span></span>
+    </div>
+    <input id="search" class="search" inputmode="numeric" placeholder="🔍 輸入車牌後四碼…" autocomplete="off" />
+    <div class="chips" id="chips">
+      <button class="chip" data-f="all" aria-pressed="true">全部</button>
+      <button class="chip" data-f="pending" aria-pressed="false">未到</button>
+      <button class="chip" data-f="done" aria-pressed="false">已到</button>
+      <button class="chip" data-f="released" aria-pressed="false">已釋出</button>
+    </div>
+  </header>
+
+  <main>
+    <details class="flowbox">
+      <summary>📋 主日流程說明（點開看）<span class="chev">▾</span></summary>
+      <div class="content">
+        同工要動手的只有「點名」「補點名」，其餘系統自動。
+        <ol>
+          <li><b>到崗</b>：打開頁面，自動列出本週該來的車。</li>
+          <li><b>車到・點名</b>：打車牌後四碼 → 按「點名」→ 變已到。</li>
+          <li><b>時間到・自動釋出</b>：沒來的車系統自動轉「已釋出」（同工不用動手）。</li>
+          <li><b>遲到・補點名</b>：對已釋出的車按「補點名」，免記違規。</li>
+          <li class="soon">登記散客 walk-in（第一版先不做）</li>
+          <li class="soon">結束當週點名（第一版先不做）</li>
+        </ol>
+        <div class="oneline">車到就「點名」、遲到就「補點名」，其餘交給系統。</div>
+      </div>
+    </details>
+    <ul class="rows" id="list"></ul>
+    <p class="empty" id="empty" hidden></p>
+  </main>
+
+  <footer>
+    <button class="deferred" disabled title="Coming soon">＋ 登記現場車輛（Coming soon）</button>
+    <button class="deferred" disabled title="Coming soon">✔ 結束當週點名（Coming soon）</button>
+    <p class="foot-note">假資料，僅供同工會議討論。不含任何真實會友資料。 · <a href="brief.html" style="color:#7dd3fc;">會議說明</a></p>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ── Fake data only. No API, no Supabase, no login, no real member data. ───────
+// Mirrors the Staff Slice 1 privacy projection: each row carries ONLY
+// name / plate / star(is_priority) / status / attended time. Every sensitive
+// member field is deliberately absent — Staff never see those, so this demo
+// has no place to put them (see README for the full exclusion list).
+const rows = [
+  { id: 1, name: '陳＊明', plate: 'ABC-1234', star: true,  status: 'approved' },
+  { id: 2, name: '林＊華', plate: 'BMF-5678', star: true,  status: 'approved' },
+  { id: 3, name: '黃＊雯', plate: 'KRT-9012', star: false, status: 'approved' },
+  { id: 4, name: '張＊安', plate: 'NPG-3456', star: false, status: 'released_late' },
+  { id: 5, name: '吳＊德', plate: 'TLC-7788', star: false, status: 'released_late' },
+  { id: 6, name: '周＊真', plate: 'GXD-2207', star: false, status: 'attended', time: '10:08' },
+  { id: 7, name: '何＊君', plate: 'XYZ-4521', star: true,  status: 'attended_after_release', time: '10:41' },
+  { id: 8, name: '（現場車輛）', plate: 'WALK-0001', star: false, status: 'walk_in', time: '10:22', walkin: true },
+];
+
+const DONE = new Set(['attended', 'attended_after_release', 'walk_in']);
+let filter = 'all';
+let query = '';
+
+const $ = (id) => document.getElementById(id);
+const normalizePlate = (p) => p.toUpperCase().replace(/[^A-Z0-9]/g, '');
+const nowHHMM = () => {
+  const d = new Date();
+  return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+};
+
+function stateMarkup(r) {
+  if (DONE.has(r.status)) {
+    const suffix = r.status === 'attended_after_release' ? '（補）' : '';
+    return `<div class="state done">✅ 已到${r.time ? ' ' + r.time : ''}${suffix}</div>`;
+  }
+  if (r.status === 'released_late') return `<div class="state released">⏰ 已釋出</div>`;
+  return `<div class="state pending">未到場</div>`;
+}
+
+function passesFilter(r) {
+  if (filter === 'pending') return r.status === 'approved';
+  if (filter === 'released') return r.status === 'released_late';
+  if (filter === 'done') return DONE.has(r.status);
+  return true;
+}
+
+function render() {
+  const doneN = rows.filter((r) => DONE.has(r.status)).length;
+  $('doneN').textContent = doneN;
+  $('totalN').textContent = rows.length;
+
+  const q = normalizePlate(query);
+  const visible = rows.filter((r) => passesFilter(r) && (!q || normalizePlate(r.plate).includes(q)));
+
+  const list = $('list');
+  const empty = $('empty');
+  list.innerHTML = '';
+
+  if (visible.length === 0) {
+    empty.hidden = false;
+    empty.textContent = query ? '找不到符合車牌'
+      : doneN === rows.length ? '全部車輛已到 🎉'
+      : '沒有符合的車輛';
+    return;
+  }
+  empty.hidden = true;
+
+  for (const r of visible) {
+    const li = document.createElement('li');
+    li.className = 'row';
+
+    const left = document.createElement('div');
+    left.innerHTML =
+      `<div class="name">${r.star ? '⭐ ' : ''}${r.name}` +
+      `${r.walkin ? '<span class="tag-walkin">· 現場</span>' : ''}</div>` +
+      `<div class="plate">${r.plate}</div>` +
+      stateMarkup(r);
+    li.appendChild(left);
+
+    if (!DONE.has(r.status)) {
+      const btn = document.createElement('button');
+      const isReleased = r.status === 'released_late';
+      btn.className = 'act ' + (isReleased ? 'backfill' : 'checkin');
+      btn.textContent = isReleased ? '補點名' : '點名';
+      btn.onclick = () => checkIn(r.id);
+      li.appendChild(btn);
+    }
+    list.appendChild(li);
+  }
+}
+
+// Demo simulation only — mutates local state, no network.
+function checkIn(id) {
+  const r = rows.find((x) => x.id === id);
+  if (!r) return;
+  r.status = r.status === 'released_late' ? 'attended_after_release' : 'attended';
+  r.time = nowHHMM();
+  toast(r.status === 'attended_after_release' ? '已補點名' : '已點名');
+  render();
+}
+
+let toastTimer;
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+$('search').addEventListener('input', (e) => { query = e.target.value; render(); });
+$('chips').addEventListener('click', (e) => {
+  const b = e.target.closest('.chip');
+  if (!b) return;
+  filter = b.dataset.f;
+  document.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', String(c === b)));
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

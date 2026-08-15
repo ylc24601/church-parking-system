@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<title>同工會議說明 + 進度報告 · 教會停車</title>
+<style>
+  :root{
+    --ink:#0f172a; --body:#1f2937; --muted:#64748b; --line:#e2e8f0;
+    --bg:#f8fafc; --card:#ffffff; --sky:#0284c7; --sky-d:#075985;
+    --emerald:#059669; --amber:#b45309; --rose:#be123c;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--bg); color:var(--body);
+    font-family:system-ui,-apple-system,"PingFang TC","Noto Sans TC","Heiti TC",sans-serif;
+    font-size:17px; line-height:1.7; -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:0 18px 64px;}
+
+  header.top{
+    background:linear-gradient(135deg,var(--sky-d),var(--sky));
+    color:#fff; margin:0 -18px 0; padding:26px 18px 22px;
+  }
+  header.top h1{font-size:24px; margin:0 0 6px; font-weight:700; line-height:1.35;}
+  header.top .meta{font-size:14px; opacity:.92; margin:2px 0;}
+  .lead{
+    background:#ecfeff; border:1px solid #a5f3fc; color:#0c4a6e;
+    border-radius:12px; padding:14px 16px; margin:18px 0; font-size:16px;
+  }
+  .cta{
+    display:flex; gap:10px; flex-wrap:wrap; margin:18px 0 6px;
+  }
+  .cta a{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-height:48px; padding:0 18px; border-radius:12px; font-weight:700;
+    font-size:16px; text-decoration:none;
+  }
+  .cta a.primary{background:var(--sky); color:#fff;}
+  .cta a.ghost{background:#fff; color:var(--sky-d); border:1px solid var(--line);}
+
+  h2{
+    font-size:20px; color:var(--ink); margin:30px 0 10px; padding-top:8px;
+    border-top:1px solid var(--line); font-weight:700;
+  }
+  h2:first-of-type{border-top:0;}
+  h3{font-size:17px; color:var(--ink); margin:18px 0 8px; font-weight:700;}
+  p{margin:10px 0;}
+  ul{margin:10px 0; padding-left:22px;}
+  li{margin:6px 0;}
+  strong{color:var(--ink);}
+  .ok{color:var(--emerald); font-weight:700;}
+  .no{color:var(--rose); font-weight:700;}
+  .star{color:var(--amber);}
+
+  .note{
+    border-left:4px solid var(--sky); background:#f0f9ff;
+    padding:10px 14px; margin:14px 0; border-radius:0 8px 8px 0; color:#0c4a6e;
+  }
+
+  .flow{margin:14px 0 6px;}
+  .step{display:flex; gap:12px; padding:14px 0; border-bottom:1px dashed var(--line);}
+  .step:last-child{border-bottom:0;}
+  .step .num{
+    flex:0 0 auto; width:30px; height:30px; border-radius:999px;
+    background:var(--sky); color:#fff; font-weight:700; font-size:15px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step.future .num{background:#94a3b8;}
+  .step .body{flex:1; min-width:0;}
+  .step .body .t{font-weight:700; color:var(--ink); display:block; margin-bottom:2px;}
+  .step .body ul{margin:6px 0 0; padding-left:20px;}
+  .step .body li{margin:4px 0;}
+  .tag-soon{font-size:12px; color:#fff; background:#94a3b8; border-radius:6px; padding:1px 7px; margin-left:6px; white-space:nowrap;}
+
+  .tablewrap{overflow-x:auto; margin:12px 0; -webkit-overflow-scrolling:touch;}
+  table{border-collapse:collapse; width:100%; font-size:15px; min-width:340px;}
+  th,td{border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top;}
+  th{background:#f1f5f9; color:var(--ink); font-weight:700;}
+  tbody tr:nth-child(even){background:#fafcff;}
+
+  footer{margin-top:36px; padding-top:16px; border-top:1px solid var(--line);
+    color:var(--muted); font-size:13px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>教會停車系統<br>同工會議說明 + 進度報告</h1>
+    <div class="meta">對象：停車現場同工、長執牧者</div>
+    <div class="meta">日期：2026-06-25</div>
+  </header>
+
+  <div class="lead">
+    <strong>一句話：</strong>後端核心已全部完成，這次第一次做出「同工現場用的手機點名頁」，想請大家先試用並給意見。
+  </div>
+
+  <div class="cta">
+    <a class="primary" href="index.html">📱 開啟展示版試操作</a>
+    <a class="ghost" href="#feedback">📝 回饋問題</a>
+  </div>
+
+  <h2>一、一頁摘要（先看這段就好）</h2>
+  <ul>
+    <li>系統的「大腦」（排位、釋出、點名、違規計算）<strong>已經全部做完並測試通過</strong>。</li>
+    <li>這次完成的是<strong>第一個給人用的畫面</strong>：同工主日在地下室用手機看的「現場點名頁」。</li>
+    <li>第一版只做四件最常用的事：<strong>看當週車輛清單、用車牌後四碼找車、一鍵「點名」、遲到「補點名」</strong>。</li>
+    <li><strong>同工看不到任何敏感資料</strong>（不顯示優先原因、違規分數、電話、LINE 等）—— 這是刻意設計的隱私保護。</li>
+    <li>今天請大家做的事：<strong>用展示版試操作，回答 7 個問題。</strong></li>
+    <li>「現場登記散客（walk-in）」「結束當週點名」「PIN 密碼登入」<strong>這一版先不做</strong>，畫面上會標「Coming soon」。</li>
+  </ul>
+
+  <h2>二、進度報告</h2>
+  <h3>2.1 整體進度</h3>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>階段</th><th>內容（白話）</th><th>狀態</th></tr></thead>
+    <tbody>
+      <tr><td>後端核心邏輯</td><td>怎麼排位、誰優先、幾點釋出、點名與違規怎麼算</td><td><span class="ok">✅ 完成</span></td></tr>
+      <tr><td>資料庫</td><td>車輛、預約、事件、違規等資料表與權限</td><td><span class="ok">✅ 完成</span></td></tr>
+      <tr><td>主日完整流程（系統內部）</td><td>週五排位 → 取消遞補 → 主日釋出 → 點名 → 結算</td><td><span class="ok">✅ 完成</span></td></tr>
+      <tr><td><strong>Staff 現場頁（這次）</strong></td><td><strong>同工手機用的點名清單 + 一鍵點名 / 補點名</strong></td><td><span class="ok">✅ 完成（第一版）</span></td></tr>
+      <tr><td>之後</td><td>散客登記、結束當週點名、PIN 登入、LINE 通知、管理後台</td><td>⏳ 規劃中</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>2.2 這次完成了什麼</h3>
+  <p><strong>Staff 現場點名頁第一版</strong>，內容：</p>
+  <ul>
+    <li>自動帶出<strong>當週</strong>該到場的車輛清單。</li>
+    <li>上方顯示<strong>已到 / 總數</strong>摘要。</li>
+    <li><strong>車牌後四碼</strong>即時搜尋（打 1234 就跳出尾號 1234 的車）。</li>
+    <li>一鍵「<strong>點名</strong>」：車到了按一下，狀態變「已到」並記下時間。</li>
+    <li>「<strong>補點名</strong>」：保留時間過了、車才到，也能補點，免記違規。</li>
+    <li><span class="star">⭐</span> 標示優先車位（只給星號，<strong>不顯示為什麼優先</strong>）。</li>
+    <li>「登記現場車輛」「結束當週點名」按鈕<strong>先停用</strong>（標 Coming soon）。</li>
+  </ul>
+
+  <h3>2.3 品質與驗證</h3>
+  <ul>
+    <li>程式自動檢查、型別檢查、建置：全部通過。</li>
+    <li>自動測試：不接資料庫 <strong>208 項通過</strong>；接本機資料庫 <strong>222 項通過</strong>；資料庫結構檢查 <strong>12/12 通過</strong>。</li>
+    <li><strong>實機端對端測試通過</strong>：真的開頁面、登入、載入清單、點名、補點名、重複點名都正確；並確認畫面與資料<strong>完全沒有外洩任何敏感欄位</strong>。</li>
+  </ul>
+
+  <h2>三、主日現場完整流程（從頭到尾）</h2>
+  <div class="note">同工真正要「動手」的只有兩件：<strong>點名</strong> 與 <strong>補點名</strong>。其餘（時間到自動釋出、提醒、逾時防呆）都是<strong>系統自動</strong>，同工不用記時間、不用算。</div>
+  <div class="flow">
+    <div class="step">
+      <div class="num">1</div>
+      <div class="body"><span class="t">到崗・打開清單</span>
+        <ul>
+          <li>同工到地下室，用手機打開點名頁（未來會先輸入當天 PIN 密碼）。</li>
+          <li>畫面自動列出本週「已核准、預計會來」的車：姓名、車牌、<span class="star">⭐</span> 是否優先、目前狀態。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div class="body"><span class="t">車進場・點名（約 10:00–10:30，最忙的時段）</span>
+        <ul>
+          <li>看到車進來 → 搜尋框打<strong>車牌後四碼</strong> → 找到那一列 → 按「<strong>點名</strong>」。</li>
+          <li>該列立刻變「<span class="ok">✅ 已到</span> + 時間」，上方「已到 N」加一。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <div class="body"><span class="t">保留時間到・系統自動釋出（同工不用動手）</span>
+        <ul>
+          <li>到了保留時限車還沒來，<strong>系統自動</strong>把那台車改成「<span style="color:var(--amber);font-weight:700;">⏰ 已釋出</span>」，位子讓給現場有需要的人。</li>
+          <li>目前時間規則：一般車 10:30、優先車 10:45、已回報「在路上」的優先車 10:55（可調整）。</li>
+          <li>同工只是「看到」狀態變成已釋出，不需要做任何事。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">4</div>
+      <div class="body"><span class="t">遲到的車後來才到・補點名</span>
+        <ul>
+          <li>對「已釋出」那一列按「<strong>補點名</strong>」→ 變「<span class="ok">✅ 已到（補）</span>」。</li>
+          <li>補點名<strong>免記違規</strong>，但不保證現場一定還有空位。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="step future">
+      <div class="num">5</div>
+      <div class="body"><span class="t">現場散客 walk-in<span class="tag-soon">第一版先不做</span></span>
+        <ul>
+          <li>沒預約直接進場的車，未來由同工按「登記現場車輛」輸入車牌登記。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="step future">
+      <div class="num">6</div>
+      <div class="body"><span class="t">聚會結束・收尾結算<span class="tag-soon">第一版先不做</span></span>
+        <ul>
+          <li>同工撤崗前按「結束當週點名」，系統把整場仍沒到的車收尾結算；這版先由後台處理。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="note"><strong>一句話記法：車到就「點名」、遲到就「補點名」，其餘交給系統。</strong></div>
+
+  <h2>四、怎麼看展示版</h2>
+  <ol>
+    <li>用手機瀏覽器打開展示版（會議現場會提供網址，或點上方<strong>「開啟展示版」</strong>按鈕）。</li>
+    <li>試著做這幾件事：
+      <ul>
+        <li>在搜尋框打車牌<strong>後四碼</strong>，看會不會跳出那台車。</li>
+        <li>對「未到場」的車按「<strong>點名</strong>」。</li>
+        <li>對「已釋出」的車按「<strong>補點名</strong>」。</li>
+        <li>切換上方「全部 / 未到 / 已到 / 已釋出」看清單變化。</li>
+      </ul>
+    </li>
+    <li><strong>提醒：這是展示版，全部是假資料、假車牌，按下去不會真的記錄任何東西。</strong></li>
+  </ol>
+  <p>頁面最上方會一直顯示橘色橫幅：<strong>「展示版，不是真實系統」</strong>。</p>
+
+  <h2>五、第一版「做什麼 / 不做什麼」</h2>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>功能</th><th>第一版</th><th>之後再做</th></tr></thead>
+    <tbody>
+      <tr><td>看當週清單</td><td><span class="ok">✅</span></td><td></td></tr>
+      <tr><td>車牌後四碼搜尋</td><td><span class="ok">✅</span></td><td></td></tr>
+      <tr><td>一鍵點名 / 補點名</td><td><span class="ok">✅</span></td><td></td></tr>
+      <tr><td>現場登記散客（walk-in）</td><td><span class="no">❌</span> Coming soon</td><td><span class="ok">✅</span></td></tr>
+      <tr><td>結束當週點名（結算）</td><td><span class="no">❌</span> Coming soon</td><td><span class="ok">✅</span></td></tr>
+      <tr><td>PIN 密碼登入</td><td><span class="no">❌</span> 暫用簡易方式</td><td><span class="ok">✅</span></td></tr>
+      <tr><td>LINE 通知、管理後台</td><td><span class="no">❌</span></td><td><span class="ok">✅</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note">之所以先做這四件，是因為它們是<strong>主日現場最高頻、最不能慢</strong>的動作；其餘功能風險較低，可以排在後面，先把最常用的跑順。</div>
+
+  <h2>六、為什麼這樣設計（兩個重點）</h2>
+  <ol>
+    <li><strong>隱私優先：同工只看得到「姓名、車牌、是否優先、狀態、到場時間」。</strong><br>
+      優先原因（行動不便、孕婦、年長/幼兒等）、違規分數、電話、LINE 等，<strong>系統從資料源頭就不送到同工畫面</strong>。這不是「畫面藏起來」而已，是<strong>後端根本不給</strong>，確保不會不小心外洩。</li>
+    <li><strong>為現場而設計：單手、站著、車流中也能用。</strong><br>
+      按鈕做大、字做大、深色背景好辨識；網路不穩時也先顯示最後一次清單。</li>
+  </ol>
+
+  <h2 id="feedback">七、今天請同工回饋（重點）</h2>
+  <p>請邊試邊回答：</p>
+  <ol>
+    <li><strong>車牌後四碼搜尋</strong>是否符合現場習慣？</li>
+    <li><strong>「點名 / 補點名 / 已釋出」</strong> 文案是否清楚？</li>
+    <li><strong>⭐ 優先顯示</strong> 是否足夠？</li>
+    <li><strong>手機畫面資訊量</strong> 是否剛好？</li>
+    <li><strong>按鈕大小</strong> 是否適合單手操作？</li>
+    <li>第一版<strong>暫不做 walk-in 與結束點名</strong>，是否可接受？</li>
+    <li>同工<strong>現場最擔心哪一步</strong>？</li>
+  </ol>
+  <div class="note">回饋會直接影響第二版的優先順序，越具體越好（例如「我都看名字不看車牌」「按鈕還要再大」）。</div>
+
+  <h2>八、下一步與時程（規劃方向，待回饋後定案）</h2>
+  <ul>
+    <li><strong>第二版候選</strong>：依今天回饋，從「現場登記散客」與「結束當週點名」擇一先做。</li>
+    <li><strong>PIN 登入</strong>：上線前一定會補上每場主日一組密碼的正式登入。</li>
+    <li><strong>LINE 通知 / 管理後台</strong>：再往後排。</li>
+  </ul>
+
+  <h2>附錄：名詞小辭典（白話）</h2>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>畫面用詞</th><th>意思</th></tr></thead>
+    <tbody>
+      <tr><td>未到場</td><td>已核准車位、但車還沒到</td></tr>
+      <tr><td>已到</td><td>已點名、車已進場</td></tr>
+      <tr><td>已釋出</td><td>保留時間過了車還沒到，位子已釋放給候補；車若之後到，仍可「補點名」</td></tr>
+      <tr><td>補點名（補）</td><td>釋出後才到場的補登記，免記違規（但不保證一定有位）</td></tr>
+      <tr><td>⭐ 優先車位</td><td>這台車屬於優先保留對象（原因不顯示給同工）</td></tr>
+      <tr><td>現場散客（walk-in）</td><td>沒預約直接進場、由同工現場登記的車（第一版先不做）</td></tr>
+      <tr><td>結束當週點名</td><td>主日結束後，把沒來的車收尾結算（第一版先不做）</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="cta" style="margin-top:24px;">
+    <a class="primary" href="index.html">📱 開啟展示版試操作</a>
+  </div>
+
+  <footer>
+    本頁為同工會議討論用說明，內容對應 <code>meeting-brief.md</code>。展示版為假資料、純前端模擬，不是真實系統。
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,888 @@
+<title>Staff 現場頁：動作色與結束點名位置</title>
+
+<style>
+  /* ── Page chrome tokens ──────────────────────────────────────────────
+     The chrome borrows the product's own green-tinted neutrals so the
+     comparison frame feels of-a-piece, then gets out of the way. Chrome is
+     theme-aware; the phone frames are NOT — the product is deliberately
+     single-light-theme (globals.css), so showing them in dark would be a lie. */
+  :root {
+    --page: #f4f6f1;
+    --card: #ffffff;
+    --ink: #1c241f;
+    --muted: #63736a;
+    --line: #e1e6dd;
+    --line-soft: #edf0ea;
+    --accent: #15803d;
+    --accent-soft: #dcfce7;
+    --shadow: 0 1px 2px rgba(28, 36, 31, .06), 0 8px 24px rgba(28, 36, 31, .06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page: #12160f;
+      --card: #1a1f18;
+      --ink: #e8ede4;
+      --muted: #96a394;
+      --line: #2b332a;
+      --line-soft: #232a22;
+      --accent: #6ee7a0;
+      --accent-soft: #17301f;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --page: #12160f;
+    --card: #1a1f18;
+    --ink: #e8ede4;
+    --muted: #96a394;
+    --line: #2b332a;
+    --line-soft: #232a22;
+    --accent: #6ee7a0;
+    --accent-soft: #17301f;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+  }
+
+  :root[data-theme="light"] {
+    --page: #f4f6f1;
+    --card: #ffffff;
+    --ink: #1c241f;
+    --muted: #63736a;
+    --line: #e1e6dd;
+    --line-soft: #edf0ea;
+    --accent: #15803d;
+    --accent-soft: #dcfce7;
+    --shadow: 0 1px 2px rgba(28, 36, 31, .06), 0 8px 24px rgba(28, 36, 31, .06);
+  }
+
+  /* Same system stack the product ships. Not a fallback: globals.css states
+     "CJK has no practical webfont" — matching it is what makes this faithful. */
+  .page {
+    --sans: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC",
+      "Microsoft JhengHei", "Segoe UI", sans-serif;
+    --mono: "SF Mono", ui-monospace, "Roboto Mono", Menlo, Consolas, monospace;
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    min-height: 100dvh;
+    padding: clamp(1.5rem, 4vw, 3.5rem) 0 5rem;
+  }
+
+  .wrap {
+    max-width: 74rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 3vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .eyebrow {
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  h1 {
+    font-size: clamp(1.5rem, 3.6vw, 2.1rem);
+    font-weight: 800;
+    letter-spacing: -.01em;
+    text-wrap: balance;
+    margin: .35rem 0 0;
+  }
+
+  .lede {
+    max-width: 62ch;
+    color: var(--muted);
+    margin: .75rem 0 0;
+  }
+
+  h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: .01em;
+    margin: 0;
+  }
+
+  .section { display: flex; flex-direction: column; gap: 1rem; }
+
+  .rule {
+    border: 0;
+    border-top: 1px solid var(--line);
+    margin: 0;
+  }
+
+  /* ── Swatch legend ───────────────────────────────────────────────── */
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: .75rem;
+  }
+
+  .swatch {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: .6rem .8rem;
+  }
+
+  .chipcolor {
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 7px;
+    flex: none;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08);
+  }
+
+  .swatch b { display: block; font-size: .85rem; }
+  .swatch span { display: block; font-size: .72rem; color: var(--muted); font-family: var(--mono); }
+
+  /* ── Frame rail ──────────────────────────────────────────────────── */
+  .rail {
+    display: flex;
+    gap: 1.25rem;
+    overflow-x: auto;
+    padding-bottom: .75rem;
+    scroll-snap-type: x proximity;
+  }
+
+  .col {
+    flex: none;
+    width: 22.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: .85rem;
+    scroll-snap-align: start;
+  }
+
+  .coltag {
+    display: flex;
+    align-items: baseline;
+    gap: .5rem;
+    flex-wrap: wrap;
+  }
+
+  .coltag b { font-size: 1rem; font-weight: 750; }
+
+  .tag {
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    padding: .15rem .5rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--muted);
+  }
+
+  .tag--now { border-color: #d8b4a0; color: #9a5b32; }
+  .tag--new { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .tag--picked { border-color: var(--accent); color: #fff; background: var(--accent); }
+
+  .verdict {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: .85rem 1.1rem;
+    font-size: .92rem;
+  }
+
+  .verdict b { font-weight: 750; }
+
+  .colnote {
+    font-size: .82rem;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .colnote strong { color: var(--ink); font-weight: 650; }
+
+  /* ── The phone frame: product tokens verbatim, light only ────────── */
+  .app {
+    /* verbatim from parking-system/app/globals.css */
+    --p-deep: #14532d;
+    --p: #15803d;
+    --page-bg: #f4f6f1;
+    --surface: #ffffff;
+    --t-ink: #1c241f;
+    --t-muted: #63736a;
+    --border: #e1e6dd;
+    --info-fg: #1d4ed8;
+    --info-bg: #dbeafe;
+    --warn-fg: #92400e;
+    --warn-bg: #fef3c7;
+    --ok-fg: #15803d;
+    --ok-bg: #dcfce7;
+    --pri-fg: #6d28d9;
+    --pri-bg: #f3e8ff;
+    --danger-fg: #b91c1c;
+    --neutral-fg: #57605a;
+    --neutral-bg: #eef1ee;
+
+    background: var(--page-bg);
+    color: var(--t-ink);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    color-scheme: light;
+  }
+
+  .app * { box-sizing: border-box; }
+
+  .appbar {
+    background: var(--p-deep);
+    color: #fff;
+    padding: .85rem .9rem .8rem;
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+  }
+
+  .barrow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .4rem;
+  }
+
+  .barrow h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .barbtns { display: flex; align-items: center; gap: .15rem; }
+
+  .iconbtn {
+    min-width: 2.2rem;
+    height: 2.2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, .9);
+    font-size: 1rem;
+  }
+
+  .textbtn {
+    height: 2.2rem;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 .45rem;
+    border-radius: 8px;
+    font-size: .82rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, .92);
+    white-space: nowrap;
+  }
+
+  /* The proposed labelled settle control — outlined so it reads as available
+     but not as the thing you press every minute. */
+  .settlebtn {
+    height: 2.2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    padding: 0 .6rem;
+    border-radius: 8px;
+    font-size: .82rem;
+    font-weight: 700;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .55);
+    white-space: nowrap;
+  }
+
+  .counts {
+    display: flex;
+    gap: .3rem;
+    font-size: .72rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .counts span {
+    background: rgba(0, 0, 0, .15);
+    border-radius: 6px;
+    padding: .25rem .55rem;
+    white-space: nowrap;
+  }
+
+  .search {
+    background: #fff;
+    color: var(--t-muted);
+    border-radius: 11px;
+    height: 2.6rem;
+    display: flex;
+    align-items: center;
+    padding: 0 .85rem;
+    font-size: .88rem;
+  }
+
+  .chips { display: flex; gap: .4rem; }
+
+  .chips i {
+    font-style: normal;
+    font-size: .8rem;
+    font-weight: 600;
+    padding: .35rem .8rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .15);
+    color: #fff;
+  }
+
+  .chips i.on { background: #fff; color: var(--p-deep); }
+
+  /* Secondary bar — variant B's home for the settle control */
+  .subbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: .5rem .9rem;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .subbar button {
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--danger-fg);
+    background: transparent;
+    border: 1px solid rgba(185, 28, 28, .35);
+    border-radius: 9px;
+    padding: .35rem .75rem;
+    cursor: default;
+  }
+
+  .list {
+    padding: .7rem .75rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    flex: 1;
+  }
+
+  .row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--neutral-fg);
+    border-radius: 11px;
+    padding: .65rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .7rem;
+  }
+
+  .row--released { border-left-color: var(--warn-fg); }
+  .row--done { border-left-color: var(--ok-fg); opacity: .7; }
+
+  .rowmain { min-width: 0; display: flex; flex-direction: column; gap: .15rem; }
+
+  .rowtop { display: flex; align-items: center; gap: .3rem; }
+
+  .rowtop b {
+    font-size: .95rem;
+    font-weight: 750;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .plate {
+    font-family: var(--mono);
+    font-size: .92rem;
+    letter-spacing: .04em;
+    color: var(--t-muted);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: .7rem;
+    font-weight: 700;
+    padding: .12rem .45rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .b-pri { background: var(--pri-bg); color: var(--pri-fg); }
+  .b-info { background: var(--info-bg); color: var(--info-fg); }
+  .b-ok { background: var(--ok-bg); color: var(--ok-fg); }
+  .b-warn { background: var(--warn-bg); color: var(--warn-fg); }
+  .b-neutral { background: var(--neutral-bg); color: var(--neutral-fg); }
+
+  .rowacts {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .4rem;
+  }
+
+  .act {
+    height: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 1.05rem;
+    border-radius: 11px;
+    font-size: .92rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  .act--blue { background: var(--info-fg); }
+  .act--green { background: var(--p); }
+  .act--amber { background: var(--warn-fg); }
+
+  .act--move {
+    height: 2.2rem;
+    padding: 0 .65rem;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--pri-fg);
+    background: transparent;
+    border: 1px solid rgba(109, 40, 217, .4);
+    border-radius: 9px;
+  }
+
+  .footer {
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    padding: .8rem .75rem 1rem;
+  }
+
+  .wide {
+    display: block;
+    width: 100%;
+    text-align: center;
+    height: 2.9rem;
+    line-height: 2.9rem;
+    border-radius: 11px;
+    font-size: .95rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .wide--blue { background: var(--info-fg); }
+  .wide--green { background: var(--p); }
+
+  /* The optional end-of-service card (#37 ②) */
+  .doneCard {
+    background: var(--ok-bg);
+    border: 1px solid rgba(21, 128, 61, .3);
+    border-radius: 11px;
+    padding: .7rem .8rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+
+  .doneCard p { margin: 0; font-size: .82rem; color: #14532d; }
+
+  .doneCard button {
+    font: inherit;
+    align-self: flex-start;
+    font-size: .85rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--danger-fg);
+    border: 0;
+    border-radius: 9px;
+    padding: .45rem .9rem;
+    cursor: default;
+  }
+
+  /* ── Decision table ──────────────────────────────────────────────── */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+
+  table { border-collapse: collapse; width: 100%; min-width: 40rem; font-size: .87rem; }
+
+  th, td { text-align: left; padding: .7rem .85rem; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+
+  th {
+    font-size: .7rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+    background: var(--line-soft);
+    white-space: nowrap;
+  }
+
+  tbody tr:last-child td { border-bottom: 0; }
+
+  td b { font-weight: 700; }
+
+  .yes { color: var(--accent); font-weight: 700; }
+  .no { color: var(--muted); }
+
+  .callout {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 1rem 1.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+  }
+
+  .callout p { margin: 0; font-size: .9rem; }
+  .callout ul { margin: 0; padding-left: 1.15rem; display: flex; flex-direction: column; gap: .35rem; font-size: .9rem; }
+
+  code {
+    font-family: var(--mono);
+    font-size: .85em;
+    background: var(--line-soft);
+    padding: .1em .35em;
+    border-radius: 4px;
+  }
+</style>
+
+<div class="page">
+  <div class="wrap">
+
+    <header>
+      <div class="eyebrow">試營運回報 · #37 ＋ #39</div>
+      <h1>Staff 現場頁：動作色與「結束點名」的位置</h1>
+      <p class="lede">
+        兩件事放同一份看，因為它們動的是同一塊畫面。左邊是<strong>今天 production 的樣子</strong>，
+        右邊兩個是提案。手機實際寬度 375px，這裡的框就是那個寬度——<strong>appbar 擠不擠，看得出來</strong>。
+      </p>
+    </header>
+
+    <p class="verdict">
+      ✅ <b>已定案（2026-08-04）：採用提案 A</b>——動作色改綠、拆掉 <code>⋯</code> 選單、結束點名以文字按鈕留在 appbar 右上。
+      收工卡<b>不做</b>（有排程 backstop）。此頁保留作為決策依據。
+    </p>
+
+    <hr class="rule" />
+
+    <section class="section">
+      <h2>顏色改的是什麼</h2>
+      <p class="colnote" style="max-width:62ch">
+        今天這個藍<em>同時</em>是「現場散客」的狀態色，又是「按這裡」的動作色——一個顏色講兩件事。
+        提案是把兩者分開：<strong>動作一律用綠，藍只留給狀態標籤</strong>。補點名的琥珀、請移車的紫框都不動。
+      </p>
+      <div class="swatches">
+        <div class="swatch">
+          <div class="chipcolor" style="background:#1d4ed8"></div>
+          <div><b>info 藍 — 今天的動作色</b><span>#1D4ED8</span></div>
+        </div>
+        <div class="swatch">
+          <div class="chipcolor" style="background:#15803d"></div>
+          <div><b>primary 綠 — 提案的動作色</b><span>#15803D</span></div>
+        </div>
+        <div class="swatch">
+          <div class="chipcolor" style="background:#dbeafe;box-shadow:inset 0 0 0 1px rgba(29,78,216,.25)"></div>
+          <div><b>info 藍底 — 保留給狀態標籤</b><span>#DBEAFE ／ #1D4ED8</span></div>
+        </div>
+        <div class="swatch">
+          <div class="chipcolor" style="background:#14532d"></div>
+          <div><b>深綠 appbar — 不動</b><span>#14532D</span></div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <section class="section">
+      <h2>三個版本</h2>
+
+      <div class="rail">
+
+        <!-- ── 現況 ───────────────────────────────────────────── -->
+        <div class="col">
+          <div class="coltag">
+            <b>現況</b>
+            <span class="tag tag--now">production</span>
+          </div>
+
+          <div class="app">
+            <div class="appbar">
+              <div class="barrow">
+                <h3>8/10 主日</h3>
+                <div class="barbtns">
+                  <span class="iconbtn">🔄</span>
+                  <span class="iconbtn">⋯</span>
+                  <span class="textbtn">登出</span>
+                </div>
+              </div>
+              <div class="counts">
+                <span>已到 3</span><span>未到 2</span><span>已釋出 1</span><span>現場 1</span>
+              </div>
+              <div class="search">🔍 輸入車牌後四碼…</div>
+              <div class="chips"><i class="on">全部</i><i>未到</i><i>已到</i><i>已釋出</i></div>
+            </div>
+
+            <div class="list">
+              <div class="row">
+                <div class="rowmain">
+                  <div class="rowtop"><span class="badge b-pri">⭐ 優先</span><b>陳美玲</b></div>
+                  <div class="plate">DEA-7611</div>
+                  <div><span class="badge b-neutral">未到</span></div>
+                </div>
+                <div class="rowacts">
+                  <span class="act act--blue">點名</span>
+                  <span class="act--move">請移車</span>
+                </div>
+              </div>
+
+              <div class="row row--released">
+                <div class="rowmain">
+                  <div class="rowtop"><b>林建宏</b></div>
+                  <div class="plate">EAB-1762</div>
+                  <div><span class="badge b-warn">已釋出</span></div>
+                </div>
+                <div class="rowacts">
+                  <span class="act act--amber">補點名</span>
+                  <span class="act--move">請移車</span>
+                </div>
+              </div>
+
+              <div class="row row--done">
+                <div class="rowmain">
+                  <div class="rowtop"><b>王志豪</b></div>
+                  <div class="plate">BKW-3376</div>
+                  <div><span class="badge b-ok">已到 09:47</span></div>
+                </div>
+                <div class="rowacts"><span class="act--move">請移車</span></div>
+              </div>
+
+              <div class="row row--done">
+                <div class="rowmain">
+                  <div class="rowtop"><span class="badge b-info">現場</span><b>—</b></div>
+                  <div class="plate">RBH-2076</div>
+                  <div><span class="badge b-info">現場登記 10:02</span></div>
+                </div>
+                <div class="rowacts"><span class="act--move" style="opacity:.3">請移車</span></div>
+              </div>
+            </div>
+
+            <div class="footer"><span class="wide wide--blue">＋ 登記現場車輛</span></div>
+          </div>
+
+          <p class="colnote">
+            結束點名藏在 <code>⋯</code> 裡——<strong>全畫面唯一沒有文字的按鈕</strong>，而那個選單裡從頭到尾只有它一項。
+            藍色出現在三個地方：點名鈕、footer、以及「現場」標籤。
+          </p>
+        </div>
+
+        <!-- ── 提案 A ─────────────────────────────────────────── -->
+        <div class="col">
+          <div class="coltag">
+            <b>提案 A</b>
+            <span class="tag tag--picked">✅ 已採用</span>
+          </div>
+
+          <div class="app">
+            <div class="appbar">
+              <div class="barrow">
+                <h3>8/10 主日</h3>
+                <div class="barbtns">
+                  <span class="iconbtn">🔄</span>
+                  <span class="settlebtn">結束點名</span>
+                  <span class="textbtn">登出</span>
+                </div>
+              </div>
+              <div class="counts">
+                <span>已到 3</span><span>未到 2</span><span>已釋出 1</span><span>現場 1</span>
+              </div>
+              <div class="search">🔍 輸入車牌任意數字…</div>
+              <div class="chips"><i class="on">全部</i><i>未到</i><i>已到</i><i>已釋出</i></div>
+            </div>
+
+            <div class="list">
+              <div class="row">
+                <div class="rowmain">
+                  <div class="rowtop"><span class="badge b-pri">⭐ 優先</span><b>陳美玲</b></div>
+                  <div class="plate">DEA-7611</div>
+                  <div><span class="badge b-neutral">未到</span></div>
+                </div>
+                <div class="rowacts">
+                  <span class="act act--green">點名</span>
+                  <span class="act--move">請移車</span>
+                </div>
+              </div>
+
+              <div class="row row--released">
+                <div class="rowmain">
+                  <div class="rowtop"><b>林建宏</b></div>
+                  <div class="plate">EAB-1762</div>
+                  <div><span class="badge b-warn">已釋出</span></div>
+                </div>
+                <div class="rowacts">
+                  <span class="act act--amber">補點名</span>
+                  <span class="act--move">請移車</span>
+                </div>
+              </div>
+
+              <div class="row row--done">
+                <div class="rowmain">
+                  <div class="rowtop"><b>王志豪</b></div>
+                  <div class="plate">BKW-3376</div>
+                  <div><span class="badge b-ok">已到 09:47</span></div>
+                </div>
+                <div class="rowacts"><span class="act--move">請移車</span></div>
+              </div>
+
+              <div class="row row--done">
+                <div class="rowmain">
+                  <div class="rowtop"><span class="badge b-info">現場</span><b>—</b></div>
+                  <div class="plate">RBH-2076</div>
+                  <div><span class="badge b-info">現場登記 10:02</span></div>
+                </div>
+                <div class="rowacts"><span class="act--move" style="opacity:.3">請移車</span></div>
+              </div>
+            </div>
+
+            <div class="footer"><span class="wide wide--green">＋ 登記現場車輛</span></div>
+          </div>
+
+          <p class="colnote">
+            <strong>選單整個拆掉</strong>，結束點名變成有字的按鈕，一次點擊就開既有的確認視窗。
+            仍在 appbar 右上＝<strong>離拇指最遠</strong>，#24 當初的防誤觸意圖完整保留。
+            ⚠️ 代價：標題、🔄、結束點名、登出四個東西擠在同一列——<strong>這一排就是要你判斷的重點</strong>。
+          </p>
+        </div>
+
+        <!-- ── 提案 B ─────────────────────────────────────────── -->
+        <div class="col">
+          <div class="coltag">
+            <b>提案 B</b>
+            <span class="tag tag--new">結束鍵放次要列</span>
+          </div>
+
+          <div class="app">
+            <div class="appbar">
+              <div class="barrow">
+                <h3>8/10 主日</h3>
+                <div class="barbtns">
+                  <span class="iconbtn">🔄</span>
+                  <span class="textbtn">登出</span>
+                </div>
+              </div>
+              <div class="counts">
+                <span>已到 3</span><span>未到 2</span><span>已釋出 1</span><span>現場 1</span>
+              </div>
+              <div class="search">🔍 輸入車牌任意數字…</div>
+              <div class="chips"><i class="on">全部</i><i>未到</i><i>已到</i><i>已釋出</i></div>
+            </div>
+
+            <div class="subbar"><button type="button">✔ 結束當週點名</button></div>
+
+            <div class="list">
+              <div class="row">
+                <div class="rowmain">
+                  <div class="rowtop"><span class="badge b-pri">⭐ 優先</span><b>陳美玲</b></div>
+                  <div class="plate">DEA-7611</div>
+                  <div><span class="badge b-neutral">未到</span></div>
+                </div>
+                <div class="rowacts">
+                  <span class="act act--green">點名</span>
+                  <span class="act--move">請移車</span>
+                </div>
+              </div>
+
+              <div class="row row--released">
+                <div class="rowmain">
+                  <div class="rowtop"><b>林建宏</b></div>
+                  <div class="plate">EAB-1762</div>
+                  <div><span class="badge b-warn">已釋出</span></div>
+                </div>
+                <div class="rowacts">
+                  <span class="act act--amber">補點名</span>
+                  <span class="act--move">請移車</span>
+                </div>
+              </div>
+
+              <div class="row row--done">
+                <div class="rowmain">
+                  <div class="rowtop"><b>王志豪</b></div>
+                  <div class="plate">BKW-3376</div>
+                  <div><span class="badge b-ok">已到 09:47</span></div>
+                </div>
+                <div class="rowacts"><span class="act--move">請移車</span></div>
+              </div>
+
+              <div class="doneCard">
+                <p><strong>本週車輛都處理完了</strong> · 未到 0、已釋出 0</p>
+                <button type="button">結束當週點名</button>
+              </div>
+            </div>
+
+            <div class="footer"><span class="wide wide--green">＋ 登記現場車輛</span></div>
+          </div>
+
+          <p class="colnote">
+            appbar 維持現在的疏密，結束鍵移到計數列下方一條<strong>次要列</strong>（紅框、非實色，看得到但不搶手）。
+            清單末端另外示範了<strong>可選的收工卡</strong>——只在「未到」「已釋出」都歸零時出現，
+            解決「不知道什麼時候算收工」。<strong>收工卡可以單獨要或不要</strong>，和 A/B 的選擇無關。
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="rule" />
+
+    <section class="section">
+      <h2>要決定的三件事</h2>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>決定</th>
+              <th>選項</th>
+              <th>我的建議</th>
+              <th>理由</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>動作色</b><br /><span class="no">#39</span></td>
+              <td>維持藍 ／ 改綠</td>
+              <td class="yes">改綠</td>
+              <td>不是因為綠比較好看，是因為<b>一個顏色不該同時代表狀態和動作</b>。改完藍就只有一個意思。</td>
+            </tr>
+            <tr>
+              <td><b>結束鍵位置</b><br /><span class="no">#37</span></td>
+              <td>A appbar ／ B 次要列</td>
+              <td class="yes">看框選</td>
+              <td>A 少一列、畫面乾淨，但四個元素同列；B 寬鬆很多，代價是多佔一條。<b>兩者都保留了「遠離拇指區」。</b></td>
+            </tr>
+            <tr>
+              <td><b>收工卡</b><br /><span class="no">#37 ②</span></td>
+              <td>做 ／ 不做</td>
+              <td class="no">可不做</td>
+              <td>有排程每天 04:07 自動補結算，漏按不會壞資料。收工卡買到的只有「當場知道自己收好工了」。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="callout">
+      <p><b>這份 mockup 沒有動的事</b>——確認一下這符合你的預期：</p>
+      <ul>
+        <li>結束點名<strong>仍然要走二次確認視窗</strong>，仍然不可復原，A/B 都一樣。</li>
+        <li>結束點名<strong>絕不進 footer</strong>（拇指區旁邊就是每週要按很多次的「＋登記現場車輛」）。</li>
+        <li>補點名維持琥珀、請移車維持紫框——<strong>四種動作在畫面上仍互相可辨</strong>。</li>
+        <li>搜尋提示文字順手改成「輸入車牌任意數字」：<strong>它本來就能比對任意位置</strong>，只是寫成「後四碼」把能力藏起來了。</li>
+        <li>資料全是示意，但欄位、狀態、色條規則都照真實邏輯畫。</li>
+      </ul>
+    </section>
+
+  </div>
+</div>

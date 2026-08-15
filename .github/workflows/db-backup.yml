@@ -1,0 +1,114 @@
+name: Encrypted DB backup
+
+# Interim backup while on the Supabase Free tier (no managed backups). Setup, restore
+# procedure and the monthly drill: docs/backup-restore-runbook.md. The dump is encrypted
+# for the church's age key BEFORE it leaves the runner, so the bucket only holds ciphertext.
+#
+# ARMING: this workflow does nothing until the repo variable BACKUP_ENABLED is set to
+# 'true'. Merging it therefore cannot spray daily failures before the church has created
+# the key, bucket and secrets. Once armed, missing configuration is a HARD FAILURE rather
+# than a quiet skip — a backup that silently stops is the exact failure mode we are
+# defending against, so "unconfigured" is only allowed to be silent before first arming.
+#
+# ⚠️ THIS IS NOT SUFFICIENT MONITORING ON ITS OWN. GitHub disables scheduled workflows in
+# public repositories after 60 days of repository inactivity, and a workflow that never
+# RUNS produces no failure — only silence, which looks exactly like success. Set
+# HEARTBEAT_URL to a dead-man's-switch monitor (healthchecks.io or similar) so a backup
+# that stops happening raises an alarm. See runbook §3/§6.
+
+on:
+  schedule:
+    - cron: "0 18 * * *"   # 18:00 UTC = 02:00 Asia/Taipei, daily
+  workflow_dispatch: {}
+
+concurrency:
+  group: db-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check whether backups are armed
+        id: armed
+        env:
+          BACKUP_ENABLED: ${{ vars.BACKUP_ENABLED }}
+        run: |
+          if [ "${BACKUP_ENABLED:-}" = "true" ]; then
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::BACKUP_ENABLED is not 'true' — backups are not armed yet. Complete docs/backup-restore-runbook.md §1, then set the repo variable BACKUP_ENABLED=true."
+          fi
+
+      - name: Require full configuration once armed
+        if: steps.armed.outputs.go == 'true'
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          AGE_RECIPIENT: ${{ vars.AGE_RECIPIENT }}
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          HEARTBEAT_URL: ${{ secrets.HEARTBEAT_URL }}
+        run: |
+          missing=""
+          [ -n "${SUPABASE_DB_URL:-}" ]     || missing="$missing SUPABASE_DB_URL(secret)"
+          [ -n "${AGE_RECIPIENT:-}" ]       || missing="$missing AGE_RECIPIENT(var)"
+          [ -n "${S3_BUCKET:-}" ]           || missing="$missing S3_BUCKET(var)"
+          [ -n "${AWS_ACCESS_KEY_ID:-}" ]   || missing="$missing AWS_ACCESS_KEY_ID(secret)"
+          if [ -n "$missing" ]; then
+            echo "::error::Backups are armed but configuration is missing:$missing"
+            exit 1
+          fi
+          # Not fatal, but the one thing that catches "the schedule stopped firing".
+          [ -n "${HEARTBEAT_URL:-}" ] || echo "::warning::No HEARTBEAT_URL set — a backup that STOPS RUNNING will not alert anyone. See runbook §3."
+
+      - name: Install pg_dump 17 (match Supabase), age, awscli
+        if: steps.armed.outputs.go == 'true'
+        run: |
+          set -euo pipefail
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+            | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/pgdg.gpg
+          echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list >/dev/null
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17 age
+          # The runner image preinstalls an older postgresql-client (currently 16) that
+          # resolves ahead of the version-17 package on PATH — pg_dump then refuses to
+          # run against the (newer) Supabase server ("aborting because of server version
+          # mismatch"). Force PATH to the versioned PGDG binaries, for this step and all
+          # later steps in the job.
+          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+          export PATH="/usr/lib/postgresql/17/bin:$PATH"
+          # Ubuntu's `awscli` apt package has been dropping out of the default repos on
+          # GitHub-hosted runners (no installation candidate) — but the runner image
+          # already ships AWS CLI v2 preinstalled, so only fall back to the official
+          # installer if it's actually missing (keeps this working either way).
+          command -v aws >/dev/null 2>&1 || {
+            curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+            unzip -q /tmp/awscliv2.zip -d /tmp
+            sudo /tmp/aws/install
+          }
+          pg_dump --version && age --version && aws --version
+
+      - name: Dump, encrypt, upload
+        if: steps.armed.outputs.go == 'true'
+        env:
+          # SESSION-MODE POOLER connection string (port 5432, aws-*.pooler.supabase.com):
+          # GitHub runners are IPv4-only and Supabase's direct connection is IPv6-only.
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          AGE_RECIPIENT: ${{ vars.AGE_RECIPIENT }}
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+          S3_PREFIX: ${{ vars.S3_PREFIX }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ vars.AWS_DEFAULT_REGION }}
+          HEARTBEAT_URL: ${{ secrets.HEARTBEAT_URL }}
+        run: bash scripts/backup/db-backup.sh
+
+      - name: Note on failure
+        if: failure()
+        run: echo "::error::DB backup failed — the church DB may be running without a fresh backup. See docs/backup-restore-runbook.md."

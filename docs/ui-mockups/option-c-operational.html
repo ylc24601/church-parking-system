@@ -1,0 +1,331 @@
+<title>停車系統 UI 方向 C · 營運分區</title>
+<style>
+/* ============ Direction C — 營運分區 / Operational, color-zoned ============
+   Left severity stripes, denser rows, priority/status colour-zoning, count
+   header bars. Tuned for a dim garage + admin ops. Scoped under .mkC. */
+.mkC{
+  --bg:#e6eae2; --bg2:#f2f5ee; --chrome-ink:#20281f; --chrome-mut:#606a5f; --chrome-line:#d3dacd;
+  --primary:#15803D; --primary-deep:#14532D; --line:#06C755;
+  --page:#EAEEE8; --surface:#ffffff; --ink:#1C241F; --mut:#616B62; --bd:#D7DED2; --bd2:#E4EAE0;
+  --ok:#15803D; --ok-bg:#DCFCE7; --warn:#B45309; --warn-bg:#FEF3C7;
+  --info:#2563EB; --info-bg:#DBEAFE; --prio:#7C3AED; --prio-bg:#F3E8FF;
+  --danger:#DC2626; --danger-bg:#FEE2E2; --gray:#57605a; --gray-bg:#EBEEE9;
+  --r-card:14px; --r-btn:12px;
+  --font:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --mono:"SF Mono",ui-monospace,"Roboto Mono",Menlo,monospace;
+  background:var(--bg); color:var(--chrome-ink); font-family:var(--font);
+  -webkit-font-smoothing:antialiased; line-height:1.48; padding:0 0 72px;
+}
+@media (prefers-color-scheme:dark){ .mkC{ --bg:#161a15; --bg2:#1d221b; --chrome-ink:#e3e8e0; --chrome-mut:#909a8f; --chrome-line:#2a2f28; } }
+.mkC[data-theme="dark"],:root[data-theme="dark"] .mkC{ --bg:#161a15; --bg2:#1d221b; --chrome-ink:#e3e8e0; --chrome-mut:#909a8f; --chrome-line:#2a2f28; }
+:root[data-theme="light"] .mkC{ --bg:#e6eae2; --bg2:#f2f5ee; --chrome-ink:#20281f; --chrome-mut:#606a5f; --chrome-line:#d3dacd; }
+
+.mkC *{ box-sizing:border-box; }
+.mkC .wrap{ max-width:1180px; margin:0 auto; padding:0 24px; }
+
+.mkC .top{ position:sticky; top:0; z-index:5; background:color-mix(in srgb,var(--bg) 88%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--chrome-line); }
+.mkC .top .wrap{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 24px; flex-wrap:wrap; }
+.mkC .kicker{ font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--primary); font-weight:800; }
+.mkC h1.title{ font-size:19px; font-weight:800; letter-spacing:-.01em; margin:2px 0 0; }
+.mkC .sub{ color:var(--chrome-mut); font-size:13px; }
+.mkC .row{ display:flex; align-items:center; gap:8px; }
+.mkC .swatches{ display:flex; gap:6px; }
+.mkC .sw{ width:21px; height:21px; border-radius:6px; box-shadow:inset 0 0 0 1px rgba(0,0,0,.08); }
+.mkC .disclaimer{ font-size:12px; color:var(--chrome-mut); background:var(--bg2); border:1px solid var(--chrome-line); border-radius:8px; padding:5px 11px; }
+
+.mkC section.block{ padding-top:48px; }
+.mkC .eyebrow{ display:flex; align-items:center; gap:11px; margin-bottom:18px; }
+.mkC .eyebrow .n{ font-family:var(--mono); font-size:12px; font-weight:700; color:#fff; background:var(--primary); border-radius:7px; padding:3px 9px; }
+.mkC .eyebrow h2{ font-size:22px; font-weight:800; letter-spacing:-.01em; margin:0; }
+.mkC .eyebrow p{ margin:0; color:var(--chrome-mut); font-size:13px; }
+.mkC .stage{ display:flex; gap:26px; flex-wrap:wrap; align-items:flex-start; }
+.mkC .caption{ text-align:center; font-size:12px; color:var(--chrome-mut); margin-top:10px; }
+
+.mkC .phone{ width:302px; background:#131813; border-radius:38px; padding:10px; box-shadow:0 20px 46px rgba(20,40,25,.26); flex-shrink:0; }
+.mkC .screen{ position:relative; border-radius:29px; overflow:hidden; background:var(--page); }
+.mkC .notch{ position:absolute; top:0; left:50%; transform:translateX(-50%); width:112px; height:20px; background:#131813; border-radius:0 0 12px 12px; z-index:3; }
+
+/* operational LIFF header: green with a status band */
+.mkC .liffbar{ background:var(--line); padding:24px 15px 10px; display:flex; align-items:center; gap:9px; }
+.mkC .liffbar .logo{ width:28px;height:28px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px; }
+.mkC .liffbar b{ color:#fff; font-size:13px; font-weight:800; }
+.mkC .statusband{ background:var(--primary-deep); color:#fff; padding:7px 15px; font-size:11.5px; display:flex; justify-content:space-between; align-items:center; }
+.mkC .body{ padding:14px; }
+.mkC .stack>*+*{ margin-top:11px; }
+/* zoned card: left severity stripe */
+.mkC .zcard{ background:var(--surface); border:1px solid var(--bd); border-left-width:4px; border-radius:var(--r-card); padding:14px; }
+.mkC .z-ok{ border-left-color:var(--ok); } .mkC .z-info{ border-left-color:var(--info); }
+.mkC .z-warn{ border-left-color:var(--warn); } .mkC .z-prio{ border-left-color:var(--prio); }
+.mkC .z-gray{ border-left-color:#c3ccbe; } .mkC .z-danger{ border-left-color:var(--danger); }
+.mkC .microlbl{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--mut); font-weight:800; }
+.mkC .plate{ font-family:var(--mono); font-weight:700; letter-spacing:.05em; font-variant-numeric:tabular-nums; }
+.mkC .muted{ color:var(--mut); }
+.mkC .hero{ background:linear-gradient(100deg,var(--primary-deep),var(--primary)); color:#fff; border-radius:var(--r-card); padding:13px 15px; display:flex; justify-content:space-between; align-items:center; }
+.mkC .hero .lbl{ font-size:10px; opacity:.82; letter-spacing:.12em; text-transform:uppercase; }
+.mkC .hero .big{ font-size:19px; font-weight:800; margin-top:1px; }
+
+.mkC .badge{ display:inline-flex; align-items:center; gap:5px; border-radius:6px; padding:2px 9px; font-size:11.5px; font-weight:800; line-height:1.5; }
+.mkC .b-ok{ background:var(--ok-bg); color:#15803D; } .mkC .b-warn{ background:var(--warn-bg); color:#92400e; }
+.mkC .b-info{ background:var(--info-bg); color:#1d4ed8; } .mkC .b-prio{ background:var(--prio-bg); color:#6d28d9; }
+.mkC .b-gray{ background:var(--gray-bg); color:var(--gray); } .mkC .b-danger{ background:var(--danger-bg); color:#b91c1c; }
+
+.mkC .btn{ display:flex; align-items:center; justify-content:center; width:100%; height:46px; border-radius:var(--r-btn); font-size:14.5px; font-weight:800; border:1.5px solid transparent; cursor:default; }
+.mkC .btn-primary{ background:var(--primary); color:#fff; } .mkC .btn-info{ background:var(--info); color:#fff; }
+.mkC .btn-warn{ background:var(--warn); color:#fff; } .mkC .btn-ghost{ background:#fff; border-color:var(--bd); color:var(--ink); }
+.mkC .btn-danger-o{ background:#fff; border-color:#EEC5C5; color:var(--danger); }
+.mkC .btn-sm{ height:38px; width:auto; padding:0 15px; border-radius:9px; font-size:13px; }
+.mkC .btn.is-disabled,.mkC .btn[disabled]{ opacity:.5; }
+.mkC .field{ height:44px; border:1px solid var(--bd); background:#fff; border-radius:11px; padding:0 13px; display:flex; align-items:center; font-size:14px; color:var(--ink); }
+.mkC .note{ border-radius:11px; padding:10px 12px; font-size:12.5px; line-height:1.5; border-left:3px solid; }
+.mkC .note-info{ background:var(--info-bg); border-color:var(--info); color:#1e40af; }
+.mkC .note-warn{ background:var(--warn-bg); border-color:var(--warn); color:#92400e; }
+
+/* staff — dense zoned rows */
+.mkC .srow{ background:#fff; border:1px solid var(--bd); border-left-width:4px; border-radius:11px; padding:9px 12px; display:flex; align-items:center; gap:10px; }
+.mkC .srow .nm{ font-weight:800; font-size:13.5px; } .mkC .srow .pl{ font-family:var(--mono); font-size:12px; color:var(--mut); margin-top:1px; }
+.mkC .appbar{ background:var(--primary-deep); color:#fff; padding:22px 13px 0; }
+.mkC .appbar .cntbar{ background:rgba(0,0,0,.16); margin:9px -13px 0; padding:7px 13px; display:flex; gap:7px; font-size:12px; font-weight:800; }
+.mkC .appbar .cntbar b{ font-variant-numeric:tabular-nums; }
+
+.mkC .desk{ width:100%; background:var(--surface); border:1px solid var(--bd); border-radius:16px; overflow:hidden; box-shadow:0 8px 24px rgba(20,40,25,.08); }
+.mkC .desk-top{ background:var(--primary-deep); color:#fff; padding:13px 20px; display:flex; align-items:center; justify-content:space-between; font-weight:800; }
+.mkC .desk-body{ display:grid; grid-template-columns:198px 1fr; }
+.mkC .side{ background:var(--bg2); border-right:1px solid var(--bd); padding:11px; }
+.mkC .side a{ display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:9px; font-size:13px; color:var(--ink); text-decoration:none; font-weight:600; }
+.mkC .side a.on{ background:#fff; color:var(--primary); box-shadow:inset 3px 0 0 var(--primary); }
+.mkC .side a .pill{ margin-left:auto; background:var(--danger); color:#fff; font-size:11px; font-weight:800; border-radius:6px; padding:0 6px; }
+.mkC .content{ padding:20px; }
+.mkC .kpis{ display:grid; grid-template-columns:repeat(4,1fr); gap:11px; }
+.mkC .kpi{ background:var(--surface); border:1px solid var(--bd); border-top:3px solid var(--gray); border-radius:12px; padding:13px; }
+.mkC .kpi.ok{ border-top-color:var(--ok); } .mkC .kpi.warn{ border-top-color:var(--warn); } .mkC .kpi.bad{ border-top-color:var(--danger); }
+.mkC .kpi .v{ font-size:25px; font-weight:800; font-variant-numeric:tabular-nums; }
+.mkC .kpi.warn .v{ color:var(--warn); } .mkC .kpi.bad .v{ color:var(--danger); }
+.mkC .kpi .l{ font-size:11px; color:var(--mut); margin-top:2px; }
+.mkC table.tbl{ width:100%; border-collapse:collapse; font-size:13px; }
+.mkC table.tbl th{ text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--mut); padding:9px 10px; border-bottom:1px solid var(--bd); font-weight:800; }
+.mkC table.tbl td{ padding:10px; border-bottom:1px solid var(--bd2); }
+
+.mkC .states{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; }
+.mkC .st{ background:var(--surface); border:1px solid var(--bd); border-left:3px solid var(--primary); border-radius:11px; padding:13px; }
+.mkC .st .t{ font-family:var(--mono); font-size:11px; letter-spacing:.05em; color:var(--mut); margin-bottom:9px; text-transform:uppercase; }
+.mkC .spin{ width:15px;height:15px;border-radius:50%;border:2.5px solid var(--bd);border-top-color:var(--primary);display:inline-block;vertical-align:-3px; }
+.mkC .toast{ display:inline-flex; gap:8px; align-items:center; background:#131813; color:#fff; border-radius:9px; padding:7px 13px; font-size:12.5px; }
+
+.mkC footer.foot{ margin-top:56px; border-top:1px solid var(--chrome-line); }
+.mkC footer.foot .wrap{ padding:22px 24px; color:var(--chrome-mut); font-size:12.5px; display:flex; gap:8px; flex-wrap:wrap; justify-content:space-between; }
+</style>
+
+<div class="mkC">
+  <header class="top">
+    <div class="wrap">
+      <div>
+        <div class="kicker">視覺方向 C</div>
+        <h1 class="title">營運分區 · Operational</h1>
+        <div class="sub">左側嚴重度色條、密度較高的名單、以優先／狀態做色彩分區與計數列——為昏暗停車場與後台 ops 而調</div>
+      </div>
+      <div class="row" style="gap:16px;">
+        <div class="swatches">
+          <span class="sw" style="background:#15803D"></span>
+          <span class="sw" style="background:#7C3AED"></span>
+          <span class="sw" style="background:#2563EB"></span>
+          <span class="sw" style="background:#B45309"></span>
+          <span class="sw" style="background:#DC2626"></span>
+          <span class="sw" style="background:#EAEEE8"></span>
+        </div>
+        <span class="disclaimer">畫面資料為示意，實作接真實資料</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- MEMBER -->
+    <section class="block">
+      <div class="eyebrow"><span class="n">會友</span><div><h2>會友端 · LINE LIFF</h2><p>對應 MemberStatus / MemberLiffGate / BindingClaimForm — 狀態以左側色條分區</p></div></div>
+      <div class="stage">
+
+        <div>
+          <div class="phone"><div class="screen"><div class="notch"></div>
+            <div class="liffbar"><span class="logo">⛪</span><b>內湖信友堂 停車服務</b></div>
+            <div class="statusband"><span>本週狀態</span><span class="badge b-ok" style="background:rgba(255,255,255,.9);">✓ 已核准</span></div>
+            <div class="body stack">
+              <div class="hero"><div><div class="lbl">本週主日</div><div class="big">6/21 主日</div></div><div style="text-align:right;font-size:11px;opacity:.85;">10:30<br>抵達</div></div>
+              <div class="zcard z-ok">
+                <div class="microlbl">已核准車位</div>
+                <div class="plate" style="font-size:24px;margin-top:9px;">ABC-1234</div>
+                <div class="muted" style="font-size:12.5px;margin-top:5px;">請於主日 10:30 前抵達地下室入口</div>
+              </div>
+              <button class="btn btn-danger-o">取消本週登記</button>
+            </div>
+          </div></div>
+          <div class="caption">已核准（approved）</div>
+        </div>
+
+        <div>
+          <div class="phone"><div class="screen"><div class="notch"></div>
+            <div class="liffbar"><span class="logo">⛪</span><b>內湖信友堂 停車服務</b></div>
+            <div class="statusband"><span>本週狀態</span><span class="badge b-info" style="background:rgba(255,255,255,.9);">待確認 · 遞補</span></div>
+            <div class="body stack">
+              <div class="hero"><div><div class="lbl">本週主日</div><div class="big">6/21 主日</div></div></div>
+              <div class="zcard z-info">
+                <div class="microlbl">遞補保留中</div>
+                <div class="plate" style="font-size:20px;margin-top:9px;">ABC-1234</div>
+                <div class="muted" style="font-size:12.5px;margin-top:5px;">已保留車位，請於 14:30 前回覆</div>
+                <div class="stack" style="margin-top:13px;">
+                  <button class="btn btn-info">確認保留車位</button>
+                  <button class="btn btn-ghost">放棄這個車位</button>
+                </div>
+              </div>
+            </div>
+          </div></div>
+          <div class="caption">遞補確認（temp_approved）</div>
+        </div>
+
+        <div>
+          <div class="phone"><div class="screen"><div class="notch"></div>
+            <div class="liffbar"><span class="logo">⛪</span><b>內湖信友堂 停車服務</b></div>
+            <div class="statusband"><span>本週狀態</span><span class="badge b-gray" style="background:rgba(255,255,255,.9);">尚未申請</span></div>
+            <div class="body stack">
+              <div class="hero"><div><div class="lbl">本週主日</div><div class="big">6/21 主日</div></div></div>
+              <div class="zcard z-prio stack">
+                <div style="font-size:15px;font-weight:800;">登記本週停車</div>
+                <div><div class="microlbl" style="margin-bottom:5px;">車輛</div><div class="field">🚗 ABC-1234 <span class="muted" style="margin-left:auto;">▾</span></div></div>
+                <label class="row" style="gap:9px;align-items:flex-start;">
+                  <span style="width:19px;height:19px;border:2px solid var(--info);border-radius:5px;flex:0 0 auto;margin-top:1px;"></span>
+                  <span style="font-size:13px;">本週有年長者同行<br><span class="muted" style="font-size:11.5px;">勾選後本次享 P2 優先順序</span></span>
+                </label>
+                <button class="btn btn-primary">送出登記</button>
+              </div>
+              <div class="note note-warn">截止：週五 18:00 · 結果由 LINE 推播通知</div>
+            </div>
+          </div></div>
+          <div class="caption">登記表單（ApplyBlock）</div>
+        </div>
+
+        <div>
+          <div class="phone"><div class="screen"><div class="notch"></div>
+            <div class="liffbar"><span class="logo">⛪</span><b>內湖信友堂 停車服務</b></div>
+            <div class="statusband"><span>會友專區</span><span class="badge b-warn" style="background:rgba(255,255,255,.9);">尚未綁定</span></div>
+            <div class="body" style="padding-top:16px;">
+              <div style="font-size:15px;font-weight:800;margin-bottom:12px;">申請綁定會友專區</div>
+              <div class="zcard z-info stack">
+                <div class="muted" style="font-size:12.5px;">請填寫您在教會登記的姓名與手機，送出後由同工核對並核准。</div>
+                <div><div class="microlbl" style="margin-bottom:5px;">姓名</div><div class="field">王小明</div></div>
+                <div><div class="microlbl" style="margin-bottom:5px;">手機號碼</div><div class="field muted">09xxxxxxxx</div></div>
+                <button class="btn btn-primary">送出申請</button>
+              </div>
+            </div>
+          </div></div>
+          <div class="caption">綁定申請（BindingClaimForm）</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- STAFF -->
+    <section class="block">
+      <div class="eyebrow"><span class="n">同工</span><div><h2>同工端 · 主日現場點名</h2><p>對應 StaffCheckIn / StaffLogin — 密度較高、左色條快速辨識狀態</p></div></div>
+      <div class="stage">
+
+        <div>
+          <div class="phone" style="width:322px;"><div class="screen"><div class="notch"></div>
+            <div class="appbar">
+              <div class="row" style="justify-content:space-between;padding:0 0 2px;"><div><b style="font-size:14px;">6/21 主日</b> <span style="opacity:.8;font-size:11px;">點名</span></div><span class="badge" style="background:rgba(255,255,255,.9);color:var(--primary-deep);">🔑 同工</span></div>
+              <div class="cntbar"><span>已到 <b>12</b></span><span>未到 <b>6</b></span><span>已釋出 <b>3</b></span><span style="margin-left:auto;opacity:.85;">現場 <b>2</b></span></div>
+            </div>
+            <div style="padding:11px 12px;background:#131813;"><div class="field" style="height:40px;background:rgba(255,255,255,.14);border:none;color:#fff;">🔍 輸入車牌後四碼…</div></div>
+            <div style="padding:10px 12px;display:flex;flex-direction:column;gap:7px;background:var(--page);">
+              <div class="srow z-prio" style="opacity:.65;"><div style="flex:1;"><div class="row"><span class="badge b-prio">⭐ 優先</span><span class="nm">陳大明</span></div><div class="pl">ABC-1234</div></div><span class="badge b-ok">✓ 10:05</span></div>
+              <div class="srow z-gray"><div style="flex:1;"><div class="nm">王志偉</div><div class="pl">GHI-9012</div></div><button class="btn btn-info btn-sm">點名</button></div>
+              <div class="srow z-gray"><div style="flex:1;"><div class="nm">張雅琪</div><div class="pl">JKL-3456</div></div><div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;"><button class="btn btn-info btn-sm">點名</button><button class="btn btn-sm" style="border:1.5px solid #E4D3F5;color:var(--prio);background:#fff;">請移車</button></div></div>
+              <div class="srow z-warn"><div style="flex:1;"><div class="row"><span class="badge b-warn">已釋出</span><span class="nm">林建宏</span></div><div class="pl">MNO-7890</div></div><button class="btn btn-warn btn-sm">補點名</button></div>
+              <div class="srow z-info"><div style="flex:1;"><span class="badge b-info">現場散客</span><div class="pl" style="margin-top:3px;">PQR-1111</div></div><span class="badge b-ok">✓ 已登記</span></div>
+            </div>
+            <div style="background:#fff;border-top:1px solid var(--bd);padding:9px 12px;display:flex;gap:8px;">
+              <button class="btn btn-info" style="height:42px;">＋ 現場散客</button>
+              <button class="btn btn-danger-o" style="height:42px;">結束點名</button>
+            </div>
+          </div></div>
+          <div class="caption">名單（左色條：優先／未到／已釋出／現場）</div>
+        </div>
+
+        <div style="flex:1;min-width:300px;" class="stack">
+          <div class="zcard z-danger">
+            <div class="microlbl">Bottom sheet · 結束當週點名（不可復原）</div>
+            <div style="font-size:15px;font-weight:800;margin-top:9px;">結束本週點名</div>
+            <div class="muted" style="font-size:13px;margin-top:6px;">目前有 3 台「已釋出未到」將被結算為未到。此動作無法復原。</div>
+            <div class="row" style="gap:10px;margin-top:13px;"><button class="btn btn-ghost">取消</button><button class="btn" style="background:var(--danger);color:#fff;">確認結束</button></div>
+          </div>
+          <div class="zcard z-prio">
+            <div class="microlbl">Bottom sheet · 請車主移車</div>
+            <div class="muted" style="font-size:13px;margin-top:9px;">透過教會 LINE 通知車牌 <span class="plate">GHI-9012</span> 的車主移車？由官方帳號代發，不顯示您的聯絡方式。</div>
+            <div class="row" style="gap:10px;margin-top:13px;"><button class="btn btn-ghost">取消</button><button class="btn" style="background:var(--prio);color:#fff;">送出通知</button></div>
+          </div>
+          <div class="row" style="gap:10px;flex-wrap:wrap;">
+            <span class="badge b-warn">⚠ 離線中 · 顯示最後一次資料</span>
+            <span class="badge b-gray">本週已結束，僅供檢視</span>
+            <span class="toast">已點名 王志偉 · 尚未送出 · <b style="color:#7ee0a3;">復原</b></span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ADMIN -->
+    <section class="block">
+      <div class="eyebrow"><span class="n">後台</span><div><h2>管理員後台 · 幹事／系統管理者</h2><p>保留現有 8 子頁與導覽；KPI 以色條分區、營運狀態一眼可讀</p></div></div>
+      <div class="desk">
+        <div class="desk-top"><div>管理後台 <span style="opacity:.75;font-weight:400;font-size:12px;">admin</span></div><span class="badge" style="background:rgba(255,255,255,.16);color:#fff;">登出</span></div>
+        <div class="desk-body">
+          <nav class="side">
+            <a class="on">📊 營運狀態</a><a>🔗 綁定審核</a><a>👥 會友管理</a><a>🏷️ P2 資格審查</a>
+            <a>📥 名單匯入</a><a>💚 牧養關懷 <span class="pill">2</span></a><a>🔑 現場 PIN 管理</a><a>⚙️ 帳號管理</a>
+          </nav>
+          <div class="content">
+            <div class="row" style="justify-content:space-between;"><div style="font-size:20px;font-weight:800;">營運狀態</div><span class="badge b-ok">✓ 通知佇列正常</span></div>
+            <div class="muted" style="font-size:12px;margin:4px 0 15px;">快照時間：2026-07-14 06:12 UTC · 值皆為計數／代碼，無個資</div>
+            <div class="kpis">
+              <div class="kpi ok"><div class="v">0</div><div class="l">待送（due）</div></div>
+              <div class="kpi"><div class="v">1</div><div class="l">retrying</div></div>
+              <div class="kpi warn"><div class="v">2</div><div class="l">卡住（stale）</div></div>
+              <div class="kpi bad"><div class="v">3</div><div class="l">失敗（failed）</div></div>
+            </div>
+            <div style="margin-top:15px;border:1px solid var(--bd);border-radius:12px;overflow:hidden;">
+              <div style="padding:10px 14px;font-weight:800;font-size:13px;background:var(--bg2);border-bottom:1px solid var(--bd);border-left:4px solid var(--warn);">死信重送 · 先修根因再重送</div>
+              <table class="tbl">
+                <thead><tr><th>錯誤類型</th><th>筆數</th><th></th></tr></thead>
+                <tbody>
+                  <tr><td class="plate">line_push_token_invalid</td><td>2</td><td style="text-align:right;"><span class="badge b-warn">預覽</span></td></tr>
+                  <tr><td class="plate">provider_timeout</td><td>1</td><td style="text-align:right;"><span class="badge b-warn">預覽</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="note note-warn" style="margin-top:13px;">將重送最多 50 筆 · 全部失敗 · 預計符合 3 筆。<b style="margin-left:6px;color:var(--ok);">確認重送 →</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="caption" style="text-align:left;margin-top:14px;">牧養關懷、綁定審核等子頁沿用相同色條卡片／badge／表格語言</div>
+    </section>
+
+    <!-- STATES -->
+    <section class="block">
+      <div class="eyebrow"><span class="n">狀態</span><div><h2>Functional states</h2><p>loading / empty / success / warning / error / disabled / submitting / long-content</p></div></div>
+      <div class="states">
+        <div class="st"><div class="t">loading</div><div class="muted row"><span class="spin"></span><span style="margin-left:8px;font-size:13px;">連線中，請稍候…</span></div></div>
+        <div class="st"><div class="t">empty</div><div class="muted" style="font-size:13px;">本週尚無核准車輛</div></div>
+        <div class="st"><div class="t">success</div><span class="badge b-ok">✓ 已送出綁定申請</span></div>
+        <div class="st"><div class="t">warning</div><span class="badge b-warn">⚠ 回覆期限已過，車位已釋出</span></div>
+        <div class="st"><div class="t">error</div><span class="badge b-danger">連線失敗，請再試一次</span></div>
+        <div class="st"><div class="t">disabled</div><button class="btn btn-primary btn-sm is-disabled">送出中…</button></div>
+        <div class="st"><div class="t">submitting</div><button class="btn btn-info btn-sm"><span class="spin" style="border-top-color:#fff;border-color:rgba(255,255,255,.4);"></span>&nbsp; 確認中…</button></div>
+        <div class="st"><div class="t">long-content</div><div style="font-size:13px;"><span class="nm">歐陽菲菲教會長老</span> <span class="plate">ABC-12345678</span></div></div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="foot"><div class="wrap">
+    <span>方向 C · 營運分區 — 供分端挑選（Member／Staff／Admin 可混搭）</span>
+    <span>單一淺色主題 · ⛪ 為暫時 fallback</span>
+  </div></footer>
+</div>

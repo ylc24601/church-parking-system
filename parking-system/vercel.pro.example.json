@@ -1,0 +1,17 @@
+{
+  "$comment": "Phase 4 Slice C — Vercel Cron binding for the notification dispatcher, the daily binding-PII retention sweep (Phase 8 Slice 7), and the monthly audit_logs retention purge (Wave 2A-3). Copy this to vercel.json to enable it. A sub-daily schedule (dispatch below runs every 2 minutes) requires a Vercel PRO plan; Hobby caps cron at once per day, so on Hobby use an external scheduler instead (see docs/dispatcher-ops.md / docs/binding-ops.md). Also set the CRON_SECRET env var in the Vercel project — Vercel then sends `Authorization: Bearer $CRON_SECRET`, which every route accepts. NOTE (Wave 2A-3): the /admin/audit page's copy states audit records are cleared after 24 months — that claim is only honest once the purge cron below is actually configured in prod, so this must be live before go-live (prod-deploy-runbook.md §8/§13).",
+  "crons": [
+    {
+      "path": "/api/internal/jobs/dispatch-notifications",
+      "schedule": "*/2 * * * *"
+    },
+    {
+      "path": "/api/internal/jobs/redact-binding-pii",
+      "schedule": "30 3 * * *"
+    },
+    {
+      "path": "/api/internal/jobs/purge-audit-logs",
+      "schedule": "0 4 1 * *"
+    }
+  ]
+}
